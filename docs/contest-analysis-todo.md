@@ -1,6 +1,6 @@
 # 현대자동차그룹 차량용 앱 개발 공모전 — 전수 분석 및 할 일
 
-> **정정(2026-10-23)**: 이 문서의 "현재 차속 API 없음" 판정은 Pleos SDK 한정이었음. AAOS 표준 `PERF_VEHICLE_SPEED`로 차속을 실시간 수신할 수 있음(실측). 자세한 정정 목록은 `차량데이터_조사결과.md` 9장.
+> **정정(2026-10-23)**: 이 문서의 "현재 차속 API 없음" 판정은 Pleos SDK 한정이었음. AAOS 표준 `PERF_VEHICLE_SPEED`로 차속을 실시간 수신할 수 있음(실측). 자세한 정정 목록은 `vehicle-data-findings.md` 9장.
 
 > **설명회 반영(2026-10-29)**: 10.28 온라인 설명회 내용을 반영함. 근거는 `transcript.txt`(자동 자막)의 `[mm:ss]` 타임스탬프. 자동 자막이라 오탈자가 많고 화면(슬라이드)은 볼 수 없어서, 화면에만 있던 내용(메일 제목 형식 등)은 "확인 필요"로 둠. 전체 정리는 **11장**.
 
@@ -76,7 +76,7 @@
 ## 3. 제출물 상세
 
 ### 3.1 접수양식(기획서) — 필수
-DOCX 다운로드: https://appdevchallenge.auto-hmg.io/downloads/contest-application-consent.docx (사본: 이 폴더의 `접수양식_원본.docx`)
+DOCX 다운로드: https://appdevchallenge.auto-hmg.io/downloads/contest-application-consent.docx (사본: 이 폴더의 `application-form-original.docx`)
 
 양식 구성(총 4파트): [근거: 접수양식 DOCX 1020 ver.]
 
@@ -244,7 +244,7 @@ Windows용 시스템 이미지 URL: `https://nexus-playground.pleos.ai/repositor
 - Vehicle SDK는 도메인별 `checkXXXCapabilities`로 지원 여부 확인 필수, 퍼미션은 사전 승인 범위 내에서만 사용 가능(미승인 시 앱 심사 불통과).
 - 설명회(10.28)에서 SDK 제공 일정이 바뀔 수 있으므로 반드시 확인. 준비 중 SDK에 핵심 기능을 의존하는 기획은 2차 PT 실동작 시연에서 위험.
 - 공모전 사이트의 음성 메모 예시(STT)는 현재 상태로는 에뮬레이터에서 실동작 불가능할 수 있음(추정).
-- **에뮬레이터 실측 결과(2026-10-22)**: `차량데이터_조사결과.md` 참고. 요점:
+- **에뮬레이터 실측 결과(2026-10-22)**: `vehicle-data-findings.md` 참고. 요점:
   - 차량 상태 268개 값 조회 성공.
   - **현재 차속 API 없음**.
   - 연료·트립·전비는 미지원(에뮬레이터 차량이 EV).
@@ -284,7 +284,7 @@ Windows용 시스템 이미지 URL: `https://nexus-playground.pleos.ai/repositor
   3. 사이트 예시 3종(음성메모/안전운전점수/배달)과 다른가 (창의성)
   4. 타깃·MAU·Retention을 숫자로 말할 수 있는가 (사업성)
   5. 12.3까지 ~5주 안에 데모 가능한 범위인가
-  - 폐기·보류한 후보와 사유: `아이디어_후보_검토.md`
+  - 폐기·보류한 후보와 사유: `idea-candidates-review.md`
 - [ ] GitHub Organization + repo 생성 (private 권장, Collaborator read 권한만 주기 위해 Org 사용). `apk/` 폴더, README 템플릿 미리 작성.
 - [ ] 공지사항 페이지 주 2회 확인 루틴 (일정 변경·심사용 GitHub 계정·설명회 링크).
 
@@ -297,7 +297,7 @@ Windows용 시스템 이미지 URL: `https://nexus-playground.pleos.ai/repositor
   - ④ 시연 영상 형식/길이: **미답변**
   - ⑤ 2차 PT 시연이 에뮬레이터면 충분한지: **충분. 실차 시연 자체가 없음** `[32:18~32:34]`
   - ⑥ 1차 통과 20팀 부문별 배분: **미답변** (설명회에서 "20팀" 언급 없음)
-- [ ] 설명회 내용 반영해 아이디어 최종 1개 확정. (현재 메인안: 내 차 실습실 — `유력_후보_2종.md`)
+- [ ] 설명회 내용 반영해 아이디어 최종 1개 확정. (현재 메인안: 내 차 실습실 — `top-2-candidates.md`)
 - [ ] 미답변 질문 이메일 문의 (11.3 목록). 설명회에서 개발 질문은 메일로 받아 FAQ로 게시한다고 함 `[50:37~51:20]`.
 
 ### Phase 2 — 10.29~11.08: 기획서 + 프로토타입

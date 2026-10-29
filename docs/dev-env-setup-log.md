@@ -2,7 +2,7 @@
 
 > 최종 갱신: 2026-10-22 (2차 세션: 이미지 설치~Hello World 완료)
 > 목적: 다음 세션(사람 또는 Claude)이 이 문서만 보고 이어서 진행할 수 있도록 함.
-> 관련 문서: `공모전_분석_및_할일.md` 7장(개발 환경)
+> 관련 문서: `contest-analysis-todo.md` 7장(개발 환경)
 
 ---
 
@@ -121,7 +121,7 @@ cd /e/Android/Sdk/cmdline-tools/latest/bin
 
 ### 3.5 Pleos Playground 가입 + 프로젝트 생성 (사용자가 직접)
 https://pleos.ai/playground → 로그인 → "Pleos 계정 만들기" → Workspace > My Project > 프로젝트 생성(프로젝트 이름, 개발사명, 카테고리, 설명) → 팀 멤버 추가.
-- SDK 메뉴에서 상태 확인: **Vehicle State, NaviHelper = 신청 없이 사용 가능**. FusedLocation / TTS / STT / Vehicle Control = 준비 중(2026-10-22 기준). 변동 시 `공모전_분석_및_할일.md` 7.1절 갱신.
+- SDK 메뉴에서 상태 확인: **Vehicle State, NaviHelper = 신청 없이 사용 가능**. FusedLocation / TTS / STT / Vehicle Control = 준비 중(2026-10-22 기준). 변동 시 `contest-analysis-todo.md` 7.1절 갱신.
 - 프로젝트 ID(Key), 클라이언트 ID/시크릿은 TTS/STT 사용 시 필요(현재는 불필요).
 
 ### 3.6 Hello World 프로젝트
@@ -169,7 +169,7 @@ PATH에 `E:\Android\Sdk\platform-tools`, `E:\Android\Sdk\emulator`, `E:\Android\
     /e/Android/Sdk/platform-tools/adb.exe shell am start -n com.example.pleoshello/.MainActivity
     ```
   - `local.properties`는 `sdk.dir=E:/Android/Sdk`(슬래시 사용. 셸에서 백슬래시로 쓰면 이스케이프가 깨져 "Invalid file path" 빌드 오류).
-  - 주의: `am start` 직후엔 내비 앱이 메인 영역을 덮고 있을 수 있음 → 하단 독의 앱 아이콘을 누르면 전면 표시됨. 실행 화면: `PleosHelloWorld/hello_world_실행화면.png`.
+  - 주의: `am start` 직후엔 내비 앱이 메인 영역을 덮고 있을 수 있음 → 하단 독의 앱 아이콘을 누르면 전면 표시됨. 실행 화면: `PleosHelloWorld/hello-world-screenshot.png`.
 - 공식 샘플 앱(참고): https://github.com/Pleos-Playground/pleos-sample-vehicle-app (compileSdk 35, AGP 8.8.2, Kotlin 2.0.0, Compose).
 
 ---
@@ -184,7 +184,7 @@ PATH에 `E:\Android\Sdk\platform-tools`, `E:\Android\Sdk\emulator`, `E:\Android\
 
 ## 5. 이번 세션 변경 이력
 - 2026-10-22: `C:\Users\H\.android\repositories.cfg` 신규 생성(Pleos 저장소 1건). 그 외 시스템 변경 없음.
-- 다운로드 파일: 접수양식 DOCX → `C:\Users\H\Desktop\hyundai-app\접수양식_원본.docx`
+- 다운로드 파일: 접수양식 DOCX → `C:\Users\H\Desktop\hyundai-app\application-form-original.docx`
 - 2026-10-22 (2차 세션): 사용자 지시로 42dot SDK 라이선스 동의 후 진행.
   - 설치: `system-images;android-34;pleos_car_emulator;x86_64` (revision 2) → `E:\Android\Sdk\system-images\android-34\pleos_car_emulator\x86_64\`, 라이선스 파일 `E:\Android\Sdk\licenses\pleos-connect-sdk-license` 생성. (emulator 패키지는 36.4.10 그대로)
   - 생성: AVD `C:\Users\H\.android\avd\Pleos_Connect_2_1_0.avd` (+ `Pleos_Connect_2_1_0.ini`), config.ini 수정 내역은 3.8절.
@@ -193,7 +193,7 @@ PATH에 `E:\Android\Sdk\platform-tools`, `E:\Android\Sdk\emulator`, `E:\Android\
   - 3.5 Playground 가입, 3.7 환경 변수 설정은 하지 않음.
 - 2026-10-22 (3차 세션): 차량·내비 데이터 조사.
   - 생성: 조사용 프로젝트 `C:\Users\H\Desktop\hyundai-app\PleosDataProbe\` (Vehicle 2.3.2 + NaviHelper 3.0.5).
-  - 결과: `PleosDataProbe/results/` 원시 결과, `차량데이터_조사결과.md` 정리 문서.
+  - 결과: `PleosDataProbe/results/` 원시 결과, `vehicle-data-findings.md` 정리 문서.
   - 에뮬레이터 변경: `com.example.pleosprobe` 설치, 내비 "최근 목적지"에 서울역 추가(경로는 취소함).
   - 참고: 에뮬레이터 앱은 사용자 10에서 실행되므로 `run-as ... --user 10` 필요.
   - NaviHelper에는 `NAVI_ROUTE` / `NAVI_ROUTE_SEARCH` 퍼미션이 필요함.
@@ -202,7 +202,7 @@ PATH에 `E:\Android\Sdk\platform-tools`, `E:\Android\Sdk\emulator`, `E:\Android\
     - `adb forward tcp:8088 tcp:8088` → `http://localhost:8088/`
     - HTTP API: `PUT /vehicle/...`
     - 브라우저 세션 하트비트가 필요함.
-  - 상세: `차량데이터_조사결과.md` 6장.
+  - 상세: `vehicle-data-findings.md` 6장.
   - 추가: 조사 앱 리스너 모드(`--ez listen true`, `--ez route true`, `--ez cancel true`), `PleosDataProbe/tools/vtest.sh`.
   - 에뮬레이터 변경:
     - 누적거리 1234 km로 바뀜(되돌릴 수 없음).
