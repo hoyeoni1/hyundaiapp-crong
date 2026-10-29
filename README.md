@@ -4,3 +4,9 @@
 
 - 핵심 신호: Vehicle SDK `DrivingMode` 크루즈 상태(`CruiseControlState`), 브레이크, 조향각
 - 실측 메모: [docs/vehicle-data-findings.md](docs/vehicle-data-findings.md) 6.2.1 (크루즈 해제 값은 에뮬레이터로 재현 불가, 실차 값 문의 필요)
+
+## 개발
+
+- 팀 역할·일정·규칙: 공통 저장소 `hyundaiapp-common`의 `docs/team-collaboration-plan.md`
+- 공통 모듈: 이 저장소와 `hyundaiapp-common`을 같은 폴더 아래 나란히 clone하면 `../hyundaiapp-common/core`를 `:core`로 포함한다. 제출 전에는 `core/`를 이 저장소에 subtree로 넣는다.
+- 빌드: `./gradlew assembleDebug` (JDK 17, `local.properties`에 `sdk.dir`)
