@@ -7,6 +7,6 @@
 
 ## 개발
 
-- 팀 역할·일정·규칙: 공통 저장소 `hyundaiapp-common`의 `docs/team-collaboration-plan.md`
-- 공통 모듈: 이 저장소와 `hyundaiapp-common`을 같은 폴더 아래 나란히 clone하면 `../hyundaiapp-common/core`를 `:core`로 포함한다. 제출 전에는 `core/`를 이 저장소에 subtree로 넣는다.
+- 팀 역할·일정·규칙: [docs/team-collaboration-plan.md](docs/team-collaboration-plan.md)
+- 공통 모듈 `core/`·`tools/`·팀 문서는 두 앱 저장소에 똑같이 들어 있다. 원본은 차슐랭 저장소이며 황준용만 수정한다. 동기화: 차슐랭에서 `tools/sync-core.sh ../CruiseBreaker` (확인만: `--check`)
 - 빌드: `./gradlew assembleDebug` (JDK 17, `local.properties`에 `sdk.dir`)

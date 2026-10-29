@@ -5,7 +5,7 @@
 - 대상: 2026 현대자동차그룹 Pleos Connect 앱 개발 공모전
 - 작성: 2026-10-29 (v2: 개발 착수용으로 개선)
 - 부문: `[미정]` · 팀명: `[미정]` (APK 파일명·메일 제목에 들어감)
-- 팀 역할·일정: 공통 저장소 `hyundaiapp-common`의 `docs/team-collaboration-plan.md`
+- 팀 역할·일정: [docs/team-collaboration-plan.md](docs/team-collaboration-plan.md)
 
 이 문서의 1~6절은 접수양식 **02 파트 1~6번 항목**과 순서를 맞췄다. 기획서에 옮길 때 그대로 쓰되, 실명은 빼고 옮긴다.
 
