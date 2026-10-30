@@ -10,10 +10,15 @@
     - 앱 구조·UiState 계약
     - Fake 저장소
     - 개발 메뉴·신호 모니터
+  - 기획서 제출본 완성: 원고 `docs/proposal.md` → 접수양식에 채운 `docs/submission/cruisebreaker-application.docx`(9쪽, Word로 열림 확인)
+    - 재생성: `python tools/build-proposal-docx.py docs/submission/application-form-template.docx docs/proposal.md "<앱명>" docs/submission/cruisebreaker-application.docx`
+    - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
   - 아직 없는 것: 판정 로직(TODO), 실제 화면 디자인, 서버, release 서명
-- 진행 중 브랜치·PR: 없음(10-30은 `main`에 직접 푸시 — Organization·보호 규칙 전이라 예외)
+- 진행 중 브랜치·PR: `docs/proposal`(기획서 제출본, 리뷰 후 main 병합)
 - 다음 할 일(우선순위 순):
-  1. 주최 측 문의 메일 발송(`docs/team-collaboration-plan.md` 9절 1~6번 + "APK 파일명을 영문 앱 이름만으로 써도 되는지")
+  1. 기획서 7번 칸의 【제출 전 기입】 2곳(GitHub Organization 저장소 주소, 시연 영상 링크) 채우고 재생성. 개인 GitHub 계정 주소는 쓰지 않는다(양식: 계정정보 노출 금지)
+  2. 01 참가신청서·04 서명 칸을 손으로 채우고 5명 서명 수집
+  3. 주최 측 문의 메일 발송(`docs/team-collaboration-plan.md` 9절 1~6번 + "APK 파일명을 영문 앱 이름만으로 써도 되는지")
   2. Pleos Playground 프로젝트 생성·팀원 추가
   3. 황준용에게 core 초안 검토·인계 요청
   4. 시연 스크립트: 위치 재생 시연 모드 + 크루즈 주입 동기화(PRD 5.7)
@@ -26,6 +31,14 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-10-30 — 기획서 제출본
+- 한 일(Claude 에이전트와 함께): 접수양식 02 파트 1~8번 원고 `docs/proposal.md` 작성, 양식에 자동으로 채우는 `tools/build-proposal-docx.py` 작성, 크루즈브레이커 접수양식 DOCX 생성
+- 결정한 것과 이유:
+  - 사업성 숫자: 국내 Pleos Connect 탑재 2027년 말 약 23만 대로 추정(그랜저 71,775 + 아반떼 79,335대/년, 2025 현대차 판매 실적). 설치율·사용 비율·Retention 목표는 가정이라고 명시
+  - 원고는 마크다운 하나로 관리하고 DOCX는 스크립트로 다시 만든다(손으로 고친 DOCX와 원고가 어긋나지 않게)
+  - 두 작품 공동 초안(비교·검토용)은 Claude 문서 https://claude.ai/artifact/MwikFg1WTHiANoDykTUKGc
+- 바꾼 파일: `docs/proposal.md`, `docs/submission/`, `tools/build-proposal-docx.py`, 이 문서
 
 ### 2026-10-30
 - 한 일(Claude 에이전트와 함께):
