@@ -56,7 +56,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 **공통 부분 동기화 규칙**
 
-1. 공통 부분은 `core/`, `tools/`, `docs/team-collaboration-plan.md`다. **원본은 차슐랭 저장소**다.
+1. 공통 부분은 `core/`, `tools/`, `docs/team-collaboration-plan.md`, `docs/handoff/README.md`, `CLAUDE.md`, `.github/pull_request_template.md`다. **원본은 차슐랭 저장소**다.
 2. `core/`는 황준용만 고친다. 다른 사람은 필요한 것을 황준용에게 요청한다. (GitHub 아이디가 정해지면 `.github/CODEOWNERS`로 건다.)
 3. 고칠 때는 차슐랭에서 먼저 고치고 `core/VERSION`을 올린 뒤, 두 저장소를 나란히 받아 둔 상태에서 차슐랭 쪽에서 실행한다:
    ```
@@ -75,6 +75,8 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 3. 브랜치 이름: `feat/<짧은-설명>`, `fix/<...>`, `docs/<...>` (영문 소문자·하이픈. 한글 금지 — `CLAUDE.md` 규칙).
 4. PR은 작게(하루 단위). PR 본문에 "에뮬레이터에서 확인한 방법"을 적는다(PR 템플릿).
 5. 시연 영상·release APK는 `main`에서만 빌드한다.
+6. **인수인계 문서 필수**: 작업을 마칠 때마다(사람·에이전트 모두) `docs/handoff/<영문-이름>.md`의 "현재 상태"를 덮어쓰고 "작업 기록"에 날짜 항목을 추가한다. PR에 이 수정이 없으면 승인하지 않는다. 다음 사람이 문서만 읽고 이어서 일할 수 있어야 한다(양식: `docs/handoff/README.md`).
+7. **각자 작업**: 자기 담당 경로(2절)와 자기 브랜치에서만 작업한다. 남의 경로는 담당자에게 요청한다.
 
 ## 5. 첫 3일(10-29 ~ 11-01) 안에 확정할 계약
 
