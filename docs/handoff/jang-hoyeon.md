@@ -14,7 +14,7 @@
     - 재생성: `python tools/build-proposal-docx.py docs/submission/application-form-template.docx docs/proposal.md "<앱명>" docs/submission/cruisebreaker-application.docx`
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
   - 아직 없는 것: 판정 로직(TODO), 실제 화면 디자인, 서버, release 서명
-- 진행 중 브랜치·PR: `docs/proposal`(기획서 제출본, 리뷰 후 main 병합)
+- 진행 중 브랜치·PR: 없음. 기획서(`docs/proposal.md`, `docs/submission/`)는 팀장 결정으로 `main`에 바로 push
 - 다음 할 일(우선순위 순):
   1. 기획서 7번 칸의 【제출 전 기입】 2곳(GitHub Organization 저장소 주소, 시연 영상 링크) 채우고 재생성. 개인 GitHub 계정 주소는 쓰지 않는다(양식: 계정정보 노출 금지)
   2. 01 참가신청서·04 서명 칸을 손으로 채우고 5명 서명 수집
