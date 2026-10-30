@@ -147,7 +147,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 - [ ] 접수양식: 부문·팀명·앱명, 구성원 5명 정보, 02 파트에 실명·개인정보 없음
 - [ ] 5명 전원 동의 체크 + 본인 서명 + 날짜
-- [ ] GitHub: `apk/<영문 앱이름>_release.apk`(release, 서명) — `Chachelin_release.apk` / `CruiseBreaker_release.apk`. 팀명은 넣지 않는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
+- [ ] GitHub: `apk/SamgakGorae_<영문 앱이름>_release.apk`(release, 서명) — `SamgakGorae_Chachelin_release.apk` / `SamgakGorae_CruiseBreaker_release.apk`. 사이트 규칙 `팀명_앱이름_release.apk`에 맞춰 영문 팀명을 넣는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
 - [ ] 두 저장소 `core` 일치 확인(`tools/sync-core.sh ../CruiseBreaker --check`), 저장소를 새로 clone해서 빌드되는지 확인
 - [ ] 심사용 계정 초대 + 접근 확인
 - [ ] 시연 영상 링크
