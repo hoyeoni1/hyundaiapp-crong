@@ -13,6 +13,8 @@
   - 기획서 제출본 완성: 원고 `docs/proposal.md` → 접수양식에 채운 `docs/submission/cruisebreaker-application.docx`(9쪽, Word로 열림 확인)
     - 재생성: `python tools/build-proposal-docx.py docs/submission/application-form-template.docx docs/proposal.md "<앱명>" docs/submission/cruisebreaker-application.docx`
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
+  - 시연 스크립트 작성: `bash tools/demo-drive.sh`(PRD 7절). 앱 쪽 위치 재생(브로드캐스트 `DEMO_ROUTE`)은 아직 없음 → 그 전에는 `NO_REPLAY=1`로 신호만 주입. 가짜 콘솔로 장면 순서만 확인했고 **실제 에뮬레이터에서는 아직 안 돌려 봄**
+    - 두 스크립트 모두 공통 `tools/`에 있다(sync-core가 tools/를 통째로 복사하므로 두 저장소에 같이 둠)
   - 아직 없는 것: 판정 로직(TODO), 실제 화면 디자인, 서버, release 서명
 - 진행 중 브랜치·PR: 없음. 기획서(`docs/proposal.md`, `docs/submission/`)는 팀장 결정으로 `main`에 바로 push
 - 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`)
@@ -22,7 +24,7 @@
   3. 주최 측 문의 메일 발송(`docs/team-collaboration-plan.md` 9절 1~6번 + "APK 파일명을 영문 앱 이름만으로 써도 되는지")
   4. Pleos Playground 프로젝트 생성·팀원 추가
   5. 황준용에게 core 초안 검토·인계 요청
-  6. 시연 스크립트: 위치 재생 시연 모드 + 크루즈 주입 동기화(PRD 5.7)
+  6. 위치 재생 시연 모드(앱 디버그 빌드): `tools/demo-drive.sh` 머리말의 브로드캐스트 계약대로 구현(위치 소스는 core 담당 황준용과 협의) → 에뮬레이터에서 `bash tools/demo-drive.sh` 실행 확인
   7. release 서명 키 생성(키 파일은 저장소에 넣지 않음)
 - 막힌 점·질문: 크루즈브레이커 주행 중 화면이 DO 선언에도 차단됨 → 주최 측 답변 대기
 - 주의:
@@ -33,6 +35,14 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-10-30 — 시연 스크립트
+- 한 일(Claude 에이전트와 함께): `tools/demo-charge.sh`(차슐랭 성공·실패), `tools/demo-drive.sh` + `tools/demo/`(크루즈브레이커 경로 재생 동기화, 판교→양재 경로 CSV와 생성기)
+- 결정한 것과 이유:
+  - 크루즈브레이커 위치 이동은 앱 디버그 빌드가 CSV를 재생하고, 스크립트는 같은 시계로 콘솔 값을 넣는다(에뮬레이터에 모의 주행이 없음)
+  - 경로 CSV의 mark 열(announce/brake/jam)에 장면 시점을 박아 두어, 경로를 바꿔도 스크립트는 그대로 쓴다
+  - 차슐랭 충전은 에뮬레이터 고정 위치와 같은 시드 충전소 st-003(시흥동 주민센터)에서 일어난다
+- 바꾼 파일: `tools/demo-drive.sh`, `tools/demo/` 및 두 시연 스크립트, `README.md`, 이 문서
 
 ### 2026-10-30 — PR 자동 리뷰 켬
 - 한 일: 이 PC에 GitHub CLI 설치, `hoyeoni1`로 gh 로그인(브라우저 방식, 계정 전체 권한), 정기 작업 "삼각고래 PR 리뷰" 생성(매일 09~23시 매시 정각)
