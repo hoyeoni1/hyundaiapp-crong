@@ -17,7 +17,7 @@
 - 진행 중 브랜치·PR: 없음. 기획서(`docs/proposal.md`, `docs/submission/`)는 팀장 결정으로 `main`에 바로 push
 - 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`)
 - 다음 할 일(우선순위 순):
-  1. 기획서 7번 칸의 【제출 전 기입】 2곳(GitHub Organization 저장소 주소, 시연 영상 링크) 채우고 재생성. 개인 GitHub 계정 주소는 쓰지 않는다(양식: 계정정보 노출 금지)
+  1. 기획서 7번 칸의 【제출 전 기입】 2곳(GitHub 저장소 주소, 시연 영상 링크) 채우고 재생성. Organization은 만들지 않기로 함(10-30) → 개인 계정 링크가 양식의 "계정정보 노출 금지"에 걸리는지 주최 측 답변 확인
   2. 01 참가신청서·04 서명 칸을 손으로 채우고 5명 서명 수집
   3. 주최 측 문의 메일 발송(`docs/team-collaboration-plan.md` 9절 1~6번 + "APK 파일명을 영문 앱 이름만으로 써도 되는지")
   4. Pleos Playground 프로젝트 생성·팀원 추가
@@ -27,12 +27,17 @@
 - 막힌 점·질문: 크루즈브레이커 주행 중 화면이 DO 선언에도 차단됨 → 주최 측 답변 대기
 - 주의:
   - gh는 브라우저 로그인이라 계정 전체 권한이다. 두 저장소로 줄이려면 fine-grained 토큰(Contents 읽기, Pull requests 읽기·쓰기)으로 다시 로그인
-  - 결정 사항: 부문 **일반**, 팀명 **삼각고래**, APK는 팀명 없이 `apk/CruiseBreaker_release.apk`
+  - 결정 사항: 부문 **일반**, 팀명 **삼각고래**, APK는 사이트 규칙(`팀명_앱이름_release.apk`)대로 영문 팀명을 넣어 `apk/SamgakGorae_CruiseBreaker_release.apk`(10-30 변경)
   - `getEvBatteryCapacity`는 `CAR_ENERGY`만으로 권한 부족 → 차종 프리셋 사용
   - Virtual Console은 하트비트가 없으면 쓰기가 503 → `tools/vconsole.sh up` 먼저
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-10-30 — APK 파일명에 영문 팀명
+- 한 일(Claude 에이전트와 함께): 대회 사이트 지원·제출 방법 페이지 원문 확인 → APK 파일명 규칙이 `팀명_앱이름_release.apk`라 팀명 생략 결정을 되돌림. 기획서 7번 칸·PRD·이 문서를 `SamgakGorae_<앱>_release.apk`로 고치고 DOCX 재생성
+- 결정한 것과 이유: 팀명은 로마자 `SamgakGorae`(공지 규칙 + 한글 파일명 금지 둘 다 지킴). GitHub Organization은 만들지 않음(장호연 결정)
+- 바꾼 파일: `docs/proposal.md`, `docs/submission/*.docx`, `PRD.md`, 이 문서
 
 ### 2026-10-30 — PR 자동 리뷰 켬
 - 한 일: 이 PC에 GitHub CLI 설치, `hoyeoni1`로 gh 로그인(브라우저 방식, 계정 전체 권한), 정기 작업 "삼각고래 PR 리뷰" 생성(매일 09~23시 매시 정각)

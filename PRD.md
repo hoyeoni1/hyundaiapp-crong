@@ -4,7 +4,7 @@
 
 - 대상: 2026 현대자동차그룹 Pleos Connect 앱 개발 공모전
 - 작성: 2026-10-29 (v2: 개발 착수용으로 개선)
-- 부문: **일반** · 팀명: **삼각고래** (메일 제목에 들어감. APK는 팀명 없이 `apk/CruiseBreaker_release.apk`)
+- 부문: **일반** · 팀명: **삼각고래** (메일 제목에 들어감. APK는 영문 팀명으로 `apk/SamgakGorae_CruiseBreaker_release.apk`)
 - 팀 역할·일정: [docs/team-collaboration-plan.md](docs/team-collaboration-plan.md)
 
 이 문서의 1~6절은 접수양식 **02 파트 1~6번 항목**과 순서를 맞췄다. 기획서에 옮길 때 그대로 쓰되, 실명은 빼고 옮긴다.
