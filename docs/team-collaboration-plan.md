@@ -80,6 +80,8 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 병렬 개발이 되려면 아래 세 가지를 먼저 고정한다. 확정 전에는 `FakeVehicleSignals`로 개발을 시작한다.
 
+> **10-30 진행 상황(장호연)**: `core` v0.2 초안 구현 완료 — `VehicleSignals`(EV·주행·크루즈·위치·경로·소스 상태), `NaviControl`, `FakeVehicleSignals`, `GeoMath`. 두 앱에 화면 상태 계약(`ui/UiStates.kt`)과 저장소 인터페이스(`data/`, Fake 구현) 초안이 들어 있다. 에뮬레이터에서 신호 수신 확인. 황준용은 이 초안을 검토·확정하고 이후 `core`를 맡는다(`core/README.md`의 "다음에 할 일").
+
 | 계약 | 담당 | 내용 |
 |---|---|---|
 | `core` 인터페이스 | 황준용 | `VehicleSignals`(EV 배터리, 크루즈 상태, 브레이크, 조향, 위치)의 Flow 타입. 초안: `core/src/main/java/com/hyundaiapp/core/VehicleSignals.kt` |
@@ -129,6 +131,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 3. Pleos Connect 첫 탑재 차종에 전기차가 포함되는지
 4. 심사용 GitHub 계정명
 5. 시연 영상 길이·형식·제출 방법
+6. DO(`distractionOptimized`)를 선언한 앱이 adb 설치 상태에서 주행 중 차단됨(10-30 실측) — 공모전 앱이 주행 중 화면을 쓰려면 어떤 절차가 필요한지
 
 ## 10. 제출 체크리스트 (작품마다)
 
