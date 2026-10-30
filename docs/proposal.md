@@ -169,7 +169,7 @@
 
 ## 7. 참고자료
 
-- GitHub 저장소: 【제출 전 기입 — 팀 Organization 저장소 주소】 (소스 코드 + apk/CruiseBreaker_release.apk)
+- GitHub 저장소: 【제출 전 기입 — GitHub 저장소 주소】 (소스 코드 + apk/SamgakGorae_CruiseBreaker_release.apk)
 - 시연 영상: 【제출 전 기입 — 영상 링크 또는 첨부 파일명】
 - 시연 데이터 안내: 에뮬레이터에는 모의 주행이 없어 위치 이동은 앱 내 경로 재생으로, 크루즈·브레이크·차속은 에뮬레이터 콘솔 주입으로 재현했다. 다른 차량의 기록은 시연용 시드 데이터다.
 
