@@ -108,6 +108,7 @@ DOCX 다운로드: https://appdevchallenge.auto-hmg.io/downloads/contest-applica
 [근거: 지원·제출 방법 > GitHub 저장소 제출 안내]
 - 소스 코드와 APK를 **한 저장소에** 업로드. APK만 따로 제출 불가.
 - APK는 저장소 내 `apk/` 폴더. 파일명 **`팀명_앱이름_release.apk`**, 실행 가능한 release 빌드.
+  - **팀 결정(2026-10-30, 장호연)**: 팀명은 빼고 영문 앱 이름만 쓴다 → `apk/Chachelin_release.apk`, `apk/CruiseBreaker_release.apk`. 한글 파일명 금지 규칙(CLAUDE.md)과 맞추기 위함.
 - 용량 초과 시 GitHub Releases에 등록하고 Release 페이지 주소 제출.
 - README.md 필수 내용: ① 앱 이름 및 한 줄 소개 ② 실행 방법 ③ 테스트 환경 및 필요한 설정 ④ APK 파일 위치 또는 Release 링크
 - Private 저장소 가능. 단 **"공지된 심사용 GitHub 계정"을 Collaborator로 초대**해야 하며 마감 전 접근 확인 필수. 개인 계정 private repo는 Collaborator에게 쓰기 권한까지 부여되므로 주의(Organization 저장소로 만들면 read 권한만 부여 가능 — 추정 권장).
