@@ -15,24 +15,29 @@
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
   - 아직 없는 것: 판정 로직(TODO), 실제 화면 디자인, 서버, release 서명
 - 진행 중 브랜치·PR: 없음. 기획서(`docs/proposal.md`, `docs/submission/`)는 팀장 결정으로 `main`에 바로 push
-- 리뷰·머지: PR 리뷰는 Claude, 머지는 장호연만(`docs/pr-review-guide.md`)
+- 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`)
 - 다음 할 일(우선순위 순):
-  1. PC에 `gh`(GitHub CLI) 설치·`gh auth login` → Claude 정기 PR 리뷰 작업 켜기
-  2. 기획서 7번 칸의 【제출 전 기입】 2곳(GitHub Organization 저장소 주소, 시연 영상 링크) 채우고 재생성. 개인 GitHub 계정 주소는 쓰지 않는다(양식: 계정정보 노출 금지)
-  3. 01 참가신청서·04 서명 칸을 손으로 채우고 5명 서명 수집
-  4. 주최 측 문의 메일 발송(`docs/team-collaboration-plan.md` 9절 1~6번 + "APK 파일명을 영문 앱 이름만으로 써도 되는지")
-  5. Pleos Playground 프로젝트 생성·팀원 추가
-  6. 황준용에게 core 초안 검토·인계 요청
-  7. 시연 스크립트: 위치 재생 시연 모드 + 크루즈 주입 동기화(PRD 5.7)
-  8. release 서명 키 생성(키 파일은 저장소에 넣지 않음)
+  1. 기획서 7번 칸의 【제출 전 기입】 2곳(GitHub Organization 저장소 주소, 시연 영상 링크) 채우고 재생성. 개인 GitHub 계정 주소는 쓰지 않는다(양식: 계정정보 노출 금지)
+  2. 01 참가신청서·04 서명 칸을 손으로 채우고 5명 서명 수집
+  3. 주최 측 문의 메일 발송(`docs/team-collaboration-plan.md` 9절 1~6번 + "APK 파일명을 영문 앱 이름만으로 써도 되는지")
+  4. Pleos Playground 프로젝트 생성·팀원 추가
+  5. 황준용에게 core 초안 검토·인계 요청
+  6. 시연 스크립트: 위치 재생 시연 모드 + 크루즈 주입 동기화(PRD 5.7)
+  7. release 서명 키 생성(키 파일은 저장소에 넣지 않음)
 - 막힌 점·질문: 크루즈브레이커 주행 중 화면이 DO 선언에도 차단됨 → 주최 측 답변 대기
 - 주의:
+  - gh는 브라우저 로그인이라 계정 전체 권한이다. 두 저장소로 줄이려면 fine-grained 토큰(Contents 읽기, Pull requests 읽기·쓰기)으로 다시 로그인
   - 결정 사항: 부문 **일반**, 팀명 **삼각고래**, APK는 팀명 없이 `apk/CruiseBreaker_release.apk`
   - `getEvBatteryCapacity`는 `CAR_ENERGY`만으로 권한 부족 → 차종 프리셋 사용
   - Virtual Console은 하트비트가 없으면 쓰기가 503 → `tools/vconsole.sh up` 먼저
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-10-30 — PR 자동 리뷰 켬
+- 한 일: 이 PC에 GitHub CLI 설치, `hoyeoni1`로 gh 로그인(브라우저 방식, 계정 전체 권한), 정기 작업 "삼각고래 PR 리뷰" 생성(매일 09~23시 매시 정각)
+- 동작: 새 PR·새 커밋만 리뷰 → `C:\Users\H\.claude\pr-review\`의 전용 클론에서 빌드·테스트 → `docs/pr-review-guide.md` 기준으로 PR 코멘트(판정 첫 줄) → 결과를 앱 알림으로 보고. 머지·승인·push는 하지 않음
+- 확인: 두 저장소 PR 조회 OK(열린 PR 0개), 전용 클론 빌드·테스트 통과. 실제 PR에 대한 첫 리뷰는 아직 없음
 
 ### 2026-10-30 — PR 리뷰·머지 규칙
 - 결정: 모든 변경은 PR. 리뷰는 Claude(장호연 계정 에이전트), 머지는 장호연만. 교차 리뷰는 "교차 읽기"(PT 대비, 승인 권한 없음)로 바꿈
