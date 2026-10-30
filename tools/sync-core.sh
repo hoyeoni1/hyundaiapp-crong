@@ -6,7 +6,7 @@ set -euo pipefail
 src=$(cd "$(dirname "$0")/.." && pwd)
 dst=${1:?usage: tools/sync-core.sh <대상 저장소 경로> [--check]}
 mode=${2:-}
-shared=(core tools docs/team-collaboration-plan.md docs/handoff/README.md CLAUDE.md .github/pull_request_template.md)
+shared=(core tools docs/team-collaboration-plan.md docs/handoff/README.md docs/pr-review-guide.md CLAUDE.md .github/pull_request_template.md)
 
 grep -q 'rootProject.name = "Chachelin"' "$src/settings.gradle.kts" \
   || { echo "원본(차슐랭) 저장소에서 실행하세요: $src" >&2; exit 2; }

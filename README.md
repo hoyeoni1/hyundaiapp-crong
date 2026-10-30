@@ -52,7 +52,8 @@ tools/                  vconsole.sh(콘솔 조작), sync-core.sh, vtest.sh (장�
 
 ## 규칙
 
-- **작업을 마칠 때마다 인수인계 문서 필수**: `docs/handoff/<영문-이름>.md` (양식·규칙: [docs/handoff/README.md](docs/handoff/README.md)). PR에 없으면 승인하지 않는다
+- **작업을 마칠 때마다 인수인계 문서 필수**: `docs/handoff/<영문-이름>.md` (양식·규칙: [docs/handoff/README.md](docs/handoff/README.md)). PR에 없으면 머지하지 않는다
+- **PR 리뷰는 Claude, 머지는 장호연만** 한다(작성자·에이전트는 머지 금지). 리뷰 기준: [docs/pr-review-guide.md](docs/pr-review-guide.md)
 - 각자 자기 담당 경로·브랜치에서만 작업한다
 - 팀 역할·일정·규칙: [docs/team-collaboration-plan.md](docs/team-collaboration-plan.md)
 - `main` 직접 push 금지 → 브랜치 `feat/...`, `fix/...`, `docs/...`(영문 소문자·하이픈) + PR
