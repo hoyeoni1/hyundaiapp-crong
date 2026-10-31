@@ -136,12 +136,13 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 ## 9. 주최 측 문의 (장호연, 이번 주)
 
-1. 주행 중 경로 안내가 앞에 있을 때 앱 프로세스가 얼어 Vehicle 이벤트가 끊김 — 백그라운드 수집 방법이 있는지
+1. ~~백그라운드 수집 방법~~ → 에뮬레이터에서 포그라운드 서비스로 해결(크루즈브레이커 `docs/background-freeze-experiment.md`). 대신 물을 것: 포그라운드 서비스(`specialUse`)와 부팅 자동 시작(`RECEIVE_BOOT_COMPLETED`)이 앱마켓 심사에서 허용되는지
 2. 실차에서 크루즈 해제 시 들어오는 `CruiseControlState` 값
 3. Pleos Connect 첫 탑재 차종에 전기차가 포함되는지
 4. 심사용 GitHub 계정명
 5. 시연 영상 길이·형식·제출 방법
-6. DO(`distractionOptimized`)를 선언한 앱이 adb 설치 상태에서 주행 중 차단됨(10-30 실측) — 공모전 앱이 주행 중 화면을 쓰려면 어떤 절차가 필요한지
+6. DO(`distractionOptimized`)를 선언한 앱이 adb 설치 상태에서 주행 중 차단됨(10-30 실측, 같은 날 다른 실험에서는 재현 안 됨) — 공모전 앱이 주행 중 화면을 쓰려면 어떤 절차가 필요한지
+7. 실차는 시동 off 때 헤드유닛이 완전히 꺼지는지, 절전(suspend)했다가 깨어나는지 — 절전이면 부팅 자동 시작이 안 걸림
 
 ## 10. 제출 체크리스트 (작품마다)
 
