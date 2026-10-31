@@ -8,7 +8,7 @@
   - 와이어프레임: https://claude.ai/artifact/9vidSJtHrxzCqtEcjJjVTf (비공개 — 팀이 보려면 Share로 공유 필요)
   - 화면: `driving/DrivingScreen.kt`(S1), `risk/RiskListScreen.kt`(S2), `summary/TripSummaryScreen.kt`(S3), `settings/SettingsScreen.kt`(S4), `onboarding/OnboardingScreen.kt`(S5)
   - 데이터: S2·S3은 `PreviewData`, S4·S5는 `CruiseBreakerNav` 안의 임시 상태로 동작. S1만 실제 `DrivingViewModel`
-- 진행 중 브랜치·PR: `feat/ui-screens` (PR 전)
+- 진행 중 브랜치·PR: `feat/ui-screens` → https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/1 (리뷰·머지 대기)
 - 다음 할 일(우선순위 순):
   1. 에뮬레이터에서 개발 메뉴 → 각 화면 확인(터치 반응·글자 크기)
   2. 이민하 ViewModel이 나오면 `*Nav.kt`의 임시 상태·`PreviewData`를 ViewModel로 교체
