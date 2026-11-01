@@ -16,6 +16,7 @@
   - 아직 없는 것: 판정 로직(TODO), 서버, 포그라운드 서비스, release 서명. 화면은 길민종 PR로 올라옴(아래)
 - 진행 중 브랜치·PR:
   - 길민종 `feat/ui-screens` — 차슐랭 https://github.com/hoyeoni1/hyundaiapp-chachelin/pull/1 · 크루즈브레이커 https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/1 — **11-01 머지 완료**(Claude 리뷰 `✅ 머지 가능` 후 장호연 지시로 merge commit). 후속은 리뷰 코멘트의 "다음에 챙길 것"
+  - 길민종 `fix/ui-review-followups` (리뷰 후속, PR 2번) — 차슐랭 https://github.com/hoyeoni1/hyundaiapp-chachelin/pull/2 · 크루즈브레이커 https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/2 — **11-01 머지 완료**(자동 리뷰 `✅ 머지 가능` 후 장호연 지시). 남은 것: 에뮬레이터 확인(길민종 Mac 불가 → 에뮬레이터 PC 필요), 이상준 질문 4개, 이민하 합의 3개(S4 자동 기록 토글·안내 거리·차속 없음)
   - 장호연 `feat/demo-scripts`(두 저장소, 10-30) — **PR 아직 없음**. 코드라 PR로 올려야 main에 들어감
   - 기타: 기획서(`docs/proposal.md`, `docs/submission/`)는 팀장 결정으로 `main`에 바로 push
 - 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`)
@@ -37,6 +38,11 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-01 — 팀원 작업 확인·길민종 PR 2번 머지
+- 한 일(Claude 에이전트와 함께): 두 저장소 fetch. 새 작업은 길민종 `fix/ui-review-followups`(PR 2번)뿐. 이상준·이민하·황준용은 원격 브랜치·커밋 없음, 인수인계 문서도 10-30 이후 변경 없음
+- PR 2번: 자동 리뷰 `✅` 확인, head가 리뷰한 커밋과 같은지 확인 후 merge commit으로 머지(차슐랭 `0f17abb`, 크루즈브레이커 `678d7a6`). 머지된 main에서 두 앱 `assembleDebug test` 통과
+- 다음: 11-05 중간 점검 전에 이상준·이민하·황준용 진행 상황 직접 확인
 
 ### 2026-11-01 — 진행 현황 점검·길민종 UI PR 리뷰
 - 한 일(Claude 에이전트와 함께): 두 저장소 fetch(main 변경 없음, 새 브랜치 `feat/ui-screens`). PRD 대비 진행 현황 점검 — 판정 로직(이상준·이민하)·서버(황준용)·포그라운드 서비스는 아직 시작 전, 화면만 PR로 올라옴
