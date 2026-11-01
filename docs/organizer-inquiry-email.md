@@ -1,6 +1,6 @@
-# 주최 측 문의 메일 초안 (2026-10-31)
+# 주최 측 문의 메일 초안 (2026-10-31, 2026-11-01 11번 추가)
 
-- 근거: 두 저장소 `docs/team-collaboration-plan.md` 9절 1~7번 + `contest-analysis-todo.md` 8절 미확정 항목
+- 근거: 두 저장소 `docs/team-collaboration-plan.md` 9절 1~8번 + `contest-analysis-todo.md` 8절 미확정 항목 (9절 8번 = 메일 11번, 11-01 이민하 요청)
 - 보내는 사람: 대표자 장호연 메일 계정에서 직접 발송 (Claude는 보내지 않음)
 - 받는 사람: `appdevchallenge@hyundai-partners.com`
 - 참조(CC): 팀원 4명 — 주소는 보낼 때 직접 넣기
@@ -29,6 +29,7 @@
 8. **크루즈 해제 값**: Vehicle SDK `CruiseControlState`에서 실차는 운전자가 브레이크 등으로 크루즈를 해제할 때 어떤 값이 들어오는지 궁금합니다. Virtual Console에서는 활성(ACTIVATED)과 대기(ENABLED)만 재현됩니다.
 9. **탑재 차종**: Pleos Connect를 처음 탑재하는 차종에 전기차가 포함되는지 알려 주실 수 있을까요? 전기차 충전 관련 작품의 사업성 추정에 필요합니다.
 10. **Vehicle Control SDK**: 설명회에서 미공개 SDK도 공모전에 제공될 예정이라고 하셨는데, Vehicle Control SDK의 공개 시점과 범위가 정해졌는지 궁금합니다.
+11. **TTS 권한**: 주행 중 안내 음성을 Pleos TTS SDK(`ai.pleos.playground:TextToSpeech`, 기기 내 모드)로 재생하려고 `pleos.car.permission.TTS_SERVICE` 권한을 선언했습니다. 이 권한이 앱마켓 심사에서 승인되는지, 별도 신청 절차가 있는지 알려 주세요.
 
 바쁘신 와중에 확인해 주셔서 감사합니다.
 

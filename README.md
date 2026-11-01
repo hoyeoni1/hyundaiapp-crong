@@ -3,7 +3,8 @@
 다른 차량들이 크루즈 컨트롤을 해제하는 지점을 모아, 운전자 개입이 반복되는 위험 구간을 진입 전에 알려 주는 Pleos Connect 앱. 팀 삼각고래 · 일반 부문.
 
 - 기획: [PRD.md](PRD.md)
-- 핵심 신호: Vehicle SDK `DrivingMode` 크루즈 상태, 브레이크, 조향각 + AAOS 차속 + NaviHelper 위치·혼잡 구간
+- 핵심 신호: Vehicle SDK `DrivingMode` 크루즈 상태 + AAOS 차속(해제 조건 60km/h) + NaviHelper 위치·진행 방향. 안내 음성은 Pleos TTS SDK
+- 판정 규칙 v2(11-01, 정체 필터·해제 유형 없앰, 안내 500m 고정): [docs/disengage-rules.md](docs/disengage-rules.md)
 - 실측 메모: [docs/vehicle-data-findings.md](docs/vehicle-data-findings.md) 6.2.1 (크루즈 해제 값은 에뮬레이터로 재현 불가, 실차 값 문의 필요)
 
 ## 시작하기 (처음 한 번)
@@ -26,10 +27,12 @@ app/src/main/java/com/hyundaiapp/cruisebreaker/
 ├─ AppContainer.kt      객체 모음(수동 DI). 신호·저장소·감지기를 여기서 만든다
 ├─ domain/              판정 로직 (이민하)
 │  ├─ CruiseStateInterpreter.kt  크루즈 작동/해제 해석 — 실차 값이 오면 여기만 고친다(테스트 있음)
-│  ├─ DisengageDetector.kt       F1·F2 해제 감지·정체 거르기  ← TODO
-│  ├─ SegmentKey.kt              구간 ID(geohash 7 + 8방위)   ← geohash TODO
-│  ├─ RiskAnnouncer.kt           F4 진입 전 안내            ← TODO
-│  └─ Disengage.kt               이벤트 모델, DisengageRules(PRD 5.3 기준값)
+│  ├─ DisengageDetector.kt       F1 해제·통과 감지
+│  ├─ SegmentKey.kt              구간 ID(geohash 7 + 8방위, 둘레 8칸)
+│  ├─ RiskAnnouncer.kt           F4 진입 전 안내(크루즈 작동 중, 500m 앞)
+│  ├─ RiskSpeaker.kt             안내 음성(Pleos TTS SDK)
+│  ├─ TripTracker.kt·TripStats.kt  한 주행(D~P) 구분·주행 요약
+│  └─ Disengage.kt               이벤트 모델, DisengageRules(docs/disengage-rules.md 기준값)
 ├─ data/                저장소 인터페이스 + Fake(시드 데이터). 서버 구현은 황준용
 ├─ ui/                  화면 (길민종) — 화면은 UiState만 보고 그린다
 │  ├─ UiStates.kt       S1~S5 화면 상태 계약 (이민하 ↔ 길민종 합의)
