@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hyundaiapp.cruisebreaker.AppContainer
 import com.hyundaiapp.cruisebreaker.BuildConfig
+import com.hyundaiapp.cruisebreaker.RecordingService
 import com.hyundaiapp.cruisebreaker.ui.debug.SignalMonitorScreen
 import com.hyundaiapp.cruisebreaker.ui.driving.DrivingScreen
 import com.hyundaiapp.cruisebreaker.ui.driving.DrivingViewModel
@@ -68,6 +69,7 @@ fun CruiseBreakerNav(container: AppContainer) {
         OnboardingViewModel(
             container.prefs,
             speedPermissionGranted = { context.checkSelfPermission(SPEED_PERMISSION) == PackageManager.PERMISSION_GRANTED },
+            onStarted = { RecordingService.startIfAllowed(context) },
         )
     }
     val speedPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->

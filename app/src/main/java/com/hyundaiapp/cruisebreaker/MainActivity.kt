@@ -22,6 +22,8 @@ class MainActivity : ComponentActivity() {
         if (checkSelfPermission(SPEED_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
             speedPermission.launch(SPEED_PERMISSION)
         }
+        // 동의를 마친 상태면 기록 서비스를 켠다(앞에 있을 때만 포그라운드 서비스를 시작할 수 있음)
+        RecordingService.startIfAllowed(this)
         setContent {
             CruiseBreakerTheme {
                 CruiseBreakerNav(container)
