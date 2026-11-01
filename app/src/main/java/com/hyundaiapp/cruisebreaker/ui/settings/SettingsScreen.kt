@@ -45,6 +45,7 @@ fun SettingsScreen(
     onAnnounceDistanceChange: (Int) -> Unit,
     onConsentClick: () -> Unit,
     onBack: () -> Unit,
+    onWithdrawConsent: () -> Unit = {},
 ) {
     Column(
         Modifier.fillMaxSize().padding(horizontal = CarDimens.ScreenPadding, vertical = 32.dp),
@@ -106,6 +107,20 @@ fun SettingsScreen(
         ) {
             Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("위치정보·개인정보 동의 내용", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
+            }
+        }
+        // 동의 철회(이민하, 이슈 #7). 모양은 길민종이 다듬어도 됨 — 누르면 확인 창이 뜬다(CruiseBreakerNav)
+        Surface(
+            color = CarColors.Surface,
+            shape = RoundedCornerShape(CarDimens.CardRadius),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).clickable(onClick = onWithdrawConsent),
+        ) {
+            Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("동의 철회", style = MaterialTheme.typography.bodyLarge)
+                    Text("기록을 멈추고 이 차에 저장된 동의·기록 정보를 지워요", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
+                }
                 Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
             }
         }

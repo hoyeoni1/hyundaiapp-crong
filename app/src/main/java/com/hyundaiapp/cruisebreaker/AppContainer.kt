@@ -1,13 +1,14 @@
 package com.hyundaiapp.cruisebreaker
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import com.hyundaiapp.cruisebreaker.data.AppPrefs
 import com.hyundaiapp.cruisebreaker.data.CruiseEventRepository
 import com.hyundaiapp.cruisebreaker.data.FakeCruiseServer
 import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
 import com.hyundaiapp.cruisebreaker.data.SharedPrefsAppPrefs
-import com.hyundaiapp.cruisebreaker.data.VehicleId
+import com.hyundaiapp.cruisebreaker.data.toUpload
 import com.hyundaiapp.cruisebreaker.domain.DisengageDetector
 import com.hyundaiapp.cruisebreaker.domain.DisengageRules
 import com.hyundaiapp.cruisebreaker.domain.RiskAnnouncer
@@ -18,22 +19,23 @@ import com.hyundaiapp.core.CoreFeature
 import com.hyundaiapp.core.PleosVehicleSignals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
  * 앱 전체에서 하나만 쓰는 객체 모음(간단한 수동 DI).
- * 서버가 준비되면 [FakeCruiseServer]를 실제 구현으로 바꾼다(황준용). 업로드에는 [vehicleId]를 붙인다.
+ * 서버가 준비되면 [FakeCruiseServer]를 실제 구현으로 바꾼다(황준용). 업로드에는 [AppPrefs.vehicleId]가 붙는다.
  */
 class AppContainer(context: Context) {
+    private val appContext = context.applicationContext
+
     /** 화면과 무관하게 앱 수명 동안 도는 작업(해제 감지 등) */
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     // 매니페스트 퍼미션과 맞출 것: CAR_DRIVE → DRIVE, CAR_SPEED → SPEED, NAVI_ROUTE → NAVI
     val signals = PleosVehicleSignals(context, setOf(CoreFeature.DRIVE, CoreFeature.SPEED, CoreFeature.NAVI))
-
-    /** 가명 차량 ID(설치마다 UUID). 실제 업로드 구현에서 쓴다 */
-    val vehicleId: String = VehicleId.get(context)
 
     /** S4 설정·S5 동의 */
     val prefs: AppPrefs = SharedPrefsAppPrefs(context)
@@ -51,36 +53,71 @@ class AppContainer(context: Context) {
     /** 시스템 음성 서비스에 붙으므로 기록을 시작할 때 만든다 */
     private val speaker by lazy { RiskSpeaker(context) }
 
-    private var recording = false
+    /** 기록 중일 때만 있다. [stopRecording]이 취소하면 기록 관련 코루틴이 모두 멈춘다 */
+    private var recordingJob: Job? = null
 
     /**
      * 해제 감지·업로드·주행 구분·안내·음성을 시작한다. [RecordingService]가 부른다. 여러 번 불러도 한 번만 시작.
+     * 차량·위치 신호 수신도 여기서 시작한다(동의 전에는 받지 않음, 이슈 #9).
      * 확인: adb logcat -s CruiseRecord
      */
     fun startRecording() {
-        if (recording) return
-        recording = true
+        if (recordingJob?.isActive == true) return
+        val job = SupervisorJob(appScope.coroutineContext[Job])
+        recordingJob = job
+        val scope = CoroutineScope(appScope.coroutineContext + job)
         signals.start()
+
+        // 업로드는 큐를 거친다: 감지기 쪽 수집은 큐에 넣기만 해서 늦어지지 않고(버퍼가 차서 버려지지 않게, PR #3 리뷰),
+        // 실제 전송은 한 줄로 차례대로 한다. 좌표가 없는 업로드 형태로 바꿔서 넣는다
+        val uploads = Channel<suspend () -> Unit>(Channel.UNLIMITED)
+        scope.launch { for (send in uploads) runCatching { send() }.onFailure { Log.w(TAG, "upload failed: $it") } }
         // 감지기보다 먼저 구독해야 첫 이벤트를 놓치지 않는다(같은 Main 디스패처에서 순서대로 시작)
-        appScope.launch {
+        scope.launch {
             disengageDetector.events.collect {
                 Log.i(TAG, "disengage ${it.segment} speed=${it.speedKph}")
-                events.upload(it)
+                val record = it.toUpload(prefs.vehicleId())
+                uploads.trySend { events.upload(record) }
             }
         }
-        appScope.launch {
+        scope.launch {
             disengageDetector.passes.collect {
                 Log.i(TAG, "pass ${it.segment}")
-                events.upload(it)
+                val record = it.toUpload(prefs.vehicleId())
+                uploads.trySend { events.upload(record) }
             }
         }
-        disengageDetector.start(appScope)
+        disengageDetector.start(scope)
 
-        trips.start(appScope)
-        appScope.launch { announcer.announcements.collect { Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}") } }
-        tripStats.start(appScope, trips, announcer, disengageDetector)
-        speaker.start(appScope, announcer.announcements) { prefs.voiceEnabled }
-        announcer.start(appScope, signals, risks, trips)
+        trips.start(scope)
+        scope.launch { announcer.announcements.collect { Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}") } }
+        tripStats.start(scope, trips, announcer, disengageDetector)
+        speaker.start(scope, announcer.announcements) { prefs.voiceEnabled }
+        announcer.start(scope, signals, risks, trips)
+    }
+
+    /** 기록을 멈춘다(동의 철회, 이슈 #7). 신호 수신도 끊고 배너를 내린다. [RecordingService.onDestroy]가 부른다 */
+    fun stopRecording() {
+        val job = recordingJob ?: return
+        recordingJob = null
+        job.cancel()
+        announcer.reset()
+        signals.stop()
+        if (disengageDetector.dropped > 0) Log.w(TAG, "dropped records: ${disengageDetector.dropped}")
+        Log.i(TAG, "recording stopped")
+    }
+
+    /**
+     * 동의 철회(이슈 #7, 앱 개발 규정 "철회 시 즉시 활용 중단·저장 데이터 삭제"):
+     * 기록 서비스를 멈추고, 기기에 남은 동의·가명 차량 ID·주행 요약을 지운다. 다시 동의하면 새 차량 ID로 시작한다.
+     * 서버에 이미 올라간 기록의 삭제는 서버 구현(황준용)과 정한다(PRD 5.6).
+     */
+    fun withdrawConsent() {
+        appContext.stopService(Intent(appContext, RecordingService::class.java))
+        stopRecording()
+        tripStats.reset()
+        prefs.clearConsentAndData()
+        Log.i(TAG, "consent withdrawn")
     }
 
     private companion object {

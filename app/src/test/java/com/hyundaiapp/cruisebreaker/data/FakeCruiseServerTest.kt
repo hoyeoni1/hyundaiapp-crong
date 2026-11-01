@@ -43,7 +43,7 @@ class FakeCruiseServerTest {
     @Test
     fun `업로드한 해제가 바로 반영된다`() = runTest {
         val server = FakeCruiseServer(seed = listOf(SeedCell(here, 0.0, "A", 5, 20)))
-        server.upload(DisengageEvent(0L, key, 100f, here))
+        server.upload(DisengageEvent(0L, key, 100f, here).toUpload("v1"))
 
         val row = server.nearby(here, 100.0).single()
         assertEquals(6, row.disengages)

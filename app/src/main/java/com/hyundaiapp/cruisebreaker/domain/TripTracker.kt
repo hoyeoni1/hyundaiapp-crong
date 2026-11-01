@@ -24,7 +24,9 @@ class TripTracker(private val signals: VehicleSignals) {
     /** 지금 주행 중인지 */
     val driving: StateFlow<Boolean> = _driving.asStateFlow()
 
+    /** 기록을 시작할 때마다 부른다. 재시작 때 기어가 D면 새 주행으로 센다 */
     fun start(scope: CoroutineScope) {
+        _driving.value = false
         scope.launch {
             signals.drive.map { it.gear }.distinctUntilChanged().collect { gear ->
                 when {

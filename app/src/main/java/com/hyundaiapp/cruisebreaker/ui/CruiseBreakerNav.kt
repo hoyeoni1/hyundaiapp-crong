@@ -64,6 +64,7 @@ fun CruiseBreakerNav(container: AppContainer) {
     BackHandler(enabled = stack.size > 1) { back() }
 
     var terms by remember { mutableStateOf<Terms?>(null) }
+    var confirmWithdraw by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val onboardingVm = viewModel {
         OnboardingViewModel(
@@ -85,7 +86,11 @@ fun CruiseBreakerNav(container: AppContainer) {
                 val state by vm.state.collectAsState()
                 DrivingScreen(state)
             }
-            Screen.SIGNALS -> SignalMonitorScreen(container.signals)
+            Screen.SIGNALS -> {
+                // 신호 수신은 동의 후 기록 서비스가 시작한다. 개발 메뉴의 신호 모니터만 들어올 때 따로 켠다
+                LaunchedEffect(Unit) { container.signals.start() }
+                SignalMonitorScreen(container.signals)
+            }
             Screen.RISK_LIST -> {
                 val vm = viewModel { RiskListViewModel(container.signals, container.risks) }
                 // 화면에 들어올 때마다 새로 조회한다(방금 남긴 해제가 반영되게)
@@ -103,7 +108,7 @@ fun CruiseBreakerNav(container: AppContainer) {
                 TripSummaryScreen(state, onShowRisks = { go(Screen.RISK_LIST) }, onDone = back)
             }
             Screen.SETTINGS -> {
-                val vm = viewModel { SettingsViewModel(container.prefs) }
+                val vm = viewModel { SettingsViewModel(container.prefs, onWithdrawConsent = container::withdrawConsent) }
                 val state by vm.state.collectAsState()
                 SettingsScreen(
                     state,
@@ -112,9 +117,20 @@ fun CruiseBreakerNav(container: AppContainer) {
                     onAnnounceDistanceChange = {},
                     onConsentClick = { go(Screen.ONBOARDING) },
                     onBack = back,
+                    onWithdrawConsent = { confirmWithdraw = true },
                 )
+                if (confirmWithdraw) {
+                    WithdrawDialog(
+                        onConfirm = {
+                            confirmWithdraw = false
+                            vm.withdrawConsent()
+                        },
+                        onDismiss = { confirmWithdraw = false },
+                    )
+                }
             }
             Screen.ONBOARDING -> {
+                LaunchedEffect(Unit) { onboardingVm.reload() }
                 val state by onboardingVm.state.collectAsState()
                 OnboardingScreen(
                     state,
@@ -129,6 +145,18 @@ fun CruiseBreakerNav(container: AppContainer) {
     }
 
     terms?.let { TermsDialog(it, onDismiss = { terms = null }) }
+}
+
+/** 동의 철회 확인. 취소·바깥 누르기는 철회 아님 */
+@Composable
+private fun WithdrawDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("동의를 철회할까요?") },
+        text = { Text("주행 기록과 안내를 멈추고, 이 차에 저장된 동의와 기록 정보를 지워요. 다시 쓰려면 동의가 필요해요.") },
+        confirmButton = { TextButton(onClick = onConfirm) { Text("철회") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+    )
 }
 
 /** 약관 전문 자리. 문구는 장호연이 정리하면 바꾼다. 닫기는 동의가 아니다 */
