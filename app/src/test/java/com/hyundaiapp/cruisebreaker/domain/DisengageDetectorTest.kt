@@ -3,7 +3,10 @@ package com.hyundaiapp.cruisebreaker.domain
 import com.hyundaiapp.core.CruiseMode
 import com.hyundaiapp.core.FakeVehicleSignals
 import com.hyundaiapp.core.Gear
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -153,5 +156,34 @@ class DisengageDetectorTest {
         cruise(CruiseMode.ACTIVATED)
 
         assertEquals(listOf(here, here), passes.map { it.segment })
+    }
+
+    @Test
+    fun `칸 경계에서 흔들려 A·B·A로 가도 A는 한 번만 센다`() = runTest(UnconfinedTestDispatcher()) {
+        drive(100f)
+        startDetector()
+
+        cruise(CruiseMode.ACTIVATED)
+        fake.setLocation(37.4150, 127.0947) // B
+        fake.setLocation(37.41271, 127.0947) // 다시 A
+
+        assertEquals(2, passes.size)
+    }
+
+    @Test
+    fun `기록을 멈췄다 다시 시작하면 이전 작동 상태로 해제를 만들지 않는다`() = runTest(UnconfinedTestDispatcher()) {
+        drive(100f)
+        val detector = DisengageDetector(fake, DisengageRules(), clock = { testScheduler.currentTime })
+        backgroundScope.launch { detector.events.collect { events += it } }
+        val first = CoroutineScope(coroutineContext + Job())
+        detector.start(first)
+        cruise(CruiseMode.ACTIVATED)
+        advanceTimeBy(5_000)
+        first.cancel() // 동의 철회 등으로 기록 중지
+
+        cruise(CruiseMode.ENABLED) // 멈춘 동안 꺼짐
+        detector.start(backgroundScope)
+
+        assertTrue(events.isEmpty())
     }
 }

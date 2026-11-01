@@ -34,11 +34,21 @@ class DisengageDetector(
     /** 작동을 시작한 시각. 작동 중이 아니면 null */
     private var engagedSinceMs: Long? = null
 
-    /** 이번 작동 중 마지막으로 통과를 기록한 구간 */
-    private var lastPassKey: SegmentKey? = null
+    /** 이번 작동 중 이미 통과로 센 구간. GPS가 칸 경계에서 흔들려 A→B→A가 돼도 A는 한 번만 센다(PR #3 리뷰) */
+    private val passedThisEngagement = mutableSetOf<SegmentKey>()
 
-    /** 앱 수명 동안 한 번 부른다(scope가 끝나면 함께 멈춤). */
+    /** 수집 쪽이 늦어 버퍼가 차서 버려진 기록 수. 0이 아니면 업로드 구조를 다시 봐야 한다 */
+    var dropped = 0
+        private set
+
+    /**
+     * 기록을 시작한다(scope가 끝나면 함께 멈춤). 동의 철회 뒤 다시 시작할 수 있으므로 이전 상태를 지우고 시작한다
+     * — 남은 "작동 중" 상태 때문에 재시작 직후 첫 값을 해제로 보는 일이 없게.
+     */
     fun start(scope: CoroutineScope) {
+        previousMode = null
+        engagedSinceMs = null
+        passedThisEngagement.clear()
         scope.launch { signals.cruise.collect { onCruise(it.mode) } }
         scope.launch { signals.location.collect { onLocation(it) } }
     }
@@ -53,7 +63,7 @@ class DisengageDetector(
                 val since = engagedSinceMs
                 if (since != null && now - since >= rules.minEngagedMs && fastEnough()) recordDisengage(now)
                 engagedSinceMs = null
-                lastPassKey = null
+                passedThisEngagement.clear()
             }
             CruiseStateInterpreter.isEngaged(mode) && engagedSinceMs == null -> {
                 engagedSinceMs = now
@@ -78,13 +88,12 @@ class DisengageDetector(
         val key = keyOf(location)
         // 해제한 구간은 반드시 통과로도 센다(해제율이 1을 넘지 않게)
         recordPass(now, key)
-        _events.tryEmit(DisengageEvent(now, key, signals.drive.value.speedKph, location.point))
+        if (!_events.tryEmit(DisengageEvent(now, key, signals.drive.value.speedKph, location.point))) dropped++
     }
 
     private fun recordPass(now: Long, key: SegmentKey) {
-        if (key == lastPassKey) return
-        lastPassKey = key
-        _passes.tryEmit(CruisePass(now, key))
+        if (!passedThisEngagement.add(key)) return
+        if (!_passes.tryEmit(CruisePass(now, key))) dropped++
     }
 
     private fun keyOf(location: LocationState) = SegmentKey.of(location.point, location.headingDeg)

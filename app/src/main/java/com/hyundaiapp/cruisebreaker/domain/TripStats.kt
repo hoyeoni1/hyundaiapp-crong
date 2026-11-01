@@ -26,12 +26,15 @@ class TripStats {
 
     private val segments = mutableSetOf<SegmentKey>()
 
+    /** 주행 요약을 지운다(동의 철회) */
+    fun reset() {
+        segments.clear()
+        _current.value = TripSnapshot()
+    }
+
     fun start(scope: CoroutineScope, trips: TripTracker, announcer: RiskAnnouncer, detector: DisengageDetector) {
         scope.launch {
-            trips.tripNumber.collect {
-                segments.clear()
-                _current.value = TripSnapshot()
-            }
+            trips.tripNumber.collect { reset() }
         }
         scope.launch {
             announcer.announcements.collect { a ->

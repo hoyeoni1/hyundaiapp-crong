@@ -9,6 +9,7 @@ import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
 /** 지금 화면에 띄울 안내(F4). 배너 한 줄 + TTS 한 문장 */
 data class Announcement(val bannerText: String, val speechText: String, val risk: SegmentRisk)
@@ -49,21 +51,48 @@ class RiskAnnouncer(
     private var nearby: List<SegmentRisk> = emptyList()
     private var nearbyAt: GeoPoint? = null
     private var nearbyAtMs = 0L
+    private var refreshJob: Job? = null
 
+    /** 크루즈 작동 중 마지막 위치. 조회 결과가 오면 이 위치로 바로 다시 판단한다 */
+    private var lastEngagedLocation: LocationState? = null
+
+    /** 기록을 시작할 때마다 부른다(동의 철회 뒤 재시작 포함). 이전 상태는 [reset]으로 지운다 */
     fun start(scope: CoroutineScope, signals: VehicleSignals, risks: SegmentRiskRepository, trips: TripTracker) {
+        reset()
         scope.launch { trips.tripNumber.collect { announcedThisTrip.clear() } }
         scope.launch {
             signals.location.filterNotNull().collect { location ->
-                if (CruiseStateInterpreter.isEngaged(signals.cruise.value.mode)) onLocation(scope, location, risks)
+                if (CruiseStateInterpreter.isEngaged(signals.cruise.value.mode)) {
+                    lastEngagedLocation = location
+                    onLocation(scope, location, risks)
+                } else {
+                    lastEngagedLocation = null
+                }
             }
         }
     }
 
-    private suspend fun onLocation(scope: CoroutineScope, location: LocationState, risks: SegmentRiskRepository) {
+    /** 배너를 내리고 안내 기록을 지운다(기록 중지·동의 철회) */
+    fun reset() {
+        clearJob?.cancel()
+        refreshJob?.cancel()
+        _current.value = null
+        announcedThisTrip.clear()
+        lastAnnounceMs = null
+        nearby = emptyList()
+        nearbyAt = null
+        lastEngagedLocation = null
+    }
+
+    private fun onLocation(scope: CoroutineScope, location: LocationState, risks: SegmentRiskRepository) {
+        refreshNearbyIfStale(scope, location.point, clock(), risks)
+        evaluate(scope, location)
+    }
+
+    private fun evaluate(scope: CoroutineScope, location: LocationState) {
         val now = clock()
         val last = lastAnnounceMs
         if (last != null && now - last < rules.announceCooldownMs) return
-        refreshNearby(location.point, now, risks)
         val hit = nearby.firstOrNull { it.key !in announcedThisTrip && isAhead(location, it) } ?: return
 
         announcedThisTrip += hit.key
@@ -88,18 +117,29 @@ class RiskAnnouncer(
         return GeoMath.angleDiffDeg(location.headingDeg, risk.key.heading8 * 45.0) <= 45.0
     }
 
-    /** 2km 안을 조회해 두고, 500m 넘게 움직였거나 1분이 지나면 다시 조회한다. 실패하면 이전 목록을 쓴다 */
-    private suspend fun refreshNearby(point: GeoPoint, now: Long, risks: SegmentRiskRepository) {
+    /**
+     * 2km 안을 조회해 두고, 500m 넘게 움직였거나 1분이 지나면 다시 조회한다.
+     * 조회는 따로 띄워서 위치 처리를 막지 않는다(이슈 #8 — 서버가 느려도 안내 시점을 놓치지 않게). 그동안은 이전 목록을 쓴다.
+     * 실패·시간 초과면 이전 목록을 그대로 쓰고, 다음 조회 조건(500m·1분)이 될 때 다시 묻는다.
+     */
+    private fun refreshNearbyIfStale(scope: CoroutineScope, point: GeoPoint, now: Long, risks: SegmentRiskRepository) {
+        if (refreshJob?.isActive == true) return
         val at = nearbyAt
         if (at != null && GeoMath.distanceM(at, point) < REFRESH_MOVE_M && now - nearbyAtMs < REFRESH_MS) return
-        try {
-            nearby = risks.nearby(point, NEARBY_RADIUS_M)
-            nearbyAt = point
-            nearbyAtMs = now
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: Exception) {
-            // 네트워크 오류 등: 이전 목록 유지
+        nearbyAt = point
+        nearbyAtMs = now
+        refreshJob = scope.launch {
+            try {
+                nearby = withTimeout(NEARBY_TIMEOUT_MS) { risks.nearby(point, NEARBY_RADIUS_M) }
+                // 다음 위치 갱신을 기다리지 않고 바로 판단(첫 조회 직후 안내가 1초 늦어지지 않게)
+                lastEngagedLocation?.let { evaluate(scope, it) }
+            } catch (_: TimeoutCancellationException) {
+                // 시간 초과: 이전 목록 유지
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // 네트워크 오류 등: 이전 목록 유지
+            }
         }
     }
 
@@ -116,5 +156,6 @@ class RiskAnnouncer(
         const val NEARBY_RADIUS_M = 2_000.0
         const val REFRESH_MOVE_M = 500.0
         const val REFRESH_MS = 60_000L
+        const val NEARBY_TIMEOUT_MS = 5_000L
     }
 }

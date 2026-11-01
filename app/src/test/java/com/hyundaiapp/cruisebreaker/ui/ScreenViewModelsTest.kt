@@ -5,6 +5,7 @@ import com.hyundaiapp.core.FakeVehicleSignals
 import com.hyundaiapp.core.Gear
 import com.hyundaiapp.cruisebreaker.data.FakeCruiseServer
 import com.hyundaiapp.cruisebreaker.data.InMemoryAppPrefs
+import com.hyundaiapp.cruisebreaker.data.toUpload
 import com.hyundaiapp.cruisebreaker.domain.DisengageDetector
 import com.hyundaiapp.cruisebreaker.domain.DisengageEvent
 import com.hyundaiapp.cruisebreaker.domain.DisengageRules
@@ -52,7 +53,7 @@ class ScreenViewModelsTest {
         assertEquals(items.sortedBy { it.distanceM }, items)
 
         val demo = server.nearby(fake.location.value!!.point, 1_000.0).first { it.roadName.startsWith("시연 지점") }
-        server.upload(DisengageEvent(0L, demo.key, 100f, demo.center))
+        server.upload(DisengageEvent(0L, demo.key, 100f, demo.center).toUpload("v1"))
         vm.refresh()
         assertEquals(demo.disengages + 1, server.nearby(demo.center, 10.0).single().disengages)
     }
@@ -112,6 +113,24 @@ class ScreenViewModelsTest {
         assertEquals(1, started)
         assertTrue(prefs.onboarded)
         assertFalse(vm.state.value.speedPermissionGranted)
+    }
+
+    @Test
+    fun `S4 동의 철회하면 철회 동작을 부르고 S5는 빈 동의로 다시 보인다`() {
+        val prefs = InMemoryAppPrefs(locationAgreed = true, privacyAgreed = true, voiceEnabled = false)
+        val oldId = prefs.vehicleId()
+        val onboarding = OnboardingViewModel(prefs, speedPermissionGranted = { true })
+        var withdrawn = 0
+        val settings = SettingsViewModel(prefs, onWithdrawConsent = { withdrawn++; prefs.clearConsentAndData() })
+
+        settings.withdrawConsent()
+        onboarding.reload()
+
+        assertEquals(1, withdrawn)
+        assertFalse(prefs.onboarded)
+        assertTrue(settings.state.value.voiceEnabled) // 기본값으로
+        assertEquals(OnboardingUiState(false, false, true), onboarding.state.value)
+        assertTrue(prefs.vehicleId() != oldId) // 다시 동의하면 새 차량 ID
     }
 
     @Test

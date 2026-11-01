@@ -19,6 +19,8 @@ import java.util.Locale
  * SDK는 시스템 음성 서비스(`ai.pleos.playground.caas` 4.1.29 이상)에 붙는다. 퍼미션 `pleos.car.permission.TTS_SERVICE`.
  */
 class RiskSpeaker(context: Context) {
+    // SDK 스레드(onSuccess)에서 쓰고 코루틴에서 읽는다(이슈 #8)
+    @Volatile
     private var ready = false
     private val tts = TextToSpeech(context.applicationContext, Mode.ON_DEVICE)
 

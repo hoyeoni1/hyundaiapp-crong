@@ -2,8 +2,6 @@ package com.hyundaiapp.cruisebreaker.data
 
 import com.hyundaiapp.core.GeoMath
 import com.hyundaiapp.core.GeoPoint
-import com.hyundaiapp.cruisebreaker.domain.CruisePass
-import com.hyundaiapp.cruisebreaker.domain.DisengageEvent
 import com.hyundaiapp.cruisebreaker.domain.DisengageRules
 import com.hyundaiapp.cruisebreaker.domain.SegmentKey
 
@@ -38,12 +36,12 @@ class FakeCruiseServer(
         }
     }
 
-    override suspend fun upload(event: DisengageEvent) {
-        synchronized(cells) { cellAt(event.segment).disengages += 1 }
+    override suspend fun upload(event: DisengageUpload) {
+        synchronized(cells) { cellAt(SegmentKey(event.segmentId, event.heading8)).disengages += 1 }
     }
 
-    override suspend fun upload(pass: CruisePass) {
-        synchronized(cells) { cellAt(pass.segment).passes += 1 }
+    override suspend fun upload(pass: PassUpload) {
+        synchronized(cells) { cellAt(SegmentKey(pass.segmentId, pass.heading8)).passes += 1 }
     }
 
     override suspend fun nearby(center: GeoPoint, radiusM: Double): List<SegmentRisk> = synchronized(cells) {

@@ -1,41 +1,51 @@
 # 인수인계 — 이민하 (크루즈브레이커 로직)
 
-담당 경로: `app/src/main/java/com/hyundaiapp/cruisebreaker/domain/`, ViewModel
+담당 경로: 크루즈브레이커 로직 — `app/src/main/java/com/hyundaiapp/cruisebreaker/` 아래 `ui/` 화면을 뺀 전부(`domain/`, `data/`, ViewModel, `AppContainer`·`CruiseBreakerApp`·`RecordingService`). 화면(`ui/` Screen·테마)은 길민종
 
 ## 현재 상태 (2026-11-01 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
-  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md)(PRD 5.3 대체, PRD 반영은 장호연 요청). 11-01 결정: 안내 500m 고정·크루즈 작동 중에만, 한 주행 = D~P, 업로드 실시간, 가명 차량 ID = 설치마다 UUID, 기간 28일
-  - **에뮬레이터에서 11-05 흐름 동작**: 크루즈 작동 → 통과·해제 기록 → 가짜 서버 반영 → 500m 앞 위험 구간 안내(S1 배너 10초 + Pleos TTS 음성)
-    - 해제 감지·구간 ID: `feat/disengage-detection`(PR #3)
-    - 안내기·주행 구분·가짜 서버·음성·차량 ID: `feat/risk-announcer`(PR #4, #3 위)
-    - S2~S5 ViewModel + `CruiseBreakerNav` 연결: `feat/screen-viewmodels`(PR #5, #4 위). S2 가짜 서버 목록, S3 주행 요약(`TripStats`), S4 음성·자동 기록 저장(`AppPrefs`), S5 동의 저장
-    - 포그라운드 서비스 + 부팅 수신기: `feat/recording-service`(PR #6, #5 위). S5 동의 후에만 시작, 앱을 열 때·시동(부팅) 때(S4 자동 기록 켜짐) 시작. 에뮬레이터에서 앱을 뒤로 보내도 `isFrozen=false`로 기록·안내·음성, 재부팅 후 앱을 안 열어도 동작 확인
-  - 아직 없는 것: 실제 서버(황준용), S5에서 알림 권한(`POST_NOTIFICATIONS`) 요청
-- 진행 중 브랜치·PR: #3 → #4 → #5 → #6 순서로 쌓여 있음(https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pulls). 앞 PR이 머지되면 다음 PR의 기준 브랜치를 `main`으로 바꿀 것(`gh pr edit <번호> --base main`)
+  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). PRD·기획서·README에도 반영됨(장호연, 11-01)
+  - **main(PR #3~#6 머지)에서 에뮬레이터 흐름 동작**: S5 동의 → 기록 서비스 → 크루즈 작동 중 통과·해제 기록 → 500m 앞 안내(S1 배너 10초 + Pleos TTS) → S2 목록·S3 요약. 앱을 뒤로 보내도·재부팅 후에도 동작
+  - **리뷰 후속 `fix/consent-and-review-followups`**(이슈 #7·#8, #9의 신호 수신 부분, PR #3 선택 제안):
+    - 동의 철회: S4 [동의 철회] → 확인 창 → 기록 서비스 정지·신호 수신 끊음·배너 내림·기기의 동의·가명 차량 ID·주행 요약 삭제. 서비스가 다시 살아나도 동의가 없으면 바로 멈춤
+    - 동의 전에는 차량·위치 신호를 받지 않음(신호 모니터만 화면에 들어갈 때 켬)
+    - API 28~33 호환(`ServiceCompat`, specialUse 타입은 34+에서만), TTS 준비 값 `@Volatile`, 주변 조회를 따로 띄우고 5초 시간 초과
+    - 업로드는 좌표 없는 형태(`DisengageUpload`·`PassUpload`)로만 받음, 큐를 거쳐 감지기가 막히지 않음, 같은 작동 중 같은 구간은 통과 1번
+- 진행 중 브랜치·PR: `fix/consent-and-review-followups` (리뷰·머지 대기)
 - 다음 할 일(우선순위 순):
-  1. PR 리뷰 코멘트 대응(#3~#6)
-  2. 장호연 위치 재생 시연 모드가 나오면 안내 확인(지금은 에뮬레이터 고정 위치 앞 400m 시드로만 확인)
-- 막힌 점·질문(누구에게): `docs/disengage-rules.md` "팀원별 요청" 표
-  - 장호연: PR #6의 `MainActivity`(앱 열 때 서비스 시작)·매니페스트 퍼미션 4개 확인, PRD·기획서·README 반영, 주최 측 문의에 `pleos.car.permission.TTS_SERVICE` 승인 여부 추가
-  - 황준용: 실시간 업로드(실패 시 쌓아 두고 재전송), 업로드에 `AppContainer.vehicleId` 붙이기, `segment_risk` 9칸 합산·차량-일 중복 제거·28일
-  - 길민종: S5 차속 권한 설명 "정체 구간을 거르려고" → "느린 속도의 해제를 거르려고"(정체 필터 없어짐), S5에서 알림 권한 요청, S2 "브레이크로 해제" 막대 삭제, S4 안내 거리 선택 삭제(500m 고정, 지금은 눌러도 무시), S4 자동 기록 토글 추가(`SettingsUiState.autoRecordEnabled`, `SettingsViewModel.setAutoRecordEnabled`). `CruiseBreakerNav`의 임시 상태를 ViewModel로 바꿨음(PR #5) — 확인 부탁
+  1. 11-05 중간 점검 시연 리허설(아래 "확인 방법" 순서대로)
+  2. 장호연 위치 재생 시연 모드가 나오면 실제 경로에서 안내 확인
+  3. 이상준 차슐랭 로직 PR 교차 읽기(PT 대비)
+- 막힌 점·질문(누구에게):
+  - 황준용: **업로드 인터페이스가 바뀜** — `CruiseEventRepository.upload(DisengageUpload / PassUpload)`(좌표·차속 없음, 해제 시각은 시간 단위, 통과는 한국 날짜, `vehicleId` 포함). 실패 시 쌓아 두고 재전송은 저장소 구현에서. **동의 철회 때 서버에 이미 올라간 기록을 어떻게 지울지**(가명 ID로 삭제 요청 API 등) 정해서 PRD 5.6에
+  - 길민종(이슈 #9): S4에 [동의 철회] 줄을 내가 넣었음(`SettingsScreen`의 `onWithdrawConsent`, 모양은 바꿔도 됨) — 안내 거리 삭제·자동 기록 토글과 같이 정리. S5 차속 권한 문구, S5 알림 권한 요청, S2 브레이크 막대 삭제(`UiStates.kt`는 같은 PR에서 합의). `MainActivity`의 차속 권한 즉시 요청 삭제
+  - 장호연: 최소 SDK를 34로 올릴지(지금은 28 유지하고 코드로 분기함)
 - 주의(함정·직접 겪은 이상한 동작):
-  - **TTS**: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 초기화 실패(status -1). Pleos TTS SDK는 되지만 `Locale.KOREAN`("ko")이면 엔진이 "unsupported locale: ko-"로 실패 → `Locale.KOREA`(ko_KR)
-  - 시드에 "시연 지점(에뮬레이터 위치 앞 400m)"이 있음 — 에뮬레이터 위치가 판교 고정이라 위치 재생 없이 안내를 보이려고 넣음. 실제 데이터가 아님(PT에서 밝힐 것)
-  - 가짜 서버는 차량-일 중복 제거를 안 함(차가 하나). 같은 자리에서 크루즈를 껐다 켜면 통과가 계속 늘어남
+  - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기
+  - 동의를 철회한 뒤 같은 프로세스에서 다시 동의해도 정상 재시작됨(감지기·안내기가 시작할 때 이전 상태를 지움)
+  - TTS: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 실패. Pleos TTS SDK는 `Locale.KOREA`(ko_KR)여야 함("ko"면 엔진 오류)
+  - 시드 "시연 지점(에뮬레이터 위치 앞 400m)"은 실제 데이터 아님(PT에서 밝힐 것). 가짜 서버는 차량-일 중복 제거를 안 함
+  - lint `ImplicitSamInstance`(`stopService`) 경고는 오탐 — `Intent`로 멈추는 정상 호출
+  - 부팅 중 `ai.pleos.service.car`(시스템) 충돌 로그는 우리 앱과 무관
   - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 해제 값(USER_OVERRIDE 등)은 재현 불가. 해석은 `CruiseStateInterpreter`에만
-  - 판교 에뮬레이터 위치의 geohash는 `wydku4g`
-  - 동결 중 이벤트는 쌓였다가 한꺼번에 옴 → 서비스로 동결을 막는 게 전제
-  - 차속 권한 대화상자가 "위치 정보"로 뜸. 차속이 없으면 60km/h 조건만 건너뜀
+  - Git Bash에서 `adb shell run-as ... cat /data/...`는 경로가 바뀌므로 `MSYS_NO_PATHCONV=1`을 붙인다
 - 확인 방법:
-  - 단위 테스트: `./gradlew :app:testDebugUnitTest` (JDK 17, 34개)
-  - 에뮬레이터: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 앱 실행 → 개발 메뉴 S1 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → 바로 배너·음성. 5초 뒤 `put 'driving-mode?ad_mode_state=ready'` → 해제 기록. 로그: `adb logcat -s CruiseRecord`
-  - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기. 서비스 확인: `adb shell dumpsys activity services com.hyundaiapp.cruisebreaker | grep RecordingService`
-  - 같은 주행에서는 다시 안내 안 함 → 다시 보려면 `gear?gear=Park` 후 앱 재시작, 또는 3분 + 새 주행
-  - PR 올리기: 이 PC에 `gh` 설치·로그인됨(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
+  - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17, 44개)
+  - 시연 순서: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'gear?gear=Park'` → S3 요약·S2 목록. 로그 `adb logcat -s CruiseRecord`
+  - 철회: S4 [동의 철회] → [철회] → `adb shell dumpsys activity services com.hyundaiapp.cruisebreaker | grep RecordingService` 없음, `MSYS_NO_PATHCONV=1 adb shell run-as com.hyundaiapp.cruisebreaker --user 10 cat /data/user/10/com.hyundaiapp.cruisebreaker/shared_prefs/cruisebreaker.xml` → `<map />`
+  - PR 올리기: `gh`(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-01 밤 (이민하, Claude 에이전트와 작업 — 리뷰 후속)
+- 한 일: `fix/consent-and-review-followups` — 이슈 #7(동의 철회), #8(API 28 호환·TTS 가시성·주변 조회), #9 중 동의 전 신호 수신, PR #3 선택 제안 4개 반영. 테스트 34 → 44개, lint `NewApi` 없음
+- 에뮬레이터 확인: 새로 설치 → 서비스·신호 수신 없음 → S5 동의 → 기록·안내·음성 → S4 철회 → 서비스 없음·prefs 빔·주행해도 기록 없음·S5 빈 동의 → 다시 동의 → 같은 프로세스에서 기록 재시작, 새 차량 ID
+- 결정한 것과 이유:
+  - 철회 = 기기 데이터 전부 삭제(동의·차량 ID·음성·자동 기록 설정·주행 요약). 다시 동의하면 새 차량 ID라 이전 기록과 이어지지 않음
+  - 최소 SDK는 28 그대로 두고 코드로 분기(올릴지는 장호연 결정)
+  - 조회 결과가 오면 마지막 위치로 바로 다시 판단(따로 띄운 조회 때문에 첫 안내가 1초 늦어지지 않게)
+- 바꾼 파일: `AppContainer.kt`, `CruiseBreakerApp.kt`, `RecordingService.kt`, `data/{AppPrefs,CruiseEventRepository,FakeCruiseServer}.kt`, `data/VehicleId.kt`(삭제, `AppPrefs.vehicleId()`로), `domain/{DisengageDetector,RiskAnnouncer,RiskSpeaker,TripStats,TripTracker}.kt`, `ui/CruiseBreakerNav.kt`, `ui/settings/{SettingsScreen,SettingsViewModel}.kt`, `ui/onboarding/OnboardingViewModel.kt`, 테스트 4개 + `UploadRecordTest`(새 파일), `docs/handoff/lee-minha.md`
 
 ### 2026-11-01 밤 (이민하, Claude 에이전트와 작업 — 기록 서비스)
 - 한 일: `feat/recording-service` — `RecordingService`(specialUse, 알림 LOW "주행 기록 중"), `BootReceiver`, 기록 파이프라인을 `CruiseBreakerApp.onCreate`에서 `AppContainer.startRecording()`으로 옮김(서비스가 부름, 한 번만 시작). 퍼미션 4개(`FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_SPECIAL_USE`, `RECEIVE_BOOT_COMPLETED`, `POST_NOTIFICATIONS`)

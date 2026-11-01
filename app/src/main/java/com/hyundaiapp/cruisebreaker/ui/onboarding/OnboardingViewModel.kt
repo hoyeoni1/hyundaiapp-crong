@@ -15,17 +15,22 @@ import kotlinx.coroutines.flow.update
  */
 class OnboardingViewModel(
     private val prefs: AppPrefs,
-    speedPermissionGranted: () -> Boolean,
+    private val speedPermissionGranted: () -> Boolean,
     private val onStarted: () -> Unit = {},
 ) : ViewModel() {
-    private val _state = MutableStateFlow(
-        OnboardingUiState(
-            locationAgreed = prefs.locationAgreed,
-            privacyAgreed = prefs.privacyAgreed,
-            speedPermissionGranted = speedPermissionGranted(),
-        ),
-    )
+    private val _state = MutableStateFlow(fromPrefs())
     val state: StateFlow<OnboardingUiState> = _state.asStateFlow()
+
+    /** 화면에 들어올 때 부른다(S4에서 동의를 철회했으면 빈 동의로 다시 보여 줌) */
+    fun reload() {
+        _state.value = fromPrefs()
+    }
+
+    private fun fromPrefs() = OnboardingUiState(
+        locationAgreed = prefs.locationAgreed,
+        privacyAgreed = prefs.privacyAgreed,
+        speedPermissionGranted = speedPermissionGranted(),
+    )
 
     fun agreeLocation() {
         prefs.locationAgreed = true
