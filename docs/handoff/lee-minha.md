@@ -5,36 +5,47 @@
 ## 현재 상태 (2026-11-01 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
-  - **판정 규칙 v2 확정** → [docs/disengage-rules.md](../disengage-rules.md). PRD 5.3을 대체(PRD 반영은 장호연 요청)
-    - 원인 구분 없음: `BRAKE/OTHER` 유형, 정체 제외 삭제. 차는 사실만 기록, 위험은 서버가 여러 차의 비율로 판단
-    - 칸 경계: 서버가 같은 방향 둘레 8칸까지 9칸 합산(차량-일 중복 제거), 최근 28일
-    - 안내 문구 한 가지: "1킬로미터 앞, 크루즈 해제가 잦은 구간입니다."
-  - **해제 감지(F1)·구간 ID 구현**(`feat/disengage-detection`): `SegmentKey` geohash·둘레 8칸, `DisengageDetector`, `USER_OVERRIDE`를 작동 중으로 고침. 단위 테스트 18개 통과, 에뮬레이터에서 해제·통과 기록 확인(logcat `CruiseRecord`)
-  - 업로드는 아직 Fake 저장소(서버 없음). 포그라운드 서비스 없음 → 앱이 뒤로 가면 기록이 멈춤
-- 진행 중 브랜치·PR: `feat/disengage-detection` (리뷰·머지 대기)
+  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md)(PRD 5.3 대체, PRD 반영은 장호연 요청). 11-01 결정: 안내 500m 고정·크루즈 작동 중에만, 한 주행 = D~P, 업로드 실시간, 가명 차량 ID = 설치마다 UUID, 기간 28일
+  - **에뮬레이터에서 11-05 흐름 동작**: 크루즈 작동 → 통과·해제 기록 → 가짜 서버 반영 → 500m 앞 위험 구간 안내(S1 배너 10초 + Pleos TTS 음성)
+    - 해제 감지·구간 ID: `feat/disengage-detection`(PR #3)
+    - 안내기·주행 구분·가짜 서버·음성·차량 ID: `feat/risk-announcer`(PR #3 위에 쌓음)
+  - 아직 없는 것: 포그라운드 서비스(앱이 뒤로 가면 기록이 멈춤), S2~S5 ViewModel, 실제 서버(황준용)
+- 진행 중 브랜치·PR: https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/3 (리뷰·머지 대기), `feat/risk-announcer` PR(#3 머지 후 main 기준으로 바뀜)
 - 다음 할 일(우선순위 순):
-  1. `feat/recording-service`: 포그라운드 서비스 + 부팅 수신기, 서비스가 `signals.start()`·감지기·업로드 수집을 소유(지금은 `CruiseBreakerApp`)
-  2. `RiskAnnouncer`: 진행 방향 ±30°, 앞 (설정 거리 ±200m), 같은 구간 1회·3분 간격 + TTS SDK 확인
-  3. ViewModel: S2·S3·S4·S5(길민종 화면 콜백 이름 그대로). S4 `autoRecordEnabled`
-  4. 11-05 시연 흐름: 해제 → 기록 → 안내 화면(Fake 저장소에 해제가 반영되게)
+  1. ViewModel: S2(가짜 서버 목록 → 해제 +1이 보이게), S3(주행 요약, `TripTracker` 기준), S4(`autoRecordEnabled`, 음성 켜기 → `RiskSpeaker.start`의 `enabled`), S5
+  2. `feat/recording-service`: 포그라운드 서비스 + 부팅 수신기. 지금 `CruiseBreakerApp.onCreate`에 있는 시작 코드를 서비스로 옮김
+  3. 장호연 위치 재생 시연 모드가 나오면 안내 확인(지금은 에뮬레이터 고정 위치 앞 400m 시드로만 확인)
 - 막힌 점·질문(누구에게): `docs/disengage-rules.md` "팀원별 요청" 표
-  - 장호연: PRD 3.1·4·5.1·5.2·5.3·5.5·5.6·5.7·7·8절, 기획서 `docs/proposal.md`, README 반영
-  - 황준용: `segment_risk` 뷰 9칸 합산·차량-일 중복 제거·28일, 유형·브레이크 비율 컬럼 삭제
-  - 길민종: S2 "브레이크로 해제" 막대 삭제(`RiskRowUi.brakeRatio`), 질문 4개 답은 표에 있음
-  - 장호연: 주최 측 문의(FGS·부팅 자동 시작 심사, 실차 해제 값, 시동 off 절전 여부)
+  - 장호연: PRD·기획서·README 반영, 주최 측 문의에 `pleos.car.permission.TTS_SERVICE` 승인 여부 추가
+  - 황준용: 실시간 업로드(실패 시 쌓아 두고 재전송), 업로드에 `AppContainer.vehicleId` 붙이기, `segment_risk` 9칸 합산·차량-일 중복 제거·28일
+  - 길민종: S2 "브레이크로 해제" 막대 삭제, S4 안내 거리 선택 삭제(500m 고정)
 - 주의(함정·직접 겪은 이상한 동작):
-  - 동결 중 이벤트는 버려지지 않고 쌓였다가 한꺼번에 옴 → 콜백 시각을 이벤트 시각으로 믿으면 안 됨(서비스로 동결을 막는 게 전제)
+  - **TTS**: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 초기화 실패(status -1). Pleos TTS SDK는 되지만 `Locale.KOREAN`("ko")이면 엔진이 "unsupported locale: ko-"로 실패 → `Locale.KOREA`(ko_KR)
+  - 시드에 "시연 지점(에뮬레이터 위치 앞 400m)"이 있음 — 에뮬레이터 위치가 판교 고정이라 위치 재생 없이 안내를 보이려고 넣음. 실제 데이터가 아님(PT에서 밝힐 것)
+  - 가짜 서버는 차량-일 중복 제거를 안 함(차가 하나). 같은 자리에서 크루즈를 껐다 켜면 통과가 계속 늘어남
   - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 해제 값(USER_OVERRIDE 등)은 재현 불가. 해석은 `CruiseStateInterpreter`에만
-  - 판교 에뮬레이터 위치의 geohash는 `wydku4g`(옛 TODO 주석의 "wydm…"는 틀린 추정)
-  - `FakeSegmentRiskRepository` 시드의 구간 ID는 아직 임시 문자열(`seed-a` 등) → 안내기 만들 때 실제 geohash로 바꿀 것
-  - 차속 권한 대화상자가 "위치 정보"로 뜸(AAOS가 CAR_SPEED를 위치 그룹으로 묶음). 차속이 없으면 60km/h 조건만 건너뛰고 기록은 함
-  - 조향 리스너는 값이 그대로여도 약 3초마다 `-0.0`을 보냄. 조향각은 콘솔 값과 부호 반대
+  - 판교 에뮬레이터 위치의 geohash는 `wydku4g`
+  - 동결 중 이벤트는 쌓였다가 한꺼번에 옴 → 서비스로 동결을 막는 게 전제
+  - 차속 권한 대화상자가 "위치 정보"로 뜸. 차속이 없으면 60km/h 조건만 건너뜀
 - 확인 방법:
-  - 단위 테스트: `./gradlew :app:testDebugUnitTest` (JDK 17)
-  - 해제 기록: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 앱 실행 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'` → `adb logcat -s CruiseRecord`에 `pass`·`disengage`
-  - 동결 여부: `adb shell dumpsys activity processes | grep -A3 <패키지>` 의 `isFrozen`
+  - 단위 테스트: `./gradlew :app:testDebugUnitTest` (JDK 17, 29개)
+  - 에뮬레이터: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 앱 실행 → 개발 메뉴 S1 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → 바로 배너·음성. 5초 뒤 `put 'driving-mode?ad_mode_state=ready'` → 해제 기록. 로그: `adb logcat -s CruiseRecord`
+  - 같은 주행에서는 다시 안내 안 함 → 다시 보려면 `gear?gear=Park` 후 앱 재시작, 또는 3분 + 새 주행
+  - PR 올리기: 이 PC에 `gh` 설치·로그인됨(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-01 오후 (이민하, Claude 에이전트와 작업 — 안내기)
+- 한 일: `feat/risk-announcer`
+  - `RiskAnnouncer`: 크루즈 작동 중, 진행 방향 ±30°, 앞 300~500m에 위험 구간 중심, 위험 구간 방향도 45° 안 → 1회. 같은 구간 한 주행 1회, 3분 간격, 배너 10초
+  - `TripTracker`: 한 주행 = D ~ P
+  - `FakeCruiseServer`: 가짜 저장소 2개를 합침. 업로드가 바로 반영되고 같은 방향 9칸 합산으로 위험 판단. 시드 ID를 실제 geohash로
+  - `RiskSpeaker`: Pleos TTS SDK 3.3.1 기기 내 모드. 퍼미션 `pleos.car.permission.TTS_SERVICE` 추가
+  - `VehicleId`: 설치마다 UUID
+  - 에뮬레이터에서 S1 배너·음성·10초 뒤 배너 사라짐 확인
+- 결정한 것과 이유(이민하 11-01): 안내 500m 고정, 크루즈 작동 중에만, 한 주행 D~P, 실시간 업로드, 설치마다 UUID, 28일. 문서: `docs/disengage-rules.md`
+- 에이전트가 정한 것: 안내 범위 300~500m(처음 들어올 때 "500미터 앞"이 맞게), 배너 10초, 주변 조회 2km·500m 이동 또는 1분마다 갱신
+- 바꾼 파일: `app/.../domain/{RiskAnnouncer,TripTracker,RiskSpeaker,Disengage,SegmentKey}.kt`, `app/.../data/{FakeCruiseServer,VehicleId,CruiseEventRepository,SegmentRiskRepository}.kt`, `AppContainer.kt`, `CruiseBreakerApp.kt`, `AndroidManifest.xml`, `app/build.gradle.kts`, 테스트 3개(새 파일), `docs/handoff/lee-minha.md`
 
 ### 2026-11-01 (이민하, Claude 에이전트와 작업)
 - 한 일:

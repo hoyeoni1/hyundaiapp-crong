@@ -11,6 +11,12 @@ data class SegmentKey(val geohash: String, val heading8: Int) {
     /** 같은 방향의 둘레 8칸(북서부터 행 순서: 북서·북·북동·서·동·남서·남·남동) */
     fun neighbors(): List<SegmentKey> = geohashNeighbors(geohash).map { SegmentKey(it, heading8) }
 
+    /** 칸 중심 좌표(안내 거리·지도 표시용) */
+    fun center(): GeoPoint {
+        val (s, n, w, e) = bounds(geohash).toList()
+        return GeoPoint((s + n) / 2, (w + e) / 2)
+    }
+
     companion object {
         const val GEOHASH_PRECISION = 7
         private const val BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz"

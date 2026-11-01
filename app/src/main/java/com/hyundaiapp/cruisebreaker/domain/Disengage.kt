@@ -26,8 +26,11 @@ data class DisengageRules(
     /** 위험 구간: 해제율 ≥ riskRate 그리고 통과 차량 ≥ minPasses (서버가 9칸 합산으로 판단) */
     val riskRate: Double = 0.3,
     val minPasses: Int = 20,
-    /** 안내: 진행 방향 ±announceAngleDeg 안, 앞 (설정 거리 ± announceMarginM) */
+    /** 안내: 진행 방향 ±announceAngleDeg 안, 앞 (announceDistanceM - announceMarginM) ~ announceDistanceM. 500m 고정(11-01) */
+    val announceDistanceM: Double = 500.0,
     val announceMarginM: Double = 200.0,
     val announceAngleDeg: Double = 30.0,
     val announceCooldownMs: Long = 3 * 60_000L,
+    /** 배너를 띄워 두는 시간 */
+    val bannerMs: Long = 10_000L,
 )
