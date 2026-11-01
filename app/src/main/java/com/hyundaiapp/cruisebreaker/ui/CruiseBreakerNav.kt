@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -33,10 +34,14 @@ import com.hyundaiapp.cruisebreaker.ui.debug.SignalMonitorScreen
 import com.hyundaiapp.cruisebreaker.ui.driving.DrivingScreen
 import com.hyundaiapp.cruisebreaker.ui.driving.DrivingViewModel
 import com.hyundaiapp.cruisebreaker.ui.onboarding.OnboardingScreen
+import com.hyundaiapp.cruisebreaker.ui.onboarding.OnboardingViewModel
 import com.hyundaiapp.cruisebreaker.ui.onboarding.Terms
 import com.hyundaiapp.cruisebreaker.ui.risk.RiskListScreen
+import com.hyundaiapp.cruisebreaker.ui.risk.RiskListViewModel
 import com.hyundaiapp.cruisebreaker.ui.settings.SettingsScreen
+import com.hyundaiapp.cruisebreaker.ui.settings.SettingsViewModel
 import com.hyundaiapp.cruisebreaker.ui.summary.TripSummaryScreen
+import com.hyundaiapp.cruisebreaker.ui.summary.TripSummaryViewModel
 
 /** PRD 5.5 화면 목록. 디버그 빌드는 개발 메뉴에서 시작한다 */
 enum class Screen(val title: String) {
@@ -57,13 +62,16 @@ fun CruiseBreakerNav(container: AppContainer) {
     val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
     BackHandler(enabled = stack.size > 1) { back() }
 
-    // S4·S5는 아직 ViewModel이 없다 → 화면 동작 확인용으로 여기서 상태를 들고 있는다(이민하 ViewModel로 교체)
-    var settings by remember { mutableStateOf(SettingsUiState()) }
-    var onboarding by remember { mutableStateOf(OnboardingUiState()) }
     var terms by remember { mutableStateOf<Terms?>(null) }
     val context = LocalContext.current
+    val onboardingVm = viewModel {
+        OnboardingViewModel(
+            container.prefs,
+            speedPermissionGranted = { context.checkSelfPermission(SPEED_PERMISSION) == PackageManager.PERMISSION_GRANTED },
+        )
+    }
     val speedPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        onboarding = onboarding.copy(speedPermissionGranted = granted)
+        onboardingVm.onSpeedPermissionResult(granted)
         container.signals.onPermissionsChanged()
     }
 
@@ -76,33 +84,43 @@ fun CruiseBreakerNav(container: AppContainer) {
                 DrivingScreen(state)
             }
             Screen.SIGNALS -> SignalMonitorScreen(container.signals)
-            // 아래 S2·S3은 아직 ViewModel이 없다 → 미리보기 데이터로 그린다
-            Screen.RISK_LIST -> RiskListScreen(
-                PreviewData.riskList,
-                onSummaryClick = { go(Screen.TRIP_SUMMARY) },
-                onSettingsClick = { go(Screen.SETTINGS) },
-            )
-            Screen.TRIP_SUMMARY -> TripSummaryScreen(
-                PreviewData.tripSummary,
-                onShowRisks = { go(Screen.RISK_LIST) },
-                onDone = back,
-            )
-            Screen.SETTINGS -> SettingsScreen(
-                settings,
-                onVoiceEnabledChange = { settings = settings.copy(voiceEnabled = it) },
-                onAnnounceDistanceChange = { settings = settings.copy(announceDistanceM = it) },
-                onConsentClick = { go(Screen.ONBOARDING) },
-                onBack = back,
-            )
+            Screen.RISK_LIST -> {
+                val vm = viewModel { RiskListViewModel(container.signals, container.risks) }
+                // 화면에 들어올 때마다 새로 조회한다(방금 남긴 해제가 반영되게)
+                LaunchedEffect(Unit) { vm.refresh() }
+                val state by vm.state.collectAsState()
+                RiskListScreen(
+                    state,
+                    onSummaryClick = { go(Screen.TRIP_SUMMARY) },
+                    onSettingsClick = { go(Screen.SETTINGS) },
+                )
+            }
+            Screen.TRIP_SUMMARY -> {
+                val vm = viewModel { TripSummaryViewModel(container.tripStats) }
+                val state by vm.state.collectAsState()
+                TripSummaryScreen(state, onShowRisks = { go(Screen.RISK_LIST) }, onDone = back)
+            }
+            Screen.SETTINGS -> {
+                val vm = viewModel { SettingsViewModel(container.prefs) }
+                val state by vm.state.collectAsState()
+                SettingsScreen(
+                    state,
+                    onVoiceEnabledChange = vm::setVoiceEnabled,
+                    // 안내 거리는 500m 고정(11-01) → 선택해도 반영하지 않음. 화면에서 지울 예정(길민종)
+                    onAnnounceDistanceChange = {},
+                    onConsentClick = { go(Screen.ONBOARDING) },
+                    onBack = back,
+                )
+            }
             Screen.ONBOARDING -> {
-                val granted = context.checkSelfPermission(SPEED_PERMISSION) == PackageManager.PERMISSION_GRANTED
+                val state by onboardingVm.state.collectAsState()
                 OnboardingScreen(
-                    onboarding.copy(speedPermissionGranted = onboarding.speedPermissionGranted || granted),
-                    onAgreeLocation = { onboarding = onboarding.copy(locationAgreed = true) },
-                    onAgreePrivacy = { onboarding = onboarding.copy(privacyAgreed = true) },
+                    state,
+                    onAgreeLocation = onboardingVm::agreeLocation,
+                    onAgreePrivacy = onboardingVm::agreePrivacy,
                     onRequestSpeedPermission = { speedPermission.launch(SPEED_PERMISSION) },
                     onShowTerms = { terms = it },
-                    onStart = back,
+                    onStart = { if (onboardingVm.start()) back() },
                 )
             }
         }

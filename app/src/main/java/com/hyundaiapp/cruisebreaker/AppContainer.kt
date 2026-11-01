@@ -1,14 +1,17 @@
 package com.hyundaiapp.cruisebreaker
 
 import android.content.Context
+import com.hyundaiapp.cruisebreaker.data.AppPrefs
 import com.hyundaiapp.cruisebreaker.data.CruiseEventRepository
 import com.hyundaiapp.cruisebreaker.data.FakeCruiseServer
 import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
+import com.hyundaiapp.cruisebreaker.data.SharedPrefsAppPrefs
 import com.hyundaiapp.cruisebreaker.data.VehicleId
 import com.hyundaiapp.cruisebreaker.domain.DisengageDetector
 import com.hyundaiapp.cruisebreaker.domain.DisengageRules
 import com.hyundaiapp.cruisebreaker.domain.RiskAnnouncer
 import com.hyundaiapp.cruisebreaker.domain.RiskSpeaker
+import com.hyundaiapp.cruisebreaker.domain.TripStats
 import com.hyundaiapp.cruisebreaker.domain.TripTracker
 import com.hyundaiapp.core.CoreFeature
 import com.hyundaiapp.core.PleosVehicleSignals
@@ -30,6 +33,9 @@ class AppContainer(context: Context) {
     /** 가명 차량 ID(설치마다 UUID). 실제 업로드 구현에서 쓴다 */
     val vehicleId: String = VehicleId.get(context)
 
+    /** S4 설정·S5 동의 */
+    val prefs: AppPrefs = SharedPrefsAppPrefs(context)
+
     private val server = FakeCruiseServer()
     val risks: SegmentRiskRepository = server
     val events: CruiseEventRepository = server
@@ -37,6 +43,7 @@ class AppContainer(context: Context) {
     private val rules = DisengageRules()
     val disengageDetector = DisengageDetector(signals, rules)
     val trips = TripTracker(signals)
+    val tripStats = TripStats()
     val announcer = RiskAnnouncer(rules)
     val speaker = RiskSpeaker(context)
 }

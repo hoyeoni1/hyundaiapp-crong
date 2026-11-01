@@ -31,7 +31,8 @@ class CruiseBreakerApp : Application() {
         container.appScope.launch {
             container.announcer.announcements.collect { Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}") }
         }
-        container.speaker.start(container.appScope, container.announcer.announcements)
+        container.tripStats.start(container.appScope, container.trips, container.announcer, container.disengageDetector)
+        container.speaker.start(container.appScope, container.announcer.announcements) { container.prefs.voiceEnabled }
         container.announcer.start(container.appScope, container.signals, container.risks, container.trips)
     }
 
