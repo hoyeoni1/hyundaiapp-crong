@@ -26,6 +26,13 @@ class CruiseBreakerApp : Application() {
             }
         }
         container.disengageDetector.start(container.appScope)
+
+        container.trips.start(container.appScope)
+        container.appScope.launch {
+            container.announcer.announcements.collect { Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}") }
+        }
+        container.speaker.start(container.appScope, container.announcer.announcements)
+        container.announcer.start(container.appScope, container.signals, container.risks, container.trips)
     }
 
     private companion object {
