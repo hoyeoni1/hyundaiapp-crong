@@ -8,17 +8,17 @@
   - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md)(PRD 5.3 대체, PRD 반영은 장호연 요청). 11-01 결정: 안내 500m 고정·크루즈 작동 중에만, 한 주행 = D~P, 업로드 실시간, 가명 차량 ID = 설치마다 UUID, 기간 28일
   - **에뮬레이터에서 11-05 흐름 동작**: 크루즈 작동 → 통과·해제 기록 → 가짜 서버 반영 → 500m 앞 위험 구간 안내(S1 배너 10초 + Pleos TTS 음성)
     - 해제 감지·구간 ID: `feat/disengage-detection`(PR #3)
-    - 안내기·주행 구분·가짜 서버·음성·차량 ID: `feat/risk-announcer`(PR #3 위에 쌓음)
-  - 아직 없는 것: 포그라운드 서비스(앱이 뒤로 가면 기록이 멈춤), S2~S5 ViewModel, 실제 서버(황준용)
+    - 안내기·주행 구분·가짜 서버·음성·차량 ID: `feat/risk-announcer`(PR #4, #3 위)
+    - S2~S5 ViewModel + `CruiseBreakerNav` 연결: `feat/screen-viewmodels`(PR #5, #4 위). S2 가짜 서버 목록, S3 주행 요약(`TripStats`), S4 음성·자동 기록 저장(`AppPrefs`), S5 동의 저장
+  - 아직 없는 것: 포그라운드 서비스(앱이 뒤로 가면 기록이 멈춤), 실제 서버(황준용)
 - 진행 중 브랜치·PR: https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/3 (리뷰·머지 대기), `feat/risk-announcer` PR(#3 머지 후 main 기준으로 바뀜)
 - 다음 할 일(우선순위 순):
-  1. ViewModel: S2(가짜 서버 목록 → 해제 +1이 보이게), S3(주행 요약, `TripTracker` 기준), S4(`autoRecordEnabled`, 음성 켜기 → `RiskSpeaker.start`의 `enabled`), S5
-  2. `feat/recording-service`: 포그라운드 서비스 + 부팅 수신기. 지금 `CruiseBreakerApp.onCreate`에 있는 시작 코드를 서비스로 옮김
-  3. 장호연 위치 재생 시연 모드가 나오면 안내 확인(지금은 에뮬레이터 고정 위치 앞 400m 시드로만 확인)
+  1. `feat/recording-service`: 포그라운드 서비스 + 부팅 수신기. 지금 `CruiseBreakerApp.onCreate`에 있는 시작 코드를 서비스로 옮김
+  2. 장호연 위치 재생 시연 모드가 나오면 안내 확인(지금은 에뮬레이터 고정 위치 앞 400m 시드로만 확인)
 - 막힌 점·질문(누구에게): `docs/disengage-rules.md` "팀원별 요청" 표
   - 장호연: PRD·기획서·README 반영, 주최 측 문의에 `pleos.car.permission.TTS_SERVICE` 승인 여부 추가
   - 황준용: 실시간 업로드(실패 시 쌓아 두고 재전송), 업로드에 `AppContainer.vehicleId` 붙이기, `segment_risk` 9칸 합산·차량-일 중복 제거·28일
-  - 길민종: S2 "브레이크로 해제" 막대 삭제, S4 안내 거리 선택 삭제(500m 고정)
+  - 길민종: S2 "브레이크로 해제" 막대 삭제, S4 안내 거리 선택 삭제(500m 고정, 지금은 눌러도 무시), S4 자동 기록 토글 추가(`SettingsUiState.autoRecordEnabled`, `SettingsViewModel.setAutoRecordEnabled`). `CruiseBreakerNav`의 임시 상태를 ViewModel로 바꿨음(PR #5) — 확인 부탁
 - 주의(함정·직접 겪은 이상한 동작):
   - **TTS**: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 초기화 실패(status -1). Pleos TTS SDK는 되지만 `Locale.KOREAN`("ko")이면 엔진이 "unsupported locale: ko-"로 실패 → `Locale.KOREA`(ko_KR)
   - 시드에 "시연 지점(에뮬레이터 위치 앞 400m)"이 있음 — 에뮬레이터 위치가 판교 고정이라 위치 재생 없이 안내를 보이려고 넣음. 실제 데이터가 아님(PT에서 밝힐 것)
@@ -28,12 +28,17 @@
   - 동결 중 이벤트는 쌓였다가 한꺼번에 옴 → 서비스로 동결을 막는 게 전제
   - 차속 권한 대화상자가 "위치 정보"로 뜸. 차속이 없으면 60km/h 조건만 건너뜀
 - 확인 방법:
-  - 단위 테스트: `./gradlew :app:testDebugUnitTest` (JDK 17, 29개)
+  - 단위 테스트: `./gradlew :app:testDebugUnitTest` (JDK 17, 34개)
   - 에뮬레이터: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 앱 실행 → 개발 메뉴 S1 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → 바로 배너·음성. 5초 뒤 `put 'driving-mode?ad_mode_state=ready'` → 해제 기록. 로그: `adb logcat -s CruiseRecord`
   - 같은 주행에서는 다시 안내 안 함 → 다시 보려면 `gear?gear=Park` 후 앱 재시작, 또는 3분 + 새 주행
   - PR 올리기: 이 PC에 `gh` 설치·로그인됨(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-01 저녁 (이민하, Claude 에이전트와 작업 — 화면 ViewModel)
+- 한 일: `feat/screen-viewmodels` — `RiskListViewModel`(S2, 들어올 때마다 주변 10km 조회, 위험 구간만 가까운 순), `TripSummaryViewModel`(S3)+`TripStats`(안내받은 구간·안내 수·내 해제 수, 새 주행이면 0), `SettingsViewModel`(S4), `OnboardingViewModel`(S5), `AppPrefs`(SharedPreferences). `SettingsUiState.autoRecordEnabled` 추가. 음성 끔이면 `RiskSpeaker`가 읽지 않음. 에뮬레이터에서 S2 목록·S3 요약(1곳·1회·1건) 확인
+- 결정한 것과 이유: "내가 보탠 기록"은 해제 수만 셈(통과는 150m마다 생겨 숫자가 커서 의미가 흐려짐). "지난 위험 구간"은 안내받은 구간 수(같은 구간은 한 주행 1회 안내라 서로 다른 구간 수와 같음)
+- 바꾼 파일: `ui/{risk,summary,settings,onboarding}/*ViewModel.kt`(새 파일), `domain/TripStats.kt`, `data/AppPrefs.kt`, `ui/CruiseBreakerNav.kt`, `ui/UiStates.kt`, `AppContainer.kt`, `CruiseBreakerApp.kt`, 테스트 `ScreenViewModelsTest`
 
 ### 2026-11-01 오후 (이민하, Claude 에이전트와 작업 — 안내기)
 - 한 일: `feat/risk-announcer`
