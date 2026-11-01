@@ -2,38 +2,53 @@
 
 담당 경로: `app/src/main/java/com/hyundaiapp/cruisebreaker/domain/`, ViewModel
 
-## 현재 상태 (2026-10-30 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-01 기준, 매번 덮어쓰기)
 
-- 한 일 요약: **백그라운드 동결 실험 완료** → [docs/background-freeze-experiment.md](../background-freeze-experiment.md)
-  - 원인: Android 14 캐시 앱 동결. 앱이 뒤로 간 지 약 10초 뒤 얼고, 그동안 이벤트는 앱이 다시 앞으로 올 때 한꺼번에 늦게 옴(판정에 못 씀)
-  - **포그라운드 서비스로 해결됨**(얼지 않고 실시간 수신, 5분 연속 확인). 멀티 윈도우는 시스템에서 꺼져 있어 불가
-  - **시동(재부팅) 자동 시작 됨**: 첫 실행 동의 후 부팅 수신기로 서비스가 켜지고 앱을 열지 않아도 실시간 수신(2회). 서비스 시작 직후 약 5초는 놓칠 수 있음
-  - **알림**: 알림 센터에 카드 한 장(상단 아이콘·팝업 없음)
-  - **일관성**: 다른 앱 3종·경로 안내·주행·앱 화면 닫힘·`am kill` 7개 상황 모두 같은 프로세스로 51~84ms 안에 수신
-  - 아직 `app/`에는 반영 안 함(서비스 없음 → 지금 구조로는 뒤에 가면 기록이 멈춤)
-- 진행 중 브랜치·PR: 없음. 실험 앱은 저장소 밖 `hyundaiapp/experiments/freeze-probe/`
+- 한 일 요약:
+  - **판정 규칙 v2 확정** → [docs/disengage-rules.md](../disengage-rules.md). PRD 5.3을 대체(PRD 반영은 장호연 요청)
+    - 원인 구분 없음: `BRAKE/OTHER` 유형, 정체 제외 삭제. 차는 사실만 기록, 위험은 서버가 여러 차의 비율로 판단
+    - 칸 경계: 서버가 같은 방향 둘레 8칸까지 9칸 합산(차량-일 중복 제거), 최근 28일
+    - 안내 문구 한 가지: "1킬로미터 앞, 크루즈 해제가 잦은 구간입니다."
+  - **해제 감지(F1)·구간 ID 구현**(`feat/disengage-detection`): `SegmentKey` geohash·둘레 8칸, `DisengageDetector`, `USER_OVERRIDE`를 작동 중으로 고침. 단위 테스트 18개 통과, 에뮬레이터에서 해제·통과 기록 확인(logcat `CruiseRecord`)
+  - 업로드는 아직 Fake 저장소(서버 없음). 포그라운드 서비스 없음 → 앱이 뒤로 가면 기록이 멈춤
+- 진행 중 브랜치·PR: `feat/disengage-detection` (리뷰·머지 대기)
 - 다음 할 일(우선순위 순):
-  1. 결과 공유(11-01까지): 장호연(PRD 5.4, 주최 측 문의, 서비스 구조 확인), 황준용(`core/README` 할 일), 이상준(차슐랭 충전 중 생존도 같은 원인일 가능성)
-  2. 장호연 확인 후 `app/`에 주행 기록용 포그라운드 서비스 + 부팅 수신기 추가 PR(`feat/recording-service`)
-  3. `domain/SegmentKey.kt` geohash 구현 + 테스트
-  4. `domain/DisengageDetector.kt` TODO — PRD 5.3. `FakeVehicleSignals`로 단위 테스트 먼저
-  5. TTS SDK 동작 확인 → `RiskAnnouncer`
-- 막힌 점·질문(누구에게):
-  - 장호연: 주최 측 문의에 추가 요청 — 포그라운드 서비스 타입(`specialUse` vs `location`)과 심사 허용 여부, 부팅 자동 시작 허용 여부, 실차가 시동 off 때 완전히 꺼지는지 절전(suspend)하는지
-  - 장호연: "주행 중 DO 차단"이 이번 실험(D·80km/h)에서는 재현 안 됨 — 어떤 조건에서 봤는지
+  1. `feat/recording-service`: 포그라운드 서비스 + 부팅 수신기, 서비스가 `signals.start()`·감지기·업로드 수집을 소유(지금은 `CruiseBreakerApp`)
+  2. `RiskAnnouncer`: 진행 방향 ±30°, 앞 (설정 거리 ±200m), 같은 구간 1회·3분 간격 + TTS SDK 확인
+  3. ViewModel: S2·S3·S4·S5(길민종 화면 콜백 이름 그대로). S4 `autoRecordEnabled`
+  4. 11-05 시연 흐름: 해제 → 기록 → 안내 화면(Fake 저장소에 해제가 반영되게)
+- 막힌 점·질문(누구에게): `docs/disengage-rules.md` "팀원별 요청" 표
+  - 장호연: PRD 3.1·4·5.1·5.2·5.3·5.5·5.6·5.7·7·8절, 기획서 `docs/proposal.md`, README 반영
+  - 황준용: `segment_risk` 뷰 9칸 합산·차량-일 중복 제거·28일, 유형·브레이크 비율 컬럼 삭제
+  - 길민종: S2 "브레이크로 해제" 막대 삭제(`RiskRowUi.brakeRatio`), 질문 4개 답은 표에 있음
+  - 장호연: 주최 측 문의(FGS·부팅 자동 시작 심사, 실차 해제 값, 시동 off 절전 여부)
 - 주의(함정·직접 겪은 이상한 동작):
   - 동결 중 이벤트는 버려지지 않고 쌓였다가 한꺼번에 옴 → 콜백 시각을 이벤트 시각으로 믿으면 안 됨(서비스로 동결을 막는 게 전제)
-  - 조향 리스너는 값이 그대로여도 약 3초마다 `-0.0`을 보냄
   - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 해제 값(USER_OVERRIDE 등)은 재현 불가. 해석은 `CruiseStateInterpreter`에만
-  - 차속 권한 대화상자가 "위치 정보"로 뜸(AAOS가 CAR_SPEED를 위치 그룹으로 묶음)
-  - 내비 서비스가 재시작되면 core가 10초 안에 자동 재연결함(core 0.2.1)
-  - 조향각은 콘솔 값과 부호 반대
+  - 판교 에뮬레이터 위치의 geohash는 `wydku4g`(옛 TODO 주석의 "wydm…"는 틀린 추정)
+  - `FakeSegmentRiskRepository` 시드의 구간 ID는 아직 임시 문자열(`seed-a` 등) → 안내기 만들 때 실제 geohash로 바꿀 것
+  - 차속 권한 대화상자가 "위치 정보"로 뜸(AAOS가 CAR_SPEED를 위치 그룹으로 묶음). 차속이 없으면 60km/h 조건만 건너뛰고 기록은 함
+  - 조향 리스너는 값이 그대로여도 약 3초마다 `-0.0`을 보냄. 조향각은 콘솔 값과 부호 반대
 - 확인 방법:
+  - 단위 테스트: `./gradlew :app:testDebugUnitTest` (JDK 17)
+  - 해제 기록: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 앱 실행 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'` → `adb logcat -s CruiseRecord`에 `pass`·`disengage`
   - 동결 여부: `adb shell dumpsys activity processes | grep -A3 <패키지>` 의 `isFrozen`
-  - 실험 재실행: `experiments/freeze-probe/run.sh <이름> <probe|fgs> <route|drive>` → `analyze.sh <이름>`
-  - 앱 신호: 앱 실행 → 개발 메뉴 → 신호 모니터. 값 바꾸기는 `bash tools/vconsole.sh up` 후 `put '...'`(README "시작하기")
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-01 (이민하, Claude 에이전트와 작업)
+- 한 일:
+  - 크루즈 해제 상황을 조사해 판정 규칙을 처음부터 다시 정함 → `docs/disengage-rules.md`(main에 바로 push)
+  - NaviHelper 실측(에뮬레이터): 현재 도로 이름은 없음(주소는 동 단위), TBT는 경로 안내 중 내 경로의 진출·톨게이트만, 혼잡 구간에만 도로 이름 → 도로 정보로 상황을 나누는 방식은 버림
+  - `feat/disengage-detection`: `SegmentKey`(geohash 인코딩·범위·둘레 8칸), `DisengageDetector`(해제·통과), `CruiseStateInterpreter`(`USER_OVERRIDE`·`FORCED_DEACTIVATION_WARNING`은 작동 중), `CruiseBreakerApp`에서 Fake 저장소로 업로드 + 로그
+- 결정한 것과 이유:
+  - 원인(브레이크·정체·커브)을 나누지 않음: 위치에 묶인 원인은 같은 곳에 쌓이고 우연한 원인은 흩어져서 비율만으로 걸러짐. 운전자 행동도 같아 안내도 한 가지
+  - 정체를 빼지 않음: 상습 정체가 시작되는 곳도 속도가 급히 줄어드는 위험 지점
+  - 출구(IC 진출)는 구분하지 않음: 도로 정보 없이 구분하려면 경로 기록이 필요해 개인정보 부담이 큼. 한계로 문서에 적음
+  - 칸 경계는 좌표·동심원 대신 서버 9칸 합산: 좌표 방식은 분모(통과 수)를 내려면 이동 경로 전체가 필요해 PRD의 "원래 좌표 안 보냄"과 충돌. 9칸 합산은 차 쪽 변경 없음
+  - 60km/h 조건은 유지(오래 정차해서 자동 해제된 것을 뺌). 차속을 모르면 건너뜀
+- 바꾼 파일: `docs/disengage-rules.md`(새 파일), `app/.../domain/{SegmentKey,DisengageDetector,Disengage,CruiseStateInterpreter,RiskAnnouncer}.kt`, `app/.../CruiseBreakerApp.kt`, 테스트 `SegmentKeyTest`·`DisengageDetectorTest`(새 파일)·`CruiseStateInterpreterTest`, `docs/handoff/lee-minha.md`
+
 
 ### 2026-10-30 (이민하, Claude 에이전트와 작업)
 - 한 일:

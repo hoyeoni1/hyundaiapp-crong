@@ -10,7 +10,8 @@ data class Announcement(val bannerText: String, val speechText: String, val risk
 
 /**
  * 진입 전 음성 안내(F4). 담당: 이민하.
- * 현재 위치·방향 앞 0.8~1.2km, ±30° 안의 위험 구간을 찾아 1회 안내(같은 구간은 한 주행에 1회, 최소 3분 간격).
+ * 현재 위치·방향 앞 (설정 거리 ±200m, 기본 0.8~1.2km), ±30° 안의 위험 구간을 찾아 1회 안내(같은 구간은 한 주행에 1회, 최소 3분 간격).
+ * 문구는 원인 구분 없이 한 가지: "1킬로미터 앞, 크루즈 해제가 잦은 구간입니다." (docs/disengage-rules.md)
  * 거리·방향 계산은 core GeoMath. TTS는 TTS SDK 확인 후 연결(안 되면 Android TextToSpeech).
  */
 class RiskAnnouncer(private val rules: DisengageRules) {
