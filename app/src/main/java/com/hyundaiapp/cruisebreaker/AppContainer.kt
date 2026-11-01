@@ -1,6 +1,7 @@
 package com.hyundaiapp.cruisebreaker
 
 import android.content.Context
+import android.util.Log
 import com.hyundaiapp.cruisebreaker.data.AppPrefs
 import com.hyundaiapp.cruisebreaker.data.CruiseEventRepository
 import com.hyundaiapp.cruisebreaker.data.FakeCruiseServer
@@ -18,6 +19,7 @@ import com.hyundaiapp.core.PleosVehicleSignals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * 앱 전체에서 하나만 쓰는 객체 모음(간단한 수동 DI).
@@ -45,5 +47,43 @@ class AppContainer(context: Context) {
     val trips = TripTracker(signals)
     val tripStats = TripStats()
     val announcer = RiskAnnouncer(rules)
-    val speaker = RiskSpeaker(context)
+
+    /** 시스템 음성 서비스에 붙으므로 기록을 시작할 때 만든다 */
+    private val speaker by lazy { RiskSpeaker(context) }
+
+    private var recording = false
+
+    /**
+     * 해제 감지·업로드·주행 구분·안내·음성을 시작한다. [RecordingService]가 부른다. 여러 번 불러도 한 번만 시작.
+     * 확인: adb logcat -s CruiseRecord
+     */
+    fun startRecording() {
+        if (recording) return
+        recording = true
+        signals.start()
+        // 감지기보다 먼저 구독해야 첫 이벤트를 놓치지 않는다(같은 Main 디스패처에서 순서대로 시작)
+        appScope.launch {
+            disengageDetector.events.collect {
+                Log.i(TAG, "disengage ${it.segment} speed=${it.speedKph}")
+                events.upload(it)
+            }
+        }
+        appScope.launch {
+            disengageDetector.passes.collect {
+                Log.i(TAG, "pass ${it.segment}")
+                events.upload(it)
+            }
+        }
+        disengageDetector.start(appScope)
+
+        trips.start(appScope)
+        appScope.launch { announcer.announcements.collect { Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}") } }
+        tripStats.start(appScope, trips, announcer, disengageDetector)
+        speaker.start(appScope, announcer.announcements) { prefs.voiceEnabled }
+        announcer.start(appScope, signals, risks, trips)
+    }
+
+    private companion object {
+        const val TAG = "CruiseRecord"
+    }
 }
