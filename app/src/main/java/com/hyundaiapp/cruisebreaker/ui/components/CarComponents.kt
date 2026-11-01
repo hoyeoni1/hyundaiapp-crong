@@ -102,13 +102,14 @@ fun SecondaryButton(
     }
 }
 
-/** 고르면 파랗게 채워지는 버튼(태그·안내 거리·차종 등) */
+/** 고르면 파랗게 채워지는 버튼(태그·안내 거리·차종 등). 하나만 고르는 곳은 role = Role.RadioButton */
 @Composable
 fun SelectableButton(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     height: Dp = CarDimens.TouchTarget,
+    role: Role = Role.Checkbox,
     content: @Composable RowScope.() -> Unit,
 ) {
     OutlinedButton(
@@ -122,14 +123,20 @@ fun SelectableButton(
         contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = modifier
             .heightIn(min = height)
-            .semantics { this.selected = selected; role = Role.Checkbox },
+            .semantics { this.selected = selected; this.role = role },
         content = content,
     )
 }
 
 @Composable
-fun SelectableButton(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    SelectableButton(selected, onClick, modifier) {
+fun SelectableButton(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    role: Role = Role.Checkbox,
+) {
+    SelectableButton(selected, onClick, modifier, role = role) {
         Text(text, style = if (selected) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyLarge)
     }
 }

@@ -52,6 +52,12 @@ fun OnboardingScreen(
                 style = MaterialTheme.typography.bodyLarge,
                 color = CarColors.OnSurfaceVariant,
             )
+            // 자동 기록은 동의 후 기본 켜짐, S4에서 끈다(docs/background-freeze-experiment.md 결정 3·4)
+            Text(
+                "시동을 걸면 앱을 열지 않아도\n주행을 자동으로 기록합니다.",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+            )
         }
         Column(
             Modifier.weight(3f).fillMaxSize().verticalScroll(rememberScrollState()),
