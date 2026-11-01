@@ -94,6 +94,7 @@ fun SettingsScreen(
                         selected = state.announceDistanceM == m,
                         onClick = { onAnnounceDistanceChange(m) },
                         modifier = Modifier.weight(1f),
+                        role = Role.RadioButton,
                     )
                 }
             }
