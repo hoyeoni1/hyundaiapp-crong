@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -38,6 +39,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hyundaiapp.cruisebreaker.ui.theme.CarColors
@@ -254,7 +256,7 @@ fun ScreenHeader(
 }
 
 /**
- * 동의 항목 한 줄. 앱 개발 규정: [동의] 버튼을 누르는 것만 동의로 본다(뒤로 가기·빈 곳 터치는 동의 아님).
+ * 동의 항목 카드. 앱 개발 규정: [동의] 버튼을 누르는 것만 동의로 본다(뒤로 가기·빈 곳 터치는 동의 아님).
  */
 @Composable
 fun ConsentRow(
@@ -268,44 +270,70 @@ fun ConsentRow(
     agreedLabel: String = "동의함",
 ) {
     CarCard(modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 24.dp, vertical = 18.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(title, style = MaterialTheme.typography.titleMedium)
-                if (description != null) {
-                    Text(description, style = MaterialTheme.typography.bodySmall, color = CarColors.OnSurfaceVariant)
-                }
-                if (onShowTerms != null) {
-                    TextButton(onClick = onShowTerms, contentPadding = PaddingValues(0.dp)) {
-                        Text("내용 보기", style = MaterialTheme.typography.bodyMedium, color = CarColors.Primary)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val details: @Composable (Modifier) -> Unit = { textModifier ->
+                Column(textModifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(title, style = MaterialTheme.typography.titleMedium)
+                    if (description != null) {
+                        Text(description, style = MaterialTheme.typography.bodySmall, color = CarColors.OnSurfaceVariant)
+                    }
+                    if (onShowTerms != null) {
+                        TextButton(onClick = onShowTerms, contentPadding = PaddingValues(0.dp)) {
+                            Text("내용 보기", style = MaterialTheme.typography.bodyMedium, color = CarColors.Primary)
+                        }
                     }
                 }
             }
-            if (agreed) {
-                Row(
-                    Modifier
-                        .heightIn(min = CarDimens.TouchTargetSmall)
-                        .clip(RoundedCornerShape(CarDimens.ButtonRadius))
-                        .background(CarColors.SurfaceVariant)
-                        .padding(horizontal = 24.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Icon(CarIcons.Check, contentDescription = null, tint = CarColors.Primary, modifier = Modifier.size(26.dp))
-                    Text(agreedLabel, style = MaterialTheme.typography.bodyLarge, color = CarColors.Primary)
+            val action: @Composable () -> Unit = {
+                if (agreed) {
+                    Row(
+                        Modifier.heightIn(min = CarDimens.TouchTargetSmall)
+                            .clip(RoundedCornerShape(CarDimens.ButtonRadius))
+                            .background(CarColors.SurfaceVariant)
+                            .padding(horizontal = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(CarIcons.Check, contentDescription = null, tint = CarColors.Primary, modifier = Modifier.size(26.dp))
+                        Text(agreedLabel, style = MaterialTheme.typography.bodyLarge, color = CarColors.Primary, maxLines = 1)
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = onAgree, shape = ButtonShape,
+                        border = BorderStroke(2.dp, CarColors.Primary),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = CarColors.Primary),
+                        contentPadding = PaddingValues(horizontal = 32.dp),
+                        modifier = Modifier.heightIn(min = CarDimens.TouchTargetSmall),
+                    ) {
+                        Text(agreeLabel, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+                    }
+                }
+            }
+            // 좁은 열에서는 버튼을 아래로 옮겨 설명이 글자 중간에서 끊기지 않게 한다.
+            if (maxWidth < 500.dp) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    details(Modifier.fillMaxWidth())
+                    Box(Modifier.align(Alignment.End)) { action() }
                 }
             } else {
-                OutlinedButton(
-                    onClick = onAgree,
-                    shape = ButtonShape,
-                    border = BorderStroke(2.dp, CarColors.Primary),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = CarColors.Primary),
-                    contentPadding = PaddingValues(horizontal = 32.dp),
-                    modifier = Modifier.heightIn(min = CarDimens.TouchTargetSmall),
-                ) {
-                    Text(agreeLabel, style = MaterialTheme.typography.labelLarge)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    details(Modifier.weight(1f))
+                    action()
                 }
             }
         }
+    }
+}
+
+/** 긴 비활성 사유는 버튼과 분리해, 시작 버튼은 항상 한 줄로 읽히게 한다. */
+@Composable
+fun OnboardingStartAction(enabled: Boolean, hint: String, onStart: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (!enabled) {
+            Text(hint, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant,
+                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        }
+        PrimaryButton("시작하기", onStart, Modifier.fillMaxWidth(), enabled = enabled)
     }
 }
 

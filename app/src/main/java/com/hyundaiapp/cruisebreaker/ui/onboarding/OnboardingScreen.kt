@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyundaiapp.cruisebreaker.ui.OnboardingUiState
 import com.hyundaiapp.cruisebreaker.ui.components.ConsentRow
-import com.hyundaiapp.cruisebreaker.ui.components.PrimaryButton
+import com.hyundaiapp.cruisebreaker.ui.components.OnboardingStartAction
 import com.hyundaiapp.cruisebreaker.ui.theme.CarColors
 import com.hyundaiapp.cruisebreaker.ui.theme.CarDimens
 import com.hyundaiapp.cruisebreaker.ui.theme.CruiseBreakerTheme
@@ -48,9 +48,9 @@ fun OnboardingScreen(
     ) {
         Column(Modifier.weight(2f).fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically)) {
             Text("크루즈브레이커", style = MaterialTheme.typography.bodyLarge, color = CarColors.Primary, fontWeight = FontWeight.Medium)
-            Text("다른 차들이 크루즈를 끈 곳을\n미리 알려 드려요", style = MaterialTheme.typography.headlineMedium)
+            Text("다른 차들이\n크루즈를 끈 곳을\n미리 알려 드려요", style = MaterialTheme.typography.headlineMedium)
             Text(
-                "정확한 좌표 대신 약 150m 구간 번호만 보내고,\n시각은 시간 단위로만 저장해요.",
+                "정확한 좌표 대신\n약 150m 구간 번호만 보내고,\n시각은 시간 단위로만 저장해요.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = CarColors.OnSurfaceVariant,
             )
@@ -91,11 +91,10 @@ fun OnboardingScreen(
                     agreeLabel = "알림 허용", agreedLabel = "허용됨",
                 )
             }
-            PrimaryButton(
-                text = if (canStart) "시작하기" else "필수 항목에 동의하면 시작할 수 있어요",
-                onClick = onStart,
+            OnboardingStartAction(
                 enabled = canStart,
-                modifier = Modifier.fillMaxWidth(),
+                hint = "필수 항목에 동의해 주세요",
+                onStart = onStart,
             )
         }
     }
