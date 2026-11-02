@@ -8,7 +8,7 @@
 - 기존 로컬 snapshot 진단은 `com.hyundaiapp.core.probe` 패키지의 debug 전용 SDK probe로 보존했다. 스크립트는 새 Activity 경로를 사용하므로 기존 수동 adb 명령도 `com.hyundaiapp.core.probe.SdkDiagnosticsActivity`로 바꾼다.
 - 이 문서의 diagnostics/smoke는 독립 probe의 SDK 수신 검사다. 제품 앱의 동의·감지·업로드 흐름을 검증한 것으로 해석하지 않는다. 제품 앱은 개발 메뉴의 신호 모니터와 앱 단위 테스트로 별도 검증한다.
 - UI 라이브러리 요구사항 때문에 compileSdk는 35다. 설치 패키지에 platforms;android-35가 추가된다. 실행용 Pleos 이미지는 기존 API 34 그대로다.
-- 통합 브랜치: 두 저장소 모두 codex/integrate-sdk-20261102. 원격 push/PR 머지는 별도이며 이번 작업에서 수행하지 않는다.
+- 통합 브랜치: 두 저장소 모두 codex/integrate-sdk-20261102. 이 브랜치를 PR로 제출하며 원격 main 머지는 팀장 장호연이 진행한다.
 ## 이 PC의 개발 환경
 
 - 도구 위치: `%LOCALAPPDATA%/hyundai-dev`
