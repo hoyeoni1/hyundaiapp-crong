@@ -15,7 +15,7 @@
 - 진행 중 브랜치·PR·이슈:
   - 열린 PR 없음(PR #1~#6, #10, #14 머지)
   - 열린 이슈: #9·#13(길민종), #11(이민하, androidx.core 직접 의존), #12(황준용, 동의 철회 시 서버 기록 처리 — 제출 전). #7·#8은 PR #10으로 닫힘
-  - 장호연 `feat/demo-scripts`(10-30, 커밋 2개) — **PR 없음**. main보다 27커밋 뒤처짐, main을 merge하면 이 문서(`docs/handoff/jang-hoyeon.md`)에서 충돌(11-01 확인, 강제 해결 안 함). 스크립트 내용도 옛 규칙(1km 안내, 정체 장면 `jam-*`) 기준이라 v2에 맞게 고쳐야 함
+  - 장호연 `feat/demo-scripts`(두 저장소) — 11-02 main merge(인수인계 충돌은 main 쪽으로 해결) + 판정 규칙 v2·현재 앱에 맞게 고쳐 PR. `demo-drive.sh` 기본은 고정 위치 시연(위치 재생 없이 지금 앱으로 동작, 이민하 확인 순서와 같음), `route`는 앱 위치 재생 모드가 생긴 뒤. 가짜 콘솔·가짜 adb로 값 순서만 확인했고 **에뮬레이터 실행은 아직**(이상준이 `demo-charge.sh`는 에뮬레이터에서 확인함)
   - 기타: 문서(`PRD.md`, `README.md`, `docs/`)는 PR 없이 `main`에 바로 push(10-30 결정)
 - 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). 11-02 PR #14·차슐랭 #3·#4에 코멘트가 달려 정상 동작 확인
 - 다음 할 일(우선순위 순):
@@ -23,7 +23,7 @@
   2. 주최 측 문의 메일 발송 — 초안 `docs/organizer-inquiry-email.md` **11문항**(11-01 11번 `TTS_SERVICE` 권한 추가), 팀원 CC 넣고 대표자 메일로 발송
   3. 기획서 DOCX 재생성(원고가 11-01 v2로 바뀜) + 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 시연 영상). 기능 번호가 F1·F3·F4·F5(F2 삭제)로 비어 있음 → 번호를 당길지 결정
   4. 이슈 #9·#11·#12·#13 진행 확인(11-05 중간 점검). #12는 제출 전 필수
-  5. `feat/demo-scripts`: main merge 충돌(이 문서) 직접 해결 + `demo-drive.sh`를 v2(500m, 저속 해제 장면)로 고친 뒤 PR(두 저장소)
+  5. 시연 스크립트 PR 머지 후 에뮬레이터에서 `bash tools/demo-drive.sh` 리허설(11-05 전). 경로 재생 시연을 쓸지 정하고, 쓰면 이민하에게 앱 위치 재생 모드 요청(`demo-drive.sh` 머리말의 계약)
   6. (끝남) 정기 리뷰 작업 점검 — 11-02 정상
   7. 01 참가신청서·04 서명 칸 채우고 5명 서명 수집
   8. Pleos Playground 프로젝트 생성·팀원 추가, 황준용에게 core 초안 인계·서버 요청(`docs/disengage-rules.md` "팀원별 요청")
@@ -40,6 +40,18 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-02 — 시연 스크립트 v2 정리·PR
+- 한 일(Claude 에이전트와 함께, 장호연 지시): `feat/demo-scripts`에 main merge(이 문서 충돌은 main 내용으로), 스크립트를 v2와 현재 앱에 맞춤
+  - `tools/demo-drive.sh`: 기본 = 고정 위치 시연(출발 → 500m 앞 안내 → 100km/h 해제 기록 → 40km/h 해제는 기록 안 함 → 정차 요약). `route` = 경로 재생(1배속). 차속 권한 `pm grant`를 스크립트가 줌
+  - `tools/demo/gyeongbu-north.csv`: 표시만 다시 만듦(안내 500m, 정체 `jam` → 저속 `slow` 300m). 좌표는 그대로. 이 PC에 python이 없어 `make-route.py`를 node로 옮겨 기존 CSV와 똑같이 나오는지 확인한 뒤 생성
+  - `tools/demo-charge.sh`: 전제에 S7 동의 먼저, 시연 배속 ×120 추가(이상준 요청)
+- 결정한 것과 이유:
+  - 정체 장면을 저속 해제로 바꿈: v2에서 정체 필터가 없어지고 "해제 순간 60km/h 이상"만 셈
+  - 경로 재생은 1배속 기본: 안내가 3분에 한 번뿐이라 2배속이면 c 구간 안내가 안 나옴. 안내 장면은 a·c 둘만
+  - 앱 위치 재생 모드(`DEMO_ROUTE` 브로드캐스트)는 아직 없음 → 지금 시연은 고정 위치 모드로
+- 확인: 가짜 콘솔(node)·가짜 adb로 세 모드의 값 순서 확인. 에뮬레이터 실행은 아직
+- 바꾼 파일: `tools/demo-drive.sh`, `tools/demo-charge.sh`, `tools/demo/make-route.py`, `tools/demo/gyeongbu-north.csv`, 이 문서
 
 ### 2026-11-02 — 황준용 core v0.4.0 PR #14 머지
 - 한 일(Claude 에이전트와 함께, 장호연 지시): 차슐랭 #4(core 원본) 머지 직후 head가 리뷰한 `43ddd76`인지 확인하고 merge commit으로 머지(`bdc8f88`). 이어 차슐랭 #3 머지(차슐랭 `docs/handoff/jang-hoyeon.md`)
