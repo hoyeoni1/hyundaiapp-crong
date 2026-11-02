@@ -4,18 +4,33 @@
 
 ## 현재 상태 (2026-11-02 기준, 매번 덮어쓰기)
 
-- PR 전 기여 범위 재확인: 제품 core/src/main/java 구현은 origin/main과 동일하며 장호연의 기존 기반을 유지했다. 우리 추가분은 debug SDK probe·상태/Fake 모델·테스트·Windows 실행 도구·타입 검증·통합 검증이다. 실제 서버/영속 재전송/집계 API는 미구현. PR 발행 완료: 차슐랭 https://github.com/hoyeoni1/hyundaiapp-chachelin/pull/4 · 크루즈 https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/14. 리뷰·머지는 장호연 대기.
-
-- 차슐랭 PR #3(`737fb38`) 리뷰: fake 업로드의 세션 ID 중복 방지 누락을 회귀 테스트로 재현해 수정 후 머지를 권장. UI 담당자 확인도 필요. 상세: `docs/chachelin-pr-3-review.md`. 원격 PR 조작 없음.
-- 원격 main을 로컬 SDK·Windows 진단 작업과 통합 완료. 브랜치: `codex/integrate-sdk-20261102`. 브랜치 push·PR 발행 완료. 원격 main 머지는 하지 않음.
-- 제품용 core는 다른 담당자의 앱이 사용하는 원격 계약과 구현을 유지. 로컬 snapshot SDK 진단은 `com.hyundaiapp.core.probe`의 debug 전용으로 분리해 충돌 없이 보존(core v0.4.0).
-- 앱의 기어·길안내 API, 해제 감지·안내·기록 서비스·동의 철회 및 UI 원본은 유지. app 코드 변경은 compileSdk 35 + android.car 빌드 설정 통합뿐.
-- 두 저장소의 core와 tools 동기화를 확인했고, 앱/코어 테스트·빌드·lint 및 실제 SDK 실행 확인이 통과했다. 상세 결과는 아래 작업 기록 참조.
-- 다음 할 일: 팀 리뷰 후 장호연이 PR 머지. 제품 SDK와 raw probe를 장기적으로 단일 backend로 합칠지는 별도 설계 검토. 서버 연동은 사용자 요청대로 보류.
-- 주의: windows-smoke PASS는 raw probe SDK 수신 결과이며 제품 기록·동의·업로드 통합 성공을 뜻하지 않는다. 실제 제품은 개발 메뉴 신호 모니터 및 앱 단위 테스트로 확인.
-- 확인 방법: `gradlew.bat :core:testDebugUnitTest :core:testReleaseUnitTest :app:testDebugUnitTest :app:assembleDebug :app:lintDebug --max-workers=2`, `tools/windows-test.ps1`, `docs/windows-local-testing.md`.
+- SDK 진단·Windows 테스트 기반은 차슐랭 PR #4 / 크루즈 PR #14 제출 완료. 제품 core 계약을 유지했으며 원격 main 머지는 장호연 대기.
+- 서버 작업 브랜치: `codex/supabase-foundation-20261102`. 원본은 차슐랭 `server/`; SDK PR과 분리했다.
+- 실행 가능한 SQL migration 2개(initial schema / demo data), preflight·verify SQL 및 `server/deploy.md` 준비 완료. 앱용 7개+관리용 2개 테이블, RLS, 인증 RPC 11개, 소유권·중복 방지·실패 정정·철회·집계 포함.
+- PGlite 0.5.14 PostgreSQL에서 15개 테스트 통과. 충전소 10·충전 기록 300·해제 400·통과 2,000 시드와 재적용 중복 방지, 원본 접근 차단, KST·28일·9칸/차량-일 집계를 검증했다. 실제 Supabase Auth/JWT·PostgREST·다중 연결 동시성은 미검증.
+- 원격 DB에는 아직 적용하지 않음. 로그인된 Chrome 접근을 도구가 거부하여 사용자가 SQL Editor 직접 실행을 선택했다. 적용 후 verify 결과를 받아 확인해야 한다. 관리자 Secret key는 저장·사용하지 않았다.
+- 차슐랭 점수는 우선 평균 별점(5개 미만 null), 실패 횟수는 별도다. 실패 감점·자동 보관 만료·Auth 정리는 미구현이며 정책 확정 후 적용한다.
+- 다음 작업: 사용자 preflight → schema → demo → verify 실행 결과 확인 → 실제 인증/API/동시성 확인 → Android 인증·영속 outbox·실제 저장소 연결. 원격 생성·앱 전환이 끝났다고 해석하지 않는다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-02 — 실행 가능한 Supabase migration과 테스트 준비
+- 사용자 요청으로 초기 SQL과 시연 데이터 migration 작성. private 원본/RLS 및 authenticated 전용 RPC 11개, 다른 소유자 접근 차단, 등록/세션/리뷰 중복 처리, 정정 영수증, 철회 행 잠금·원본 삭제, 9칸 차량-일 집계를 구현했다.
+- 로컬 PostgreSQL 테스트 15개 통과. Supabase 서비스 전체·동시 다중 연결 테스트와 원격 적용은 아직 아님. SDK 타입·앱 UI/도메인 코드 변경 없음.
+- Chrome 제어 도구가 접근을 거부(Computer Use was not approved to use Google Chrome). 사용자가 대시보드 직접 SQL 실행을 선택해 `server/deploy.md`에 4단계 파일과 기대 결과를 정리했다.
+- 기존 기록 이전 대상은 없으며 새 스키마+가상 데이터 초기 입력이다. 실패 감점은 넣지 않았고 평균 별점과 실패 정보를 별도로 반환한다. 보관·약관 정책은 확정하지 않았다.
+
+
+### 2026-11-02 — 공통 서버 스키마·서비스 흐름 설계
+- 차슐랭 PR #3과 크루즈 main의 저장소 계약·PRD·규칙 문서를 대조해 `server/schema-design.md`를 작성. 앱 설치 소유권·충전소/세션/후기·구간/해제/통과 구조와 API 접근 경계를 제안했다.
+- 재전송 중복 방지, 차량-일 중복 제거, 해제-통과 원자 저장, 실패 정정, 철회-업로드 경쟁 처리, 오프라인 삭제 재시도까지 설명했다.
+- 보관·삭제 기간과 점수 감점 계수는 미정으로 구분. SQL 실행·Supabase 설정 변경·새 PR/push는 하지 않았다. 문서 변경만이라 런타임 테스트는 실행하지 않았다.
+
+
+### 2026-11-02 — Supabase 프로젝트 연결 확인
+- 공개 키로 Auth health/settings 200, stations 조회는 PGRST205(미생성), anonymous_users=false 확인. 데이터 쓰기·가입·관리자 키 사용 없음.
+- 기존 SDK PR과 분리한 새 로컬 브랜치 생성. 차슐랭 server/에 공개 연결값 로컬 설정(git 제외)·예제·인증/서버 작업 안내 작성. 이메일 없는 인증과 auth.uid 소유권, 영속 재전송/철회 삭제를 설계 방향으로 기록.
+- 사용자 준비: 채팅에 제공한 Secret key 폐기, Anonymous Sign-In 활성화. migration과 앱 저장소 구현은 후속 작업. Asia Pacific의 구체적 AWS 리전은 미확인.
 
 ### 2026-11-02 — SDK 진단 및 Windows 테스트 기반 PR 발행
 - 사용자 요청으로 두 저장소의 core v0.4.0 변경을 각각 PR로 제출 완료(차슐랭 #4 / 크루즈 #14). debug 전용 probe와 제품 core의 차이, 기존 검증 결과, 서버 미구현 상태를 PR 본문에 명시한다.
