@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 퍼미션은 각 앱 매니페스트에서 필요한 것만 선언한다(승인 안 된 퍼미션은 앱마켓 심사 불통과). -->
-<manifest />
+<!-- Signal permissions are selected and declared by each host app. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <uses-library android:name="android.car" android:required="false" />
+    </application>
+</manifest>

@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "com.hyundaiapp.core"
     compileSdk = 34
+    useLibrary("android.car", false)
 
     defaultConfig {
         minSdk = 28
@@ -21,6 +22,7 @@ android {
 }
 
 dependencies {
+    testImplementation("junit:junit:4.13.2")
     api("ai.pleos.playground:Vehicle:2.3.2")
     api("ai.pleos.playground:NaviHelper:3.0.5")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")

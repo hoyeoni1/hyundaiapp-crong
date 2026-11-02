@@ -1,0 +1,14 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="pleos.car.permission.CAR_ENERGY" />
+    <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
+    <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
+    <uses-permission android:name="android.car.permission.CAR_SPEED" />
+    <application>
+        <activity android:name="com.hyundaiapp.core.SdkDiagnosticsActivity"
+            android:exported="true" android:launchMode="singleTask" android:label="SDK Diagnostics"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+            <!-- Emulator-only developer view; never packaged into release. -->
+            <meta-data android:name="distractionOptimized" android:value="true" />
+        </activity>
+    </application>
+</manifest>

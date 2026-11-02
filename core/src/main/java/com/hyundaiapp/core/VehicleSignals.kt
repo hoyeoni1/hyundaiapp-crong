@@ -2,38 +2,98 @@ package com.hyundaiapp.core
 
 import kotlinx.coroutines.flow.StateFlow
 
-/**
- * 두 앱이 공통으로 쓰는 차량·위치 신호. 초안 — 황준용이 11-01까지 확정한다.
- *
- * 값을 아직 못 받았으면 null. 근거 실측은 docs/vehicle-data-findings.md 6.2절.
- */
+/** SDK-independent vehicle contract. See core/README.md for units and lifecycle. */
 interface VehicleSignals {
-    val evBattery: StateFlow<EvBatteryState>
-    val cruise: StateFlow<CruiseState>
-    val driverInput: StateFlow<DriverInputState>
-    val location: StateFlow<GeoPoint?>
-
+    val snapshot: StateFlow<VehicleSnapshot>
     fun start()
     fun stop()
 }
 
-data class EvBatteryState(
-    val socPercent: Float? = null,
-    val chargePortOpen: Boolean? = null,
-    // getEvChargeSwitchState는 조회만 가능(리스너 없음) → 구현에서 주기 조회
-    val chargeSwitchOn: Boolean? = null,
+enum class SignalStatus { NOT_RECEIVED, AVAILABLE, UNSUPPORTED, PERMISSION_DENIED, ERROR }
+enum class SignalLifecycle { STOPPED, STARTED }
+
+/** observedAtMillis is monotonic elapsed time, never a server/event wall-clock date. */
+data class SignalReading<T>(
+    val value: T? = null,
+    val status: SignalStatus = SignalStatus.NOT_RECEIVED,
+    val observedAtMillis: Long? = null,
+    val sequence: Long = 0,
+    val errorMessage: String? = null,
+) {
+    init {
+        require((status == SignalStatus.AVAILABLE) == (value != null))
+        require(observedAtMillis == null || observedAtMillis >= 0)
+        require(sequence >= 0)
+        require(status == SignalStatus.ERROR || errorMessage == null)
+    }
+}
+
+/** Enum names verified against Vehicle 2.3.2. Interpretation belongs to each app. */
+enum class CruiseControlState {
+    OTHER, ENABLED, ACTIVATED, USER_OVERRIDE, SUSPENDED, FORCED_DEACTIVATION_WARNING,
+}
+
+data class GeoPoint(val latitude: Double, val longitude: Double) {
+    init {
+        require(latitude.isFinite() && latitude in -90.0..90.0)
+        require(longitude.isFinite() && longitude in -180.0..180.0)
+    }
+}
+
+/** heading retains the SDK value until its physical convention is verified. */
+data class LocationObservation(
+    val point: GeoPoint,
+    val heading: Double? = null,
+    val routeId: String? = null,
+    val currentRouteIndex: Int? = null,
+) {
+    init { require(heading == null || heading.isFinite()) }
+}
+
+enum class TrafficCongestion { UNKNOWN, FAST, MODERATE, SLOW, HEAVY }
+
+/** Raw navi-data fields: do not infer meters, seconds or current-position membership. */
+data class TrafficSection(
+    val offset: Double,
+    val distance: Double,
+    val trafficCongestionTime: Long,
+    val congestion: TrafficCongestion,
+    val averageSpeed: Double,
+    val roadName: String,
+    val startCrossName: String,
+    val endCrossName: String,
+) {
+    init {
+        require(offset.isFinite() && distance.isFinite() && averageSpeed.isFinite())
+    }
+}
+
+/** Empty sections means a received empty list; NOT_RECEIVED is a separate reading status. */
+data class RouteTraffic(
+    val sections: List<TrafficSection>,
+    // Raw SDK flag; its precise semantics are not assumed by the adapter.
+    val isRouting: Boolean? = null,
 )
 
-data class CruiseState(
-    // CruiseControlState 이름 그대로(예: "ACTIVATED", "ENABLED"). 실차 해제 값이 확인되기 전까지 해석은 앱에서 한다
-    val rawState: String? = null,
-    val setSpeedKph: Float? = null,
+/** Each field has independent availability, allowing unsupported signals on some vehicles. */
+data class VehicleSnapshot(
+    val lifecycle: SignalLifecycle = SignalLifecycle.STOPPED,
+    val socPercent: SignalReading<Int> = SignalReading(),
+    val chargePortOpen: SignalReading<Boolean> = SignalReading(),
+    val chargeSwitchOn: SignalReading<Boolean> = SignalReading(),
+    val cruiseState: SignalReading<CruiseControlState> = SignalReading(),
+    val cruiseTargetSpeedKph: SignalReading<Float> = SignalReading(),
+    val brakePressed: SignalReading<Boolean> = SignalReading(),
+    val steeringAngle: SignalReading<Float> = SignalReading(),
+    val vehicleSpeedKph: SignalReading<Float> = SignalReading(),
+    val location: SignalReading<LocationObservation> = SignalReading(),
+    val routeTraffic: SignalReading<RouteTraffic> = SignalReading(),
 )
 
-data class DriverInputState(
-    val brakePressed: Boolean? = null,
-    // 에뮬레이터 콘솔 값과 부호가 반대로 들어옴
-    val steeringAngleDeg: Float? = null,
-)
-
-data class GeoPoint(val latitude: Double, val longitude: Double)
+/** Explicit unit conversion for SDK adapters, not for already-normalized Fake values. */
+object SignalUnits {
+    fun metersPerSecondToKph(value: Float): Float {
+        require(value.isFinite())
+        return (value * 3.6f).also { require(it.isFinite()) }
+    }
+}
