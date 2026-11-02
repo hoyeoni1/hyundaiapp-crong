@@ -1,4 +1,4 @@
-package com.hyundaiapp.core
+package com.hyundaiapp.core.probe
 
 import ai.pleos.playground.navi.data.CurrentLocationInfo
 import ai.pleos.playground.navi.data.RouteStateInfo

@@ -1,117 +1,59 @@
 package com.hyundaiapp.core
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
- * Manually driven fake; no SDK connection, background task or automatic road simulation.
- * Input is accepted only while started. clockMillis must return monotonic elapsed milliseconds.
+ * 단위 테스트·UI 미리보기용. 값은 테스트 코드에서 직접 넣는다.
+ *
+ * ```
+ * val fake = FakeVehicleSignals()
+ * fake.setEv { copy(chargePortOpen = true, socPercent = 40) }
+ * ```
  */
-class FakeVehicleSignals(
-    private val clockMillis: () -> Long = elapsedClock(),
-) : VehicleSignals {
-    private val mutableSnapshot = MutableStateFlow(VehicleSnapshot())
-    override val snapshot = mutableSnapshot.asStateFlow()
+class FakeVehicleSignals : VehicleSignals, NaviControl {
+    override val evBattery = MutableStateFlow(EvBatteryState(socPercent = 50, chargePortOpen = false, capacityKwh = 77.4f))
+    override val drive = MutableStateFlow(DriveState(gear = Gear.PARK, speedKph = 0f, brakePressed = false))
+    override val cruise = MutableStateFlow(CruiseState())
+    // 에뮬레이터 기본 위치(판교 부근)
+    override val location = MutableStateFlow<LocationState?>(LocationState(GeoPoint(37.4127, 127.0947), headingDeg = 0.0))
+    override val route = MutableStateFlow(RouteState())
+    override val sources = MutableStateFlow(
+        SourceStatus(vehicle = SourceState.READY, speed = SourceState.READY, navi = SourceState.READY),
+    )
+    override val chargerOperators = MutableStateFlow(
+        listOf(ChargerOperatorInfo("HD", "현대자동차(E-pit)"), ChargerOperatorInfo("ME", "환경부")),
+    )
+
+    /** 테스트에서 경로 요청이 나갔는지 확인용 */
+    val requestedRoutes = mutableListOf<RouteDestination>()
+
+    var started = false
+        private set
+
+    fun setEv(block: EvBatteryState.() -> EvBatteryState) = evBattery.update(block)
+    fun setDrive(block: DriveState.() -> DriveState) = drive.update(block)
+    fun setCruise(block: CruiseState.() -> CruiseState) = cruise.update(block)
+    fun setLocation(lat: Double, lon: Double, headingDeg: Double = 0.0) {
+        location.value = LocationState(GeoPoint(lat, lon), headingDeg, receivedAtMs = System.currentTimeMillis())
+    }
 
     override fun start() {
-        mutableSnapshot.update { current ->
-            if (current.lifecycle == SignalLifecycle.STARTED) current
-            else VehicleSnapshot(lifecycle = SignalLifecycle.STARTED)
-        }
+        started = true
     }
 
     override fun stop() {
-        // Clear observations so a new consumer cannot treat a stopped connection as live data.
-        mutableSnapshot.value = VehicleSnapshot()
+        started = false
     }
 
-    fun setSocPercent(value: Int) {
-        require(value in 0..100)
-        publish { copy(socPercent = reading(value, socPercent)) }
+    override fun onPermissionsChanged() = Unit
+
+    override fun requestRoute(destination: RouteDestination) {
+        requestedRoutes += destination
+        route.value = RouteState(guiding = true)
     }
 
-    fun setChargePortOpen(value: Boolean) = publish {
-        copy(chargePortOpen = reading(value, chargePortOpen))
+    override fun cancelRoute() {
+        route.value = RouteState()
     }
-
-    fun setChargeSwitchOn(value: Boolean) = publish {
-        copy(chargeSwitchOn = reading(value, chargeSwitchOn))
-    }
-
-    fun setCruiseState(value: CruiseControlState) = publish {
-        copy(cruiseState = reading(value, cruiseState))
-    }
-
-    fun setCruiseTargetSpeedKph(value: Float) {
-        require(value.isFinite() && value >= 0f)
-        publish { copy(cruiseTargetSpeedKph = reading(value, cruiseTargetSpeedKph)) }
-    }
-
-    fun setBrakePressed(value: Boolean) = publish {
-        copy(brakePressed = reading(value, brakePressed))
-    }
-
-    fun setSteeringAngle(value: Float) {
-        require(value.isFinite())
-        publish { copy(steeringAngle = reading(value, steeringAngle)) }
-    }
-
-    fun setVehicleSpeedKph(value: Float) {
-        // Signed speed is retained for reverse movement; app rules decide whether to use it.
-        require(value.isFinite())
-        publish { copy(vehicleSpeedKph = reading(value, vehicleSpeedKph)) }
-    }
-
-    fun setLocation(value: LocationObservation) = publish {
-        copy(location = reading(value, location))
-    }
-
-    fun setRouteTraffic(value: RouteTraffic) {
-        val frozen = value.copy(sections = value.sections.toList())
-        publish { copy(routeTraffic = reading(frozen, routeTraffic)) }
-    }
-
-    /** Mark one capability unavailable. This is not a cruise deactivation or a false pedal value. */
-    fun setUnavailable(signal: VehicleSignal, status: SignalStatus, message: String? = null) {
-        require(status != SignalStatus.AVAILABLE)
-        require(status == SignalStatus.ERROR || message == null)
-        publish {
-            when (signal) {
-                VehicleSignal.SOC -> copy(socPercent = unavailable(socPercent, status, message))
-                VehicleSignal.CHARGE_PORT -> copy(chargePortOpen = unavailable(chargePortOpen, status, message))
-                VehicleSignal.CHARGE_SWITCH -> copy(chargeSwitchOn = unavailable(chargeSwitchOn, status, message))
-                VehicleSignal.CRUISE_STATE -> copy(cruiseState = unavailable(cruiseState, status, message))
-                VehicleSignal.CRUISE_TARGET_SPEED -> copy(cruiseTargetSpeedKph = unavailable(cruiseTargetSpeedKph, status, message))
-                VehicleSignal.BRAKE -> copy(brakePressed = unavailable(brakePressed, status, message))
-                VehicleSignal.STEERING -> copy(steeringAngle = unavailable(steeringAngle, status, message))
-                VehicleSignal.VEHICLE_SPEED -> copy(vehicleSpeedKph = unavailable(vehicleSpeedKph, status, message))
-                VehicleSignal.LOCATION -> copy(location = unavailable(location, status, message))
-                VehicleSignal.ROUTE_TRAFFIC -> copy(routeTraffic = unavailable(routeTraffic, status, message))
-            }
-        }
-    }
-
-    private fun publish(transform: VehicleSnapshot.() -> VehicleSnapshot) {
-        mutableSnapshot.update { current ->
-            check(current.lifecycle == SignalLifecycle.STARTED) { "Call start() before publishing fake signals" }
-            current.transform()
-        }
-    }
-
-    private fun <T> reading(value: T, previous: SignalReading<T>): SignalReading<T> =
-        SignalReading(value, SignalStatus.AVAILABLE, clockMillis(), previous.sequence + 1)
-
-    private fun <T> unavailable(previous: SignalReading<T>, status: SignalStatus, message: String?): SignalReading<T> =
-        SignalReading(status = status, observedAtMillis = clockMillis(), sequence = previous.sequence + 1, errorMessage = message)
-}
-
-private fun elapsedClock(): () -> Long {
-    val origin = System.nanoTime()
-    return { (System.nanoTime() - origin) / 1_000_000L }
-}
-
-enum class VehicleSignal {
-    SOC, CHARGE_PORT, CHARGE_SWITCH, CRUISE_STATE, CRUISE_TARGET_SPEED,
-    BRAKE, STEERING, VEHICLE_SPEED, LOCATION, ROUTE_TRAFFIC,
 }

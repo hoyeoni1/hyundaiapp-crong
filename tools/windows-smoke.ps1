@@ -39,7 +39,7 @@ try {
         & $adb @argsAdb shell pm grant --user $userId $package android.car.permission.CAR_SPEED
         if ($LASTEXITCODE) { throw 'Speed permission grant failed' }
     }
-    & $adb @argsAdb shell am start -W -n "$package/com.hyundaiapp.core.SdkDiagnosticsActivity" --es profile $Profile --ez autostart true
+    & $adb @argsAdb shell am start -W -n "$package/com.hyundaiapp.core.probe.SdkDiagnosticsActivity" --es profile $Profile --ez autostart true
     if ($LASTEXITCODE) { throw 'Diagnostics launch failed' }
     if ($Profile -eq 'cruise') {
         Set-Console 'controls?speed=60&brake=0'

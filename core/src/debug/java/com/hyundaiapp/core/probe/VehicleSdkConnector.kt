@@ -1,4 +1,4 @@
-package com.hyundaiapp.core
+package com.hyundaiapp.core.probe
 
 import ai.pleos.playground.vehicle.Vehicle
 import ai.pleos.playground.vehicle.api.model.capability.AccessType

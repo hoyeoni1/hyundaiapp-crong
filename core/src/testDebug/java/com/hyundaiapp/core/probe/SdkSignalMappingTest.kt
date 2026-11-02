@@ -1,4 +1,4 @@
-package com.hyundaiapp.core
+package com.hyundaiapp.core.probe
 
 import ai.pleos.playground.vehicle.constant.control.CruiseControl
 import ai.pleos.playground.navi.constants.NaviMode

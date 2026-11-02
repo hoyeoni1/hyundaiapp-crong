@@ -1,4 +1,4 @@
-package com.hyundaiapp.core
+package com.hyundaiapp.core.probe
 
 import org.junit.Assert.*
 import org.junit.Test

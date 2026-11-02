@@ -1,3 +1,5 @@
+원격 통합 참고(2026-11-02): 이 문서의 snapshot 기반 모델은 현재 debug 전용 com.hyundaiapp.core.probe에 보존돼 있다. 제품 앱 API는 core/README.md 상단의 evBattery/drive/cruise 계약을 따른다. 아래 AAR 타입 검증 근거는 그대로 유효하다.
+
 # SDK → core 타입 대응표
 
 검증일: 2026-10-30. v0.1.0을 기준으로 대응표를 작성했으며, 타입 변경과 실제 SDK 어댑터는 이후 [core v0.3.0](../core/README.md)에 반영했다. 아래 '현재 core' 열은 검증 당시 v0.1.0이다.

@@ -1,4 +1,4 @@
-package com.hyundaiapp.core
+package com.hyundaiapp.core.probe
 
 import android.car.Car
 import android.car.VehiclePropertyIds

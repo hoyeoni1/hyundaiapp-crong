@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# 공통 부분(core/, tools/, docs/team-collaboration-plan.md)을 차슐랭(원본)에서 다른 앱 저장소로 복사한다.
+# 공통 부분(core/, tools/, 팀 문서, 인수인계 규칙, CLAUDE.md, PR 템플릿)을 차슐랭(원본)에서 다른 앱 저장소로 복사한다.
 # usage: tools/sync-core.sh <대상 저장소 경로> [--check]
 #   --check: 복사하지 않고 두 저장소가 같은지만 확인(다르면 exit 1)
 set -euo pipefail
 src=$(cd "$(dirname "$0")/.." && pwd)
 dst=${1:?usage: tools/sync-core.sh <대상 저장소 경로> [--check]}
 mode=${2:-}
-shared=(core tools docs/team-collaboration-plan.md)
+shared=(core tools docs/team-collaboration-plan.md docs/handoff/README.md docs/pr-review-guide.md CLAUDE.md .github/pull_request_template.md)
 
 grep -q 'rootProject.name = "Chachelin"' "$src/settings.gradle.kts" \
   || { echo "원본(차슐랭) 저장소에서 실행하세요: $src" >&2; exit 2; }

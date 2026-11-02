@@ -37,7 +37,7 @@ try {
         diagnostics {
             & $adb @adbArgs install -r app/build/outputs/apk/debug/app-debug.apk
             if ($LASTEXITCODE) { throw 'APK installation failed' }
-            & $adb @adbArgs shell am start -W -n "$package/com.hyundaiapp.core.SdkDiagnosticsActivity" --es profile $Profile --ez autostart true
+            & $adb @adbArgs shell am start -W -n "$package/com.hyundaiapp.core.probe.SdkDiagnosticsActivity" --es profile $Profile --ez autostart true
             if ($LASTEXITCODE) { throw 'Diagnostics launch failed' }
         }
         read {

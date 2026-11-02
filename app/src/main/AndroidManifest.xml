@@ -5,17 +5,29 @@
         android:name="android.hardware.type.automotive"
         android:required="true" />
 
-    <!-- 크루즈·브레이크·조향, 내비 위치. 승인된 범위의 퍼미션만 선언할 것 -->
+    <!-- 승인된 범위의 퍼미션만 선언할 것. AppContainer의 CoreFeature와 맞춘다 -->
+    <!-- 기어·브레이크·조향·크루즈 → CoreFeature.DRIVE -->
     <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />
+    <!-- 차속(AAOS, dangerous → 런타임 동의) → CoreFeature.SPEED. 앱마켓 승인 대상인지 미확인(PRD 5.2) -->
+    <uses-permission android:name="android.car.permission.CAR_SPEED" />
+    <!-- 내비 위치·혼잡 구간 → CoreFeature.NAVI -->
     <uses-permission android:name="pleos.car.permission.NAVI_ROUTE" />
 
-    <!-- AAOS actual speed; host app requests runtime consent before collection. -->
-    <uses-permission android:name="android.car.permission.CAR_SPEED" />
+    <!-- 주행 기록 포그라운드 서비스 + 시동 때 자동 시작(PRD 5.4, RecordingService) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 기록 중 알림 카드(Android 13+ 런타임 동의). 거부해도 서비스는 돈다 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 안내 음성(RiskSpeaker, Pleos TTS SDK). normal 퍼미션. 앱마켓 승인 대상인지는 확인 필요 -->
+    <uses-permission android:name="pleos.car.permission.TTS_SERVICE" />
 
     <application
+        android:name=".CruiseBreakerApp"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
+        <!-- DO 선언: 주행 중에도 S1을 보여 준다. 주행 중 화면 규정을 지킬 것(PRD 5.5) -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -27,5 +39,22 @@
                 android:name="distractionOptimized"
                 android:value="true" />
         </activity>
+
+        <service
+            android:name=".RecordingService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Records cruise-control disengage events while driving so other drivers can be warned" />
+        </service>
+
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

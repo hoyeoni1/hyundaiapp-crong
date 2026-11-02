@@ -1,3 +1,76 @@
+# core — 공통 차량·내비 신호 모듈
+
+두 앱(차슐랭·크루즈브레이커)이 함께 쓰는 모듈입니다. **앱 코드는 Pleos SDK를 직접 부르지 않고 이 모듈만 씁니다.**
+
+- 담당: 황준용 (수정은 황준용만, 다른 사람은 요청)
+- 원본: 차슐랭 저장소. 크루즈브레이커에는 `tools/sync-core.sh`로 복사
+- 버전: `core/VERSION` (고치면 올리고, PR 제목에 `core vX.Y.Z`)
+
+## 쓰는 법
+
+```kotlin
+// 1) 앱에서 하나만 만든다(AppContainer). 매니페스트 퍼미션과 CoreFeature를 맞춘다
+val signals = PleosVehicleSignals(context, setOf(CoreFeature.EV_BATTERY, CoreFeature.NAVI))
+signals.start()
+
+// 2) StateFlow로 읽는다. 값을 아직 못 받았으면 null
+signals.evBattery.collect { ev -> ev.socPercent; ev.chargePortOpen }
+
+// 3) 테스트·미리보기에서는 가짜를 쓴다
+val fake = FakeVehicleSignals()
+fake.setEv { copy(chargePortOpen = true, socPercent = 40) }
+```
+
+## 제공하는 값
+
+| Flow | 내용 | 필요한 CoreFeature / 퍼미션 | 출처 |
+|---|---|---|---|
+| `evBattery` | SoC(%), 충전구 열림, 충전 스위치, 배터리 용량(kWh) | `EV_BATTERY` / `pleos.car.permission.CAR_ENERGY` | Vehicle SDK `EvBattery` |
+| `drive` | 기어, 차속(km/h), 브레이크, 조향각 | `DRIVE` / `pleos.car.permission.CAR_DRIVE` (차속은 `SPEED`) | Vehicle SDK `Gear`·`Brake`·`SteeringWheel` |
+| `drive.speedKph` | 차속 | `SPEED` / `android.car.permission.CAR_SPEED` (**런타임 동의**) | AAOS `PERF_VEHICLE_SPEED` |
+| `cruise` | 크루즈 상태(SDK 이름 그대로), 설정 속도(km/h) | `DRIVE` | Vehicle SDK `DrivingMode` |
+| `location` | 위도·경도, 진행 방향(°), 주소 | `NAVI` / `pleos.car.permission.NAVI_ROUTE` | NaviHelper(1초마다 조회) |
+| `route` | 안내 중 여부, 혼잡 구간 목록 | `NAVI` | NaviHelper(5초마다 + 이벤트) |
+| `sources` | 소스별 연결 상태(OFF/CONNECTING/READY/NO_PERMISSION/FAILED), 최근 오류 | — | — |
+
+`NaviControl`(같은 객체): `chargerOperators`(충전 사업자 목록), `requestRoute()`(**기존 경로를 덮어씀**, `NAVI_ROUTE_SEARCH` 필요), `cancelRoute()`.
+
+유틸: `GeoMath.distanceM / bearingDeg / angleDiffDeg`, 디버그용 `signals.debugLines()`.
+
+## 알아 둘 것 (에뮬레이터 실측, `docs/vehicle-data-findings.md`)
+
+- SoC는 충전 중에도 자동으로 오르지 않는다 → Virtual Console로 주입.
+- 조향각은 콘솔 값과 부호가 반대(콘솔 30 → -30).
+- 크루즈: 콘솔 `full_autonomous` → `ACTIVATED`, `ready/longitudinal/lateral` → `ENABLED`, `not_ready` → `null`. 해제 값(`USER_OVERRIDE` 등)은 재현 불가.
+- 위치는 판교 부근 고정, 모의 주행 없음.
+- 경로 안내가 시작되면 내비가 앞으로 나오고 앱 프로세스가 얼 수 있다(이벤트 멈춤).
+- 로그: `adb logcat -s HyCore`
+
+## 다음에 할 일 (황준용)
+
+- [ ] 실기기·장시간 동작 확인(재연결, 서비스 끊김 시 재시도)
+- [ ] Pleos SDK가 `getCurrentGearSelectionState`, `isEvChargePortOpen`, `getEvBatteryCapacity` 등을 deprecated로 표시함("Google 프로퍼티를 쓰라") → AAOS `GEAR_SELECTION`·`EV_CHARGE_PORT_OPEN`·`INFO_EV_BATTERY_CAPACITY`로 바꿀지 결정(퍼미션이 달라짐)
+- [ ] 백그라운드 수집 구조(포그라운드 서비스 등) — 이민하 실험 결과 반영
+- [ ] 단위 테스트 보강(SDK 값 → 상태 변환 함수)
+
+## 로컬 SDK probe와 제품 SDK 구분 (core v0.4.0 통합)
+
+앱이 사용하는 `com.hyundaiapp.core.VehicleSignals`, `PleosVehicleSignals(context, Set<CoreFeature>)`,
+`FakeVehicleSignals`, `NaviControl`은 원격 main의 계약과 구현을 유지한다. 기어, 배터리 용량,
+길안내 제어, 제품 신호 모니터, 기록 서비스·동의 철회 로직을 변경하지 않는다.
+
+기존 로컬 snapshot 기반 진단 구현은 `com.hyundaiapp.core.probe`로 분리해 `src/debug`에만 둔다.
+probe 테스트도 `src/testDebug`에만 있으므로 release 소스·테스트에 유입되지 않는다.
+`tools/windows-test.ps1 diagnostics`와 `windows-smoke.ps1`은 이 독립 SDK probe를 실행한다.
+probe PASS는 SDK 접근 검증이며 제품 감지기·동의·업로드 흐름 전체의 통합 검증을 대신하지 않는다.
+제품 SDK는 각 앱의 개발 메뉴 → 신호 모니터, 제품 로직은 앱 단위 테스트와 시연 흐름으로 검증한다.
+새로 만드는 앱 코드는 probe를 import하지 않는다. 두 구현을 단일 backend로 합치는 작업은 후속 검토 사항이다.
+
+probe 계약과 이전 검증 방법은 아래에 보존한다. 아래 예제의 타입은 모두
+`com.hyundaiapp.core.probe` 패키지이며 debug 빌드에서만 사용할 수 있다.
+
+---
+
 # core v0.3.1 — 차량 신호와 실제 SDK 연결
 
 원본은 차슐랭 저장소다. 두 앱은 `VehicleSignals.snapshot`을 구독한다. `FakeVehicleSignals`는 수동 입력, `PleosVehicleSignals`는 실제 읽기 전용 SDK 어댑터다.

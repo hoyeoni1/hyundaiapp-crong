@@ -2,6 +2,13 @@
 
 서버·계정·유료 서비스 없이 debug 앱, Pleos AVD, Virtual Console을 사용한다. 진단 화면은 core/src/debug에 있어 release APK에 포함되지 않는다. 실제 차량의 도로 주행용 화면이 아니다.
 
+## 2026-11-02 원격 작업 통합 후 구분
+
+- 제품 앱은 `com.hyundaiapp.core.VehicleSignals`의 evBattery/drive/cruise/location/route 계약을 사용한다. 원격의 UI·감지기·안내·동의/서비스 로직을 유지했다.
+- 기존 로컬 snapshot 진단은 `com.hyundaiapp.core.probe` 패키지의 debug 전용 SDK probe로 보존했다. 스크립트는 새 Activity 경로를 사용하므로 기존 수동 adb 명령도 `com.hyundaiapp.core.probe.SdkDiagnosticsActivity`로 바꾼다.
+- 이 문서의 diagnostics/smoke는 독립 probe의 SDK 수신 검사다. 제품 앱의 동의·감지·업로드 흐름을 검증한 것으로 해석하지 않는다. 제품 앱은 개발 메뉴의 신호 모니터와 앱 단위 테스트로 별도 검증한다.
+- UI 라이브러리 요구사항 때문에 compileSdk는 35다. 설치 패키지에 platforms;android-35가 추가된다. 실행용 Pleos 이미지는 기존 API 34 그대로다.
+- 통합 브랜치: 두 저장소 모두 codex/integrate-sdk-20261102. 원격 push/PR 머지는 별도이며 이번 작업에서 수행하지 않는다.
 ## 이 PC의 개발 환경
 
 - 도구 위치: `%LOCALAPPDATA%/hyundai-dev`
@@ -75,6 +82,7 @@ src00=https\://nexus-playground.pleos.ai/repository/raw-releases/connect-avd/2.x
 [IO.File]::WriteAllLines("$devRoot/downloads/packages.txt", @(
     'platform-tools',
     'platforms;android-34',
+    'platforms;android-35',
     'build-tools;35.0.0',
     'emulator',
     'system-images;android-34;pleos_car_emulator;x86_64'
@@ -87,8 +95,8 @@ src00=https\://nexus-playground.pleos.ai/repository/raw-releases/connect-avd/2.x
 실제 설치에서는 최신 명령행 도구의 sdkmanager 호환 래퍼가 세미콜론을 포함한 패키지명을 잘못 분리하는 현상이 있었다. 위처럼 19.0과 package_file을 사용해 재현성을 확보했다. XML 버전 4 관련 경고가 나더라도 설치 완료 후 아래 파일이 존재하는지 확인한다.
 
 ```powershell
-Test-Path "$sdkRoot/platforms/android-34/android.jar"
-Test-Path "$sdkRoot/platforms/android-34/optional/android.car.jar"
+Test-Path "$sdkRoot/platforms/android-35/android.jar"
+Test-Path "$sdkRoot/platforms/android-35/optional/android.car.jar"
 Test-Path "$sdkRoot/build-tools/35.0.0/aapt2.exe"
 Test-Path "$sdkRoot/system-images/android-34/pleos_car_emulator/x86_64/package.xml"
 & "$sdkRoot/emulator/emulator.exe" -accel-check
@@ -211,3 +219,10 @@ read는 에뮬레이터의 현재 Android 사용자 번호를 조회하고 앱 �
 실제 SDK 테스트 근거: `%LOCALAPPDATA%/hyundai-dev/logs/smoke-com.hyundaiapp.cruisebreaker-cruise.json`, `smoke-com.hyundaiapp.chachelin-charging.json`, `stop-button-evidence.json`, `fake-button-evidence.json`. 기록은 해당 실행 시점의 결과이며 새 변경 후에는 smoke를 다시 실행한다.
 
 정상 SDK 연결을 확인한 범위이며 실차, 백그라운드 동결 해결, 실제 이동 경로·혼잡 구간 포함 여부를 보장하지 않는다. 에뮬레이터·콘솔로 이 후속 작업도 반복 검증할 수 있다.
+
+## 2026-11-02 병합 후 재검증
+
+- 두 앱 debug APK 빌드·설치 및 lint 0 errors. 제품 SDK 소스 vehicle/navi READY, 크루즈 speed READY 확인.
+- 크루즈 앱 단위 테스트 debug/release 각각 44개, 차슐랭 각각 2개. 공통 모듈 debug 17개/release 3개 통과.
+- 분리된 debug probe smoke: 크루즈 7개, 충전 4개 통과. release core JAR·매니페스트에 probe 진단 코드가 포함되지 않음.
+- 제품 앱의 충전 세션 로직 feature 브랜치 및 서버 연동은 이번 main 병합과 별개다. 차슐랭 배터리 용량 권한 오류는 기존 제한으로 남아 있다.
