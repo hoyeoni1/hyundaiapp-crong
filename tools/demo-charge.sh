@@ -15,7 +15,11 @@
 #
 # 전제:
 #   - 에뮬레이터 실행, 차슐랭 **디버그 빌드** 설치·실행(ChargeRules.DEMO: 인증 10초, 실패 30초)
+#   - **먼저 개발 메뉴 S7에서 동의 2개 + 차종 + [시작하기]**. 동의 전에는 기록 서비스가 돌지 않아 아무 화면도 안 바뀐다
 #   - 에뮬레이터 위치는 판교 시흥동 고정 → 충전은 시드 충전소 st-003(시흥동 주민센터)에서 일어난다
+#   - 디버그 빌드는 화면의 충전 시간·kW에 시연 배속 ×120을 곱한다(ChargeRules.DEMO.demoTimeScale, 15초 = 30분).
+#     PT에서 "SoC는 콘솔 주입, 시간·kW는 시연 배속"이라고 밝힌다
+#   - adb가 PATH에 없으면 ADB=<adb 경로>
 #   - 앱 화면을 녹화할 때는 이 스크립트 출력 창을 화면 밖에 둔다
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -68,12 +72,13 @@ fail() {
   vc 'ev-battery?field=charge_port_open&value=false'
 }
 
+case "${1:-}" in success|fail|all|reset) ;; *) sed -n '2,/^set -euo/p' "$0" | sed '$d'; exit 1 ;; esac
 bash tools/vconsole.sh up
 case "${1:-}" in
   success) success ;;
   fail) fail ;;
   all) success; step "다음: 실패 시나리오"; fail ;;
   reset) reset_state ;;
-  *) sed -n '2,21p' "$0"; exit 1 ;;
+  *) sed -n '2,/^set -euo/p' "$0" | sed '$d'; exit 1 ;;
 esac
 say "끝. 하트비트는 계속 돈다(그만두려면: bash tools/vconsole.sh down)"
