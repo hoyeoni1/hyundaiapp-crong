@@ -8,11 +8,26 @@
 - 서버 작업 브랜치: `codex/supabase-foundation-20261102`. 원본은 차슐랭 `server/`; SDK PR과 분리했다.
 - 실행 가능한 SQL migration 2개(initial schema / demo data), preflight·verify SQL 및 `server/deploy.md` 준비 완료. 앱용 7개+관리용 2개 테이블, RLS, 인증 RPC 11개, 소유권·중복 방지·실패 정정·철회·집계 포함.
 - PGlite 0.5.14 PostgreSQL에서 15개 테스트 통과. 충전소 10·충전 기록 300·해제 400·통과 2,000 시드와 재적용 중복 방지, 원본 접근 차단, KST·28일·9칸/차량-일 집계를 검증했다. 실제 Supabase Auth/JWT·PostgREST·다중 연결 동시성은 미검증.
-- 원격 DB에는 아직 적용하지 않음. 로그인된 Chrome 접근을 도구가 거부하여 사용자가 SQL Editor 직접 실행을 선택했다. 적용 후 verify 결과를 받아 확인해야 한다. 관리자 Secret key는 저장·사용하지 않았다.
+- CLI login/link 연결 완료 후 원격 2개 버전·시드 10/300/400/2000·테이블 9개 RLS·RPC 11개 권한을 독립 확인했다. 함수 fingerprint도 로컬과 일치했다. 두 버전의 CLI 표준 이력을 applied로 등록했고 migration list 정합·dry-run upToDate=true 확인. 관리자 Secret key는 저장·사용하지 않았다.
 - 차슐랭 점수는 우선 평균 별점(5개 미만 null), 실패 횟수는 별도다. 실패 감점·자동 보관 만료·Auth 정리는 미구현이며 정책 확정 후 적용한다.
-- 다음 작업: 사용자 preflight → schema → demo → verify 실행 결과 확인 → 실제 인증/API/동시성 확인 → Android 인증·영속 outbox·실제 저장소 연결. 원격 생성·앱 전환이 끝났다고 해석하지 않는다.
+- 다음 작업: Anonymous Sign-In 활성화(현재 false) → 실제 인증/API/동시성 확인 → Android 인증·영속 outbox·실제 저장소 연결. DB 생성·이력 정합은 완료했지만 앱 서버 연결은 아직 아니다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-02 — CLI 원격 검증 및 표준 migration 이력 정합 완료
+- 사용자 login/link 완료 후 CLI db query로 자체 적용 버전 2건, 시드 충전소 10/충전 300/해제 400/통과 2000, RLS 9개 모두 true, RPC 11개 anon=false/authenticated=true 확인. 원격 함수 fingerprint f0b69344326a5769b916cafeb7698bbe는 로컬 SQL 적용 결과와 일치.
+- migration repair로 20261102000100·20261102000200을 applied 등록. LOCAL/REMOTE 두 행 일치 및 db push --dry-run upToDate=true·대기 migration 없음. SQL 본문·시드 재실행과 기존 업무 데이터 변경 없음.
+- verify.sql을 단일 JSON 응답으로 바꿔 마지막 SELECT만 노출되는 문제 해결. 변경 후 로컬 테스트 15개 통과. CLI 사용법·배포 상태 문서 최신화.
+- 공개 API로 Anonymous Sign-In 비활성 재확인. 실제 가입/사용자 생성·Auth 설정 변경·Android 앱 서버 전환은 하지 않음. CLI 캐시·자격 증명·개인 환경값은 Git 제외.
+
+### 2026-11-02 — 사용자 PowerShell CLI 경로 문제 확인
+- 사용자는 안내한 supabase.exe 경로에서 CommandNotFoundException. 에이전트 셸에서는 같은 절대 경로의 파일 존재·CLI 2.122.0 실행을 재확인. 사용자 셸에서 보이지 않는 원인은 아직 확정하지 않음.
+- 사용자 PowerShell에서 공식 ZIP을 직접 받아 설치 후 실행하도록 안내. 인증 및 원격 DB 작업은 진행하지 않음.
+
+### 2026-11-02 — Supabase CLI 연결 준비
+- 반복 SQL 복사 대신 CLI를 쓰기로 함. 공식 supabase/cli 2.122.0 Windows amd64를 로컬 개발 도구 경로에 설치하고 공식 SHA-256 검증. 차슐랭 server/supabase/config.toml 생성(project_id=pleos-apps-dev), 원격 설정은 변경하지 않음.
+- server/cli-setup.md에 사용자 login·link 절차 작성. 인증 완료 후 db query로 기존 적용 상태를 검증한 뒤 표준 migration 이력에 두 수동 적용 버전을 repair할 예정. 이력 수정·db push는 아직 하지 않음.
+- 사용자 공유 RPC 실행 권한은 정상. 시드 건수와 버전·RLS는 로그인 이후 확인. 토큰·비밀번호는 채팅으로 받지 않음.
 
 ### 2026-11-02 — 실행 가능한 Supabase migration과 테스트 준비
 - 사용자 요청으로 초기 SQL과 시연 데이터 migration 작성. private 원본/RLS 및 authenticated 전용 RPC 11개, 다른 소유자 접근 차단, 등록/세션/리뷰 중복 처리, 정정 영수증, 철회 행 잠금·원본 삭제, 9칸 차량-일 집계를 구현했다.
