@@ -2,35 +2,34 @@
 
 담당 경로: `tools/`(원본은 차슐랭), `apk/`, `README.md`, `PRD.md`, `docs/`, 릴리스. 이 저장소 앱 뼈대도 만들었음
 
-## 현재 상태 (2026-11-01 저녁 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-02 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
-    - **머지된 main은 빌드·테스트 미검증**: 머지·리뷰한 PC(호공이)에 JDK·Android SDK가 없음 → 개발 PC에서 `./gradlew assembleDebug test` 필요
+    - 11-02: PR #10(동의 철회, 이슈 #7·#8)과 황준용 core v0.4.0 debug SDK 진단(PR #14)도 머지. 머지된 main(`bdc8f88`)에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0)
   - 문서를 판정 규칙 v2(`docs/disengage-rules.md`)에 맞춤(11-01): `PRD.md`, 기획서 원고 `docs/proposal.md`, `README.md`
     - **기획서 DOCX(`docs/submission/cruisebreaker-application.docx`)는 아직 옛 원고(1km 안내·정체 필터) 기준** → 재생성 필요(호공이 PC에 python 없음)
     - 재생성: `python tools/build-proposal-docx.py docs/submission/application-form-template.docx docs/proposal.md "<앱명>" docs/submission/cruisebreaker-application.docx`
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
-  - 아직 없는 것: 실제 서버(황준용), 동의 철회(이슈 #7), 위치 재생 시연 모드, release 서명
+  - 아직 없는 것: 실제 서버(황준용 — Supabase 대신 장호연 PC 호스팅 검토 중, 11-02), 위치 재생 시연 모드, release 서명
 - 진행 중 브랜치·PR·이슈:
-  - 열린 PR 없음(PR #1~#6 모두 머지)
-  - 11-01 리뷰 결과 이슈: https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/7 (이민하, 동의 철회 경로 — **제출 전 필수**), https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/8 (이민하, minSdk 28·TTS ready·주변 조회), https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/9 (길민종, S5 첫 실행 흐름·S2/S4/S5 정리)
+  - 열린 PR 없음(PR #1~#6, #10, #14 머지)
+  - 열린 이슈: #9·#13(길민종), #11(이민하, androidx.core 직접 의존), #12(황준용, 동의 철회 시 서버 기록 처리 — 제출 전). #7·#8은 PR #10으로 닫힘
   - 장호연 `feat/demo-scripts`(10-30, 커밋 2개) — **PR 없음**. main보다 27커밋 뒤처짐, main을 merge하면 이 문서(`docs/handoff/jang-hoyeon.md`)에서 충돌(11-01 확인, 강제 해결 안 함). 스크립트 내용도 옛 규칙(1km 안내, 정체 장면 `jam-*`) 기준이라 v2에 맞게 고쳐야 함
   - 기타: 문서(`PRD.md`, `README.md`, `docs/`)는 PR 없이 `main`에 바로 push(10-30 결정)
-- 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). **정기 작업이 #3에만 코멘트(11-01 18:10 `✅`)를 남기고 #4~#6에는 안 남김 → 점검 필요**
+- 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). 11-02 PR #14·차슐랭 #3·#4에 코멘트가 달려 정상 동작 확인
 - 다음 할 일(우선순위 순):
-  1. 개발 PC에서 main(`ccfdcdc` 이후) `./gradlew assembleDebug test` — PR #3~#6 머지 후 빌드 미검증
+  1. 서버 방식 결정(Supabase vs 장호연 PC 호스팅)을 황준용과 확정
   2. 주최 측 문의 메일 발송 — 초안 `docs/organizer-inquiry-email.md` **11문항**(11-01 11번 `TTS_SERVICE` 권한 추가), 팀원 CC 넣고 대표자 메일로 발송
   3. 기획서 DOCX 재생성(원고가 11-01 v2로 바뀜) + 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 시연 영상). 기능 번호가 F1·F3·F4·F5(F2 삭제)로 비어 있음 → 번호를 당길지 결정
-  4. 이슈 #7~#9 진행 확인(11-05 중간 점검). #7은 제출 전 필수
+  4. 이슈 #9·#11·#12·#13 진행 확인(11-05 중간 점검). #12는 제출 전 필수
   5. `feat/demo-scripts`: main merge 충돌(이 문서) 직접 해결 + `demo-drive.sh`를 v2(500m, 저속 해제 장면)로 고친 뒤 PR(두 저장소)
-  6. 정기 리뷰 작업이 새 커밋·PR을 실제로 보는지 점검
+  6. (끝남) 정기 리뷰 작업 점검 — 11-02 정상
   7. 01 참가신청서·04 서명 칸 채우고 5명 서명 수집
   8. Pleos Playground 프로젝트 생성·팀원 추가, 황준용에게 core 초안 인계·서버 요청(`docs/disengage-rules.md` "팀원별 요청")
   9. release 서명 키 생성(키 파일은 저장소에 넣지 않음)
 - 막힌 점·질문:
-  - 황준용·이상준은 두 저장소에 원격 브랜치·커밋·PR이 없음(11-01 확인) → 11-05 전에 직접 확인
-  - Collaborator 중 `wklee316`, `Aodlf123`가 누구인지 문서에 없음 → 확인해서 `docs/handoff/README.md` 등에 GitHub 아이디 적기(이슈 담당자 지정에 필요)
+  - GitHub 아이디 확인(11-02 PR로): 이상준 `wklee316`, 황준용 `Aodlf123` → `docs/handoff/README.md`에도 적을 것
   - Organization은 만들지 않음(10-30). 심사용 계정 권한·저장소 주소의 계정명 노출은 주최 측 답변 대기(팀 문서 4절 1번, 9절 4번)
 - 주의:
   - gh는 브라우저 로그인이라 계정 전체 권한이다. 두 저장소로 줄이려면 fine-grained 토큰(Contents 읽기, Pull requests 읽기·쓰기)으로 다시 로그인
@@ -41,6 +40,12 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-02 — 황준용 core v0.4.0 PR #14 머지
+- 한 일(Claude 에이전트와 함께, 장호연 지시): 차슐랭 #4(core 원본) 머지 직후 head가 리뷰한 `43ddd76`인지 확인하고 merge commit으로 머지(`bdc8f88`). 이어 차슐랭 #3 머지(차슐랭 `docs/handoff/jang-hoyeon.md`)
+- 확인: 머지된 main에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0). `core/`가 차슐랭과 같음. 11-01 "머지된 main 빌드 미검증"도 이걸로 해소
+- 결정: `tools/windows-*.ps1`·`app/build.gradle.kts` 한 줄·`docs/chachelin-pr-3-review.md` 모두 받아들임
+- 바꾼 파일: 이 문서
 
 ### 2026-11-01 저녁 — PR #3~#6 머지 후속: 이슈 등록, 판정 규칙 v2 문서 반영
 - 한 일(Claude 에이전트 호공이와 함께, 장호연 지시):
