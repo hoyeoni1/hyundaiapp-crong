@@ -11,7 +11,7 @@
     - **기획서 DOCX(`docs/submission/cruisebreaker-application.docx`)는 아직 옛 원고(1km 안내·정체 필터) 기준** → 재생성 필요(호공이 PC에 python 없음)
     - 재생성: `python tools/build-proposal-docx.py docs/submission/application-form-template.docx docs/proposal.md "<앱명>" docs/submission/cruisebreaker-application.docx`
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
-  - 아직 없는 것: 실제 서버(황준용 — Supabase 대신 장호연 PC 호스팅 검토 중, 11-02), 위치 재생 시연 모드, release 서명
+  - 아직 없는 것: 실제 서버(황준용 — Supabase로 확정(11-02, PC 호스팅 안 함). 황준용이 이미 작업했고 곧 커밋 예정), 위치 재생 시연 모드, release 서명
 - 진행 중 브랜치·PR·이슈:
   - 열린 PR 없음(PR #1~#6, #10, #14 머지)
   - 열린 이슈: #9·#13(길민종), #11(이민하, androidx.core 직접 의존), #12(황준용, 동의 철회 시 서버 기록 처리 — 제출 전). #7·#8은 PR #10으로 닫힘
@@ -19,7 +19,7 @@
   - 기타: 문서(`PRD.md`, `README.md`, `docs/`)는 PR 없이 `main`에 바로 push(10-30 결정)
 - 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). 11-02 PR #14·차슐랭 #3·#4에 코멘트가 달려 정상 동작 확인
 - 다음 할 일(우선순위 순):
-  1. 서버 방식 결정(Supabase vs 장호연 PC 호스팅)을 황준용과 확정
+  1. 황준용 Supabase 서버 커밋·PR 받으면 리뷰·머지 → 두 앱 Fake 저장소 교체 확인(서버 방식은 11-02 Supabase로 확정)
   2. 주최 측 문의 메일 발송 — 초안 `docs/organizer-inquiry-email.md` **11문항**(11-01 11번 `TTS_SERVICE` 권한 추가), 팀원 CC 넣고 대표자 메일로 발송
   3. 기획서 DOCX 재생성(원고가 11-01 v2로 바뀜) + 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 시연 영상). 기능 번호가 F1·F3·F4·F5(F2 삭제)로 비어 있음 → 번호를 당길지 결정
   4. 이슈 #9·#11·#12·#13 진행 확인(11-05 중간 점검). #12는 제출 전 필수
