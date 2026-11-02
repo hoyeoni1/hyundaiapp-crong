@@ -38,7 +38,6 @@ class RiskListViewModel(
                     roadName = r.roadName.ifBlank { "이름 없는 구간" },
                     distanceM = here?.let { GeoMath.distanceM(it, r.center) },
                     rate = r.rate,
-                    brakeRatio = r.brakeRatio,
                     passVehicles = r.passVehicles,
                 )
             }.sortedBy { it.distanceM ?: Double.MAX_VALUE }

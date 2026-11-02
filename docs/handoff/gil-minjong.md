@@ -2,33 +2,31 @@
 
 담당 경로: `app/src/main/java/com/hyundaiapp/*/ui/`(화면·테마). 상태 계약 `ui/UiStates.kt`는 로직 담당과 합의
 
-## 현재 상태 (2026-11-01 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
-- 한 일 요약: 공통 테마 + 크루즈브레이커 S1~S5 화면을 와이어프레임대로 구현. 두 앱 모두 `assembleDebug`·`test` 통과, Robolectric으로 화면을 이미지로 렌더해 눈으로 확인함. **에뮬레이터 실행은 아직 안 해 봄.**
-  - 와이어프레임: https://claude.ai/artifact/9vidSJtHrxzCqtEcjJjVTf (비공개 — 팀이 보려면 Share로 공유 필요)
-  - 화면: `driving/DrivingScreen.kt`(S1), `risk/RiskListScreen.kt`(S2), `summary/TripSummaryScreen.kt`(S3), `settings/SettingsScreen.kt`(S4), `onboarding/OnboardingScreen.kt`(S5)
-  - 데이터: S2·S3은 `PreviewData`, S4·S5는 `CruiseBreakerNav` 안의 임시 상태로 동작. S1만 실제 `DrivingViewModel`
-- 진행 중 브랜치·PR: 화면 PR(https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/1)은 11-01 머지됨. 리뷰 후속 `fix/ui-review-followups` PR 올림(리뷰·머지 대기)
-- 다음 할 일(우선순위 순):
-  1. 에뮬레이터에서 개발 메뉴 → 각 화면 확인(터치 반응·글자 크기). **이 Mac(Apple Silicon)은 Pleos 이미지(x86_64 전용)를 못 돌린다** → 에뮬레이터가 있는 팀원 PC에서 확인. 특히 S1을 D·80km/h에서 띄워 배너가 차단되지 않는지
-  2. S4 자동 기록 켜기/끄기: 이민하와 `SettingsUiState`에 필드(`autoRecordEnabled` 등) 합의 후 토글 추가(`docs/background-freeze-experiment.md` 결정 3)
-  3. 이민하 ViewModel이 나오면 `*Nav.kt`의 임시 상태·`PreviewData`를 ViewModel로 교체
-  4. 약관 전문 문구 받으면 `TermsDialog`의 "[약관 전문 준비 중]" 교체(장호연)
-  5. 영상용 화면 연출(장호연과)
-- 막힌 점·질문(누구에게): 이민하에게 — ① S4 안내 거리 선택지(지금 `ANNOUNCE_DISTANCE_PRESETS_M` = 500/1000/2000m, PRD 5.3 안내 시점 0.8~1.2km와 맞출지) ② S2·S3·S4·S5 ViewModel — 화면 콜백 이름은 각 Screen 함수 파라미터 그대로 쓰면 된다 ③ S4 자동 기록 필드 이름 ④ S5는 차속 권한을 거부해도 [시작하기]가 된다(필수 동의 둘만 봄) → 차속 없으면 정체 필터를 NaviHelper 혼잡 정보만으로 해야 함(PRD 8절)
-- 주의(함정·직접 겪은 이상한 동작):
-  - 화면은 UiState와 콜백만 받는다(ViewModel·SDK 직접 참조 금지). `UiStates.kt`는 고치지 않았다
-  - **`ui/theme/Theme.kt`, `ui/components/CarComponents.kt`, `ui/components/CarIcons.kt`는 두 앱이 같은 내용**(패키지만 다름). 한쪽을 고치면 다른 앱도 같이 고친다
-  - 색은 `CarColors`만 쓴다. 파랑(정보·인증)·주황(위험·실패) 둘뿐이고 상태는 늘 글자와 함께
-  - `Surface(color = CarColors.SurfaceVariant)`는 기본 글자색이 회색이 된다 → `contentColor = CarColors.OnSurface`를 같이 준다
-  - 한글이 글자 단위로 줄바꿈되어 제목이 "미/리"처럼 끊긴다 → 고정 문구는 `\n`으로 줄을 직접 나눴다
-  - 아이콘은 material-icons 없이 `CarIcons`(SVG path)로 그린다
-  - 크루즈브레이커 S1은 주행 중 화면: 터치 요소·애니메이션·자동 스크롤·여러 줄 금지(배너 `maxLines = 1`)
-  - 동의 화면: [동의] 버튼을 눌러야만 동의. 약관 창 닫기·뒤로 가기는 동의 아님
-  - S5 차속 권한 요청은 `CruiseBreakerNav`의 `rememberLauncherForActivityResult`로 붙였다. `MainActivity`가 시작할 때 바로 요청하는 코드는 그대로 둠(장호연과 정리 필요: 첫 실행은 S5에서 설명 후 요청하는 게 맞음)
-- 확인 방법: 앱 실행 → 개발 메뉴 → 각 S 화면. Android Studio에서는 각 Screen 파일 아래 `@Preview`(가로 1280×720, 차슐랭은 세로 720×1280도). CLI: `./gradlew assembleDebug test`
+- 한 일 요약: 할당 이슈 #9·#13의 화면 수정. S5 차속 권한은 설명 뒤 버튼에서만 요청(MainActivity의 자동 요청 제거), 릴리스 첫 실행은 S5 → 시작하기 → S1. 디버그는 개발 메뉴 유지. 동의 전 신호 중지는 PR #10에 이미 반영되어 있어 그대로 사용한다.
+  - S5: 알림 선택 권한 카드·명시적 요청(Android 13+, 거부해도 시작 가능), 저속 해제 필터 설명으로 변경. 시작 버튼은 스크롤 영역 밖에 고정.
+  - S4: 안내 거리 선택 삭제(500m 고정 설명), `autoRecordEnabled` 토글을 기존 ViewModel에 연결. 끔은 시동 자동 시작만 중지하고 앱을 열면 기록하는 기존 의미 유지.
+  - S2: 브레이크 비율 막대 삭제. 이민하 handoff·#9의 합의대로 `RiskRowUi.brakeRatio`·`SettingsUiState.announceDistanceM`와 ViewModel의 해당 투영만 제거(서버·domain 계약은 그대로).
+  - #13: 철회 줄의 글자색·대비와 확인 창의 64dp 터치 영역 정리. 철회 후 화면 스택 초기화로 이전 설정 화면으로 돌아가지 않음. 디버그 신호 모니터도 동의 없이 들어갔다 나오면 수신 해제.
+  - PR #5 ViewModel 연결 확인: S2·S3·S4·S5 실제 ViewModel 사용. S1 배너는 로직에서 이미 "500m 앞 크루즈 해제 잦은 구간"·10초로 나옴. 미리보기도 맞춤.
+- 진행 중 브랜치·PR: `fix/onboarding-and-v2-ui` (이번 PR로 리뷰 요청, 머지 대기).
+- 다음 할 일:
+  1. x86_64 Pleos PC에서 새 설치 릴리스 첫 실행·알림 허용/거부·차속 허용/거부·동의 철회/재동의 확인.
+  2. 에뮬레이터에서 S4 자동 기록 끈 뒤 재부팅, 앱을 다시 열 때 기록되는지 확인. S1 D·80km/h 배너도 확인.
+  3. 장호연이 약관 전문을 확정하면 `TermsDialog`의 준비 중 문구 교체.
+- 막힌 점·질문: Mac Apple Silicon에서는 Pleos x86_64 이미지 실행 불가. 서버 기록 철회 정책(#12, 황준용)과 core 직접 의존성(#11, 이민하)은 각 담당 이슈에 남아 있음.
+- 주의: 화면은 UiState·콜백만 받는다. `MainActivity` 수정은 #9의 명시 요청으로 차속 자동 요청 제거만 포함. ViewModel 수정은 합의된 UiState 필드 삭제에 따른 연결 정리뿐이다. 머지는 장호연 담당.
+- 확인 방법: JDK 17로 `bash ./gradlew assembleDebug test :app:lintDebug`. `gradlew`에 실행 비트가 없어 bash로 실행. 첫 화면 라우팅 회귀 테스트 3개, 기존 설정 테스트에 자동 기록 저장·재생성 확인 추가. 화면 렌더 결과는 작업 기록 참조.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03
+- 검증: `assembleDebug test :app:lintDebug` 통과. 앱 단위 테스트 47개(debug/release 각각), core debug 17개/release 3개. 앱 lint 오류 0(기존 경고 12개). 임시 Gradle init+Robolectric 화면 확인 4개 통과: S4 자동 기록 토글·철회 클릭, S5 선택 권한 없이 시작/알림 콜백, S2 브레이크 막대 없음, S1 배너 한 줄·말줄임 없음. 1280×720 PNG를 직접 확인. 임시 테스트/의존성은 커밋하지 않음. Pleos 에뮬레이터 실행은 하지 않음.
+- 한 일: GitHub 열린 PR·이슈 및 PR #2·#5·#10 리뷰/인수인계 확인. 길민종 할당 #9·#13 구현. `core/`·서버·판정 규칙은 수정하지 않음.
+- 결정: 알림 권한은 선택이며 S5 설명 카드 버튼에서만 요청(API 33 미만은 추가 요청 없음). 철회 후 릴리스는 S5, 디버그는 개발 메뉴. 안내 거리·브레이크 비율은 화면 계약에서 제거(이민하의 기존 요청에 근거).
+- 바꾼 파일: `MainActivity.kt`, `ui/{CruiseBreakerNav,InitialScreen,UiStates,PreviewData}.kt`, `ui/components/NotificationPermission.kt`, `ui/{onboarding/OnboardingScreen,risk/RiskListScreen,risk/RiskListViewModel,settings/SettingsScreen,settings/SettingsViewModel}.kt`, UI 단위 테스트, 본 문서.
+
 
 ### 2026-11-01
 - 한 일: 화면 PR #1 머지 후 리뷰 후속(브랜치 `fix/ui-review-followups`). S5 왼쪽에 자동 기록 안내 "시동을 걸면 앱을 열지 않아도 주행을 자동으로 기록합니다." 추가. `SelectableButton`에 `role` 파라미터를 두고 S4 안내 거리는 `Role.RadioButton`(차슐랭과 공통 부품 같이 수정). Robolectric 렌더로 S4·S5 확인(설정은 커밋 안 함). `assembleDebug`·`test` 통과.

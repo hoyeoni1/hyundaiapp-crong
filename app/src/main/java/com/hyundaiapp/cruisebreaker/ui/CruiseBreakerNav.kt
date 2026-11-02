@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -17,6 +18,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hyundaiapp.cruisebreaker.AppContainer
 import com.hyundaiapp.cruisebreaker.BuildConfig
 import com.hyundaiapp.cruisebreaker.RecordingService
+import com.hyundaiapp.cruisebreaker.ui.components.rememberNotificationPermission
 import com.hyundaiapp.cruisebreaker.ui.debug.SignalMonitorScreen
 import com.hyundaiapp.cruisebreaker.ui.driving.DrivingScreen
 import com.hyundaiapp.cruisebreaker.ui.driving.DrivingViewModel
@@ -43,6 +46,8 @@ import com.hyundaiapp.cruisebreaker.ui.settings.SettingsScreen
 import com.hyundaiapp.cruisebreaker.ui.settings.SettingsViewModel
 import com.hyundaiapp.cruisebreaker.ui.summary.TripSummaryScreen
 import com.hyundaiapp.cruisebreaker.ui.summary.TripSummaryViewModel
+import com.hyundaiapp.cruisebreaker.ui.theme.CarColors
+import com.hyundaiapp.cruisebreaker.ui.theme.CarDimens
 
 /** PRD 5.5 화면 목록. 디버그 빌드는 개발 메뉴에서 시작한다 */
 enum class Screen(val title: String) {
@@ -58,7 +63,7 @@ enum class Screen(val title: String) {
 /** 간단한 화면 스택. 화면이 늘면 navigation-compose로 바꿔도 된다(길민종) */
 @Composable
 fun CruiseBreakerNav(container: AppContainer) {
-    val stack = remember { mutableStateListOf(if (BuildConfig.DEBUG) Screen.DEV_MENU else Screen.DRIVING) }
+    val stack = remember { mutableStateListOf(initialScreen(BuildConfig.DEBUG, container.prefs.onboarded)) }
     val go: (Screen) -> Unit = { stack.add(it) }
     val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
     BackHandler(enabled = stack.size > 1) { back() }
@@ -66,6 +71,7 @@ fun CruiseBreakerNav(container: AppContainer) {
     var terms by remember { mutableStateOf<Terms?>(null) }
     var confirmWithdraw by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val (notificationsGranted, requestNotifications) = rememberNotificationPermission()
     val onboardingVm = viewModel {
         OnboardingViewModel(
             container.prefs,
@@ -88,7 +94,10 @@ fun CruiseBreakerNav(container: AppContainer) {
             }
             Screen.SIGNALS -> {
                 // 신호 수신은 동의 후 기록 서비스가 시작한다. 개발 메뉴의 신호 모니터만 들어올 때 따로 켠다
-                LaunchedEffect(Unit) { container.signals.start() }
+                DisposableEffect(container) {
+                    container.signals.start()
+                    onDispose { if (!container.prefs.onboarded) container.signals.stop() }
+                }
                 SignalMonitorScreen(container.signals)
             }
             Screen.RISK_LIST -> {
@@ -113,8 +122,7 @@ fun CruiseBreakerNav(container: AppContainer) {
                 SettingsScreen(
                     state,
                     onVoiceEnabledChange = vm::setVoiceEnabled,
-                    // 안내 거리는 500m 고정(11-01) → 선택해도 반영하지 않음. 화면에서 지울 예정(길민종)
-                    onAnnounceDistanceChange = {},
+                    onAutoRecordEnabledChange = vm::setAutoRecordEnabled,
                     onConsentClick = { go(Screen.ONBOARDING) },
                     onBack = back,
                     onWithdrawConsent = { confirmWithdraw = true },
@@ -124,6 +132,8 @@ fun CruiseBreakerNav(container: AppContainer) {
                         onConfirm = {
                             confirmWithdraw = false
                             vm.withdrawConsent()
+                            stack.clear()
+                            stack.add(initialScreen(BuildConfig.DEBUG, container.prefs.onboarded))
                         },
                         onDismiss = { confirmWithdraw = false },
                     )
@@ -138,7 +148,13 @@ fun CruiseBreakerNav(container: AppContainer) {
                     onAgreePrivacy = onboardingVm::agreePrivacy,
                     onRequestSpeedPermission = { speedPermission.launch(SPEED_PERMISSION) },
                     onShowTerms = { terms = it },
-                    onStart = { if (onboardingVm.start()) back() },
+                    notificationsGranted = notificationsGranted,
+                    onRequestNotifications = requestNotifications,
+                    onStart = {
+                        if (onboardingVm.start()) {
+                            if (stack.size > 1) back() else stack[0] = Screen.DRIVING
+                        }
+                    },
                 )
             }
         }
@@ -152,10 +168,13 @@ fun CruiseBreakerNav(container: AppContainer) {
 private fun WithdrawDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = CarColors.Surface,
+        titleContentColor = CarColors.OnSurface,
+        textContentColor = CarColors.OnSurface,
         title = { Text("동의를 철회할까요?") },
         text = { Text("주행 기록과 안내를 멈추고, 이 차에 저장된 동의와 기록 정보를 지워요. 다시 쓰려면 동의가 필요해요.") },
-        confirmButton = { TextButton(onClick = onConfirm) { Text("철회") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        confirmButton = { TextButton(onClick = onConfirm, modifier = Modifier.heightIn(min = CarDimens.TouchTargetSmall)) { Text("철회", color = CarColors.Warning) } },
+        dismissButton = { TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = CarDimens.TouchTargetSmall)) { Text("취소", color = CarColors.Primary) } },
     )
 }
 
