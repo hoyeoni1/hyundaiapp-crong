@@ -1,0 +1,1464 @@
+{
+  "verifiedOn": "2026-10-30",
+  "method": "JVM class descriptor and generic Signature inspection; does not establish Kotlin nullability or physical units",
+  "sha256": {
+    "Vehicle-2.3.2": "e11fdfe498cad3ecc0d5a2a6992b0c4a4d135195f1455018127bc069fd5ef937",
+    "NaviHelper-3.0.5": "15fadd11c7c611b1abdf7ebf9ce91f2a6ce2728e60b4e38b4343e11bb9c12e97",
+    "navi-data-3.0.4": "7ca00e592134b53237a48cc3b7864063ecc5e2885465e3ce9c8c2a29789a2e2b"
+  },
+  "classes": {
+    "ai/pleos/playground/vehicle/api/Brake.class": [
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkBrakePedalStatusCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getCurrentBrakePedalStatus",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Boolean;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerBrakePedalStatus",
+        "desc": "(Lai/pleos/playground/vehicle/listener/BrakePedalStatusListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterBrakePedalStatus",
+        "desc": "(Lai/pleos/playground/vehicle/listener/BrakePedalStatusListener;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/api/DrivingMode.class": [
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkCruiseControlTargetSpeedCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkCruiseControlStateCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkDrivingModeStateCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getCruiseControlTargetSpeed",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getCruiseControlState",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/constant/control/CruiseControl;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getCurrentDrivingModeState",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/constant/control/DrivingModeType;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerCruiseControlTargetSpeed",
+        "desc": "(Lai/pleos/playground/vehicle/listener/CruiseControlTargetSpeedListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterCruiseControlTargetSpeed",
+        "desc": "(Lai/pleos/playground/vehicle/listener/CruiseControlTargetSpeedListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerCruiseControlState",
+        "desc": "(Lai/pleos/playground/vehicle/listener/CruiseControlStateListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterCruiseControlState",
+        "desc": "(Lai/pleos/playground/vehicle/listener/CruiseControlStateListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerDrivingModeState",
+        "desc": "(Lai/pleos/playground/vehicle/listener/DrivingModeStateListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterDrivingModeState",
+        "desc": "(Lai/pleos/playground/vehicle/listener/DrivingModeStateListener;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/api/EvBattery.class": [
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "setEvChargeCurrentDrawLimit$default",
+        "desc": "(Lai/pleos/playground/vehicle/api/EvBattery;FLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "setEvChargePercentLimit$default",
+        "desc": "(Lai/pleos/playground/vehicle/api/EvBattery;FLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "setEvChargePortOpen$default",
+        "desc": "(Lai/pleos/playground/vehicle/api/EvBattery;ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "setEvChargeSwitch$default",
+        "desc": "(Lai/pleos/playground/vehicle/api/EvBattery;ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkInstantaneousEvEfficiencyCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkSinceChargeEvEfficiencyCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkCumulativeEvEfficiencyCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkCurrentEvEfficiencyCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkEvBatteryStateOfChargeCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkEvChargeCurrentDrawLimitCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/util/List<Ljava/lang/Float;>;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkEvChargeCurrentDrawLimitCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function2<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;-Ljava/util/List<Ljava/lang/Float;>;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkEvChargePercentLimitCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function2<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;-Ljava/util/List<Ljava/lang/Float;>;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkEvChargePortOpenCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkEvChargeSwitchCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getInstantaneousEvEfficiency",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getSinceChargeEvEfficiency",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getCumulativeEvEfficiency",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getCurrentEvEfficiency",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getEvBatteryStateOfCharge",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Integer;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getEvBatteryLevel",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerCurrentEvEfficiency",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryEfficiencyListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterCurrentEvEfficiency",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryEfficiencyListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerEvBatteryStateOfCharge",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryStateOfChargeListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterEvBatteryStateOfCharge",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryStateOfChargeListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "setEvChargeCurrentDrawLimit",
+        "desc": "(FLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(FLkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getEvChargeCurrentDrawLimit",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "setEvChargePercentLimit",
+        "desc": "(FLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(FLkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "isEvChargePortOpen",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Boolean;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "setEvChargePortOpen",
+        "desc": "(ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(ZLkotlin/jvm/functions/Function1<-Ljava/lang/Boolean;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "setEvChargeSwitch",
+        "desc": "(ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(ZLkotlin/jvm/functions/Function1<-Ljava/lang/Boolean;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getEvChargeSwitchState",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Boolean;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getEvBatteryCapacity",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerInstantaneousEvEfficiency",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryEfficiencyListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterInstantaneousEvEfficiency",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryEfficiencyListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerSinceChargeEvEfficiency",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryEfficiencyListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterSinceChargeEvEfficiency",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryEfficiencyListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerCumulativeEvEfficiency",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryEfficiencyListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterCumulativeEvEfficiency",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryEfficiencyListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerEvBatteryLevel",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryLevelListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterEvBatteryLevel",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvBatteryLevelListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerEvChargePortOpen",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvChargePortOpenListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterEvChargePortOpen",
+        "desc": "(Lai/pleos/playground/vehicle/listener/EvChargePortOpenListener;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/api/SteeringWheel.class": [
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "setHvacSteeringWheelHeat$default",
+        "desc": "(Lai/pleos/playground/vehicle/api/SteeringWheel;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkHvacSteeringWheelHeatCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Lai/pleos/playground/vehicle/api/model/capability/AreaBounds<Ljava/lang/Integer;>;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkHvacSteeringWheelHeatCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function2<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;-Lai/pleos/playground/vehicle/api/model/capability/AreaBounds<Ljava/lang/Integer;>;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "checkSteeringWheelAngleCapabilities",
+        "desc": "(Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function2<-Lai/pleos/playground/vehicle/api/model/capability/CapabilityConfig;-Lai/pleos/playground/vehicle/api/model/capability/AreaBounds<Ljava/lang/Float;>;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getHvacSteeringWheelHeatState",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Integer;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "setHvacSteeringWheelHeat",
+        "desc": "(ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(ILkotlin/jvm/functions/Function1<-Ljava/lang/Integer;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "getCurrentSteeringWheelAngle",
+        "desc": "(Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V",
+        "signature": "(Lkotlin/jvm/functions/Function1<-Ljava/lang/Float;Lkotlin/Unit;>;Lkotlin/jvm/functions/Function1<-Ljava/lang/Exception;Lkotlin/Unit;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerSteeringWheelAngle",
+        "desc": "(Lai/pleos/playground/vehicle/listener/SteeringWheelAngleListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterSteeringWheelAngle",
+        "desc": "(Lai/pleos/playground/vehicle/listener/SteeringWheelAngleListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "registerHvacSteeringWheelHeatState",
+        "desc": "(Lai/pleos/playground/vehicle/listener/HvacSteeringWheelHeatStateListener;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "unregisterHvacSteeringWheelHeatState",
+        "desc": "(Lai/pleos/playground/vehicle/listener/HvacSteeringWheelHeatStateListener;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/constant/control/CruiseControl.class": [
+      {
+        "kind": "field",
+        "flags": 25,
+        "name": "Companion",
+        "desc": "Lai/pleos/playground/vehicle/constant/control/CruiseControl$Companion;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "OTHER",
+        "desc": "Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "ENABLED",
+        "desc": "Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "ACTIVATED",
+        "desc": "Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "USER_OVERRIDE",
+        "desc": "Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "SUSPENDED",
+        "desc": "Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "FORCED_DEACTIVATION_WARNING",
+        "desc": "Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "field",
+        "flags": 4122,
+        "name": "b",
+        "desc": "[Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "field",
+        "flags": 4122,
+        "name": "c",
+        "desc": "Lkotlin/enums/EnumEntries;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "a",
+        "desc": "I"
+      },
+      {
+        "kind": "method",
+        "flags": 2,
+        "name": "<init>",
+        "desc": "(Ljava/lang/String;II)V",
+        "signature": "(I)V"
+      },
+      {
+        "kind": "method",
+        "flags": 9,
+        "name": "values",
+        "desc": "()[Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "method",
+        "flags": 9,
+        "name": "valueOf",
+        "desc": "(Ljava/lang/String;)Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "method",
+        "flags": 9,
+        "name": "getEntries",
+        "desc": "()Lkotlin/enums/EnumEntries;",
+        "signature": "()Lkotlin/enums/EnumEntries<Lai/pleos/playground/vehicle/constant/control/CruiseControl;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 4122,
+        "name": "a",
+        "desc": "()[Lai/pleos/playground/vehicle/constant/control/CruiseControl;"
+      },
+      {
+        "kind": "method",
+        "flags": 8,
+        "name": "<clinit>",
+        "desc": "()V"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getId$Vehicle_release",
+        "desc": "()I"
+      }
+    ],
+    "ai/pleos/playground/vehicle/listener/BrakePedalStatusListener.class": [
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "onBrakePedalStatusUpdated",
+        "desc": "(Ljava/lang/Boolean;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/listener/CruiseControlStateListener.class": [
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "onCruiseControlStateUpdated",
+        "desc": "(Lai/pleos/playground/vehicle/constant/control/CruiseControl;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/listener/CruiseControlTargetSpeedListener.class": [
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "onCruiseControlTargetSpeedUpdated",
+        "desc": "(Ljava/lang/Float;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/listener/EvBatteryStateOfChargeListener.class": [
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "onEvBatteryStateOfChargeUpdated",
+        "desc": "(Ljava/lang/Integer;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/listener/EvChargePortOpenListener.class": [
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "onEvChargePortOpenUpdated",
+        "desc": "(Ljava/lang/Boolean;)V"
+      }
+    ],
+    "ai/pleos/playground/vehicle/listener/SteeringWheelAngleListener.class": [
+      {
+        "kind": "method",
+        "flags": 1025,
+        "name": "onSteeringWheelAngleUpdated",
+        "desc": "(Ljava/lang/Float;)V"
+      }
+    ],
+    "ai/pleos/playground/navi/data/CurrentLocationInfo.class": [
+      {
+        "kind": "field",
+        "flags": 25,
+        "name": "Companion",
+        "desc": "Lai/pleos/playground/navi/data/CurrentLocationInfo$Companion;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "latitude",
+        "desc": "D"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "longitude",
+        "desc": "D"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "heading",
+        "desc": "D"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "address",
+        "desc": "Ljava/lang/String;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "routeId",
+        "desc": "Ljava/lang/String;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "currentRouteIndex",
+        "desc": "Ljava/lang/Integer;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "<init>",
+        "desc": "(DDDLjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4097,
+        "name": "<init>",
+        "desc": "(DDDLjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getLatitude",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getLongitude",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getHeading",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getAddress",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getRouteId",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getCurrentRouteIndex",
+        "desc": "()Ljava/lang/Integer;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component1",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component2",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component3",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component4",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component5",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component6",
+        "desc": "()Ljava/lang/Integer;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "copy",
+        "desc": "(DDDLjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lai/pleos/playground/navi/data/CurrentLocationInfo;"
+      },
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "copy$default",
+        "desc": "(Lai/pleos/playground/navi/data/CurrentLocationInfo;DDDLjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lai/pleos/playground/navi/data/CurrentLocationInfo;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "toString",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "hashCode",
+        "desc": "()I"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "equals",
+        "desc": "(Ljava/lang/Object;)Z"
+      },
+      {
+        "kind": "method",
+        "flags": 4121,
+        "name": "write$Self$data_release",
+        "desc": "(Lai/pleos/playground/navi/data/CurrentLocationInfo;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4097,
+        "name": "<init>",
+        "desc": "(IDDDLjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 8,
+        "name": "<clinit>",
+        "desc": "()V"
+      }
+    ],
+    "ai/pleos/playground/navi/data/RouteStateInfo.class": [
+      {
+        "kind": "field",
+        "flags": 25,
+        "name": "Companion",
+        "desc": "Lai/pleos/playground/navi/data/RouteStateInfo$Companion;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "termsAgreement",
+        "desc": "Z"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "naviMode",
+        "desc": "Lai/pleos/playground/navi/constants/NaviMode;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "isRouting",
+        "desc": "Z"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "routeOption",
+        "desc": "Lai/pleos/playground/navi/constants/RouteOption;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "remainDestinationChargingInt",
+        "desc": "I"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "remainWaypointChargingInt",
+        "desc": "Ljava/util/List;",
+        "signature": "Ljava/util/List<Ljava/lang/Integer;>;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "trafficStatus",
+        "desc": "Lai/pleos/playground/navi/data/TrafficStatus;"
+      },
+      {
+        "kind": "field",
+        "flags": 26,
+        "name": "$childSerializers",
+        "desc": "[Lkotlinx/serialization/KSerializer;",
+        "signature": "[Lkotlinx/serialization/KSerializer<Ljava/lang/Object;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "<init>",
+        "desc": "(ZLai/pleos/playground/navi/constants/NaviMode;ZLai/pleos/playground/navi/constants/RouteOption;ILjava/util/List;Lai/pleos/playground/navi/data/TrafficStatus;)V",
+        "signature": "(ZLai/pleos/playground/navi/constants/NaviMode;ZLai/pleos/playground/navi/constants/RouteOption;ILjava/util/List<Ljava/lang/Integer;>;Lai/pleos/playground/navi/data/TrafficStatus;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getTermsAgreement",
+        "desc": "()Z"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getNaviMode",
+        "desc": "()Lai/pleos/playground/navi/constants/NaviMode;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "isRouting",
+        "desc": "()Z"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getRouteOption",
+        "desc": "()Lai/pleos/playground/navi/constants/RouteOption;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getRemainDestinationChargingInt",
+        "desc": "()I"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getRemainWaypointChargingInt",
+        "desc": "()Ljava/util/List;",
+        "signature": "()Ljava/util/List<Ljava/lang/Integer;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getTrafficStatus",
+        "desc": "()Lai/pleos/playground/navi/data/TrafficStatus;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component1",
+        "desc": "()Z"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component2",
+        "desc": "()Lai/pleos/playground/navi/constants/NaviMode;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component3",
+        "desc": "()Z"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component4",
+        "desc": "()Lai/pleos/playground/navi/constants/RouteOption;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component5",
+        "desc": "()I"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component6",
+        "desc": "()Ljava/util/List;",
+        "signature": "()Ljava/util/List<Ljava/lang/Integer;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component7",
+        "desc": "()Lai/pleos/playground/navi/data/TrafficStatus;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "copy",
+        "desc": "(ZLai/pleos/playground/navi/constants/NaviMode;ZLai/pleos/playground/navi/constants/RouteOption;ILjava/util/List;Lai/pleos/playground/navi/data/TrafficStatus;)Lai/pleos/playground/navi/data/RouteStateInfo;",
+        "signature": "(ZLai/pleos/playground/navi/constants/NaviMode;ZLai/pleos/playground/navi/constants/RouteOption;ILjava/util/List<Ljava/lang/Integer;>;Lai/pleos/playground/navi/data/TrafficStatus;)Lai/pleos/playground/navi/data/RouteStateInfo;"
+      },
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "copy$default",
+        "desc": "(Lai/pleos/playground/navi/data/RouteStateInfo;ZLai/pleos/playground/navi/constants/NaviMode;ZLai/pleos/playground/navi/constants/RouteOption;ILjava/util/List;Lai/pleos/playground/navi/data/TrafficStatus;ILjava/lang/Object;)Lai/pleos/playground/navi/data/RouteStateInfo;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "toString",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "hashCode",
+        "desc": "()I"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "equals",
+        "desc": "(Ljava/lang/Object;)Z"
+      },
+      {
+        "kind": "method",
+        "flags": 4121,
+        "name": "write$Self$data_release",
+        "desc": "(Lai/pleos/playground/navi/data/RouteStateInfo;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4097,
+        "name": "<init>",
+        "desc": "(IZLai/pleos/playground/navi/constants/NaviMode;ZLai/pleos/playground/navi/constants/RouteOption;ILjava/util/List;Lai/pleos/playground/navi/data/TrafficStatus;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4121,
+        "name": "access$get$childSerializers$cp",
+        "desc": "()[Lkotlinx/serialization/KSerializer;"
+      },
+      {
+        "kind": "method",
+        "flags": 8,
+        "name": "<clinit>",
+        "desc": "()V"
+      }
+    ],
+    "ai/pleos/playground/navi/data/TrafficCongestionInfo.class": [
+      {
+        "kind": "field",
+        "flags": 25,
+        "name": "Companion",
+        "desc": "Lai/pleos/playground/navi/data/TrafficCongestionInfo$Companion;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "offset",
+        "desc": "D"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "distance",
+        "desc": "D"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "trafficCongestionTime",
+        "desc": "J"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "trafficCongestionType",
+        "desc": "Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "avrSpeed",
+        "desc": "D"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "roadName",
+        "desc": "Ljava/lang/String;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "startCrossName",
+        "desc": "Ljava/lang/String;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "endCrossName",
+        "desc": "Ljava/lang/String;"
+      },
+      {
+        "kind": "field",
+        "flags": 26,
+        "name": "$childSerializers",
+        "desc": "[Lkotlinx/serialization/KSerializer;",
+        "signature": "[Lkotlinx/serialization/KSerializer<Ljava/lang/Object;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "<init>",
+        "desc": "(DDJLai/pleos/playground/navi/constants/TrafficCongestionType;DLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getOffset",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getDistance",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getTrafficCongestionTime",
+        "desc": "()J"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getTrafficCongestionType",
+        "desc": "()Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getAvrSpeed",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getRoadName",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getStartCrossName",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getEndCrossName",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component1",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component2",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component3",
+        "desc": "()J"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component4",
+        "desc": "()Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component5",
+        "desc": "()D"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component6",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component7",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component8",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "copy",
+        "desc": "(DDJLai/pleos/playground/navi/constants/TrafficCongestionType;DLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lai/pleos/playground/navi/data/TrafficCongestionInfo;"
+      },
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "copy$default",
+        "desc": "(Lai/pleos/playground/navi/data/TrafficCongestionInfo;DDJLai/pleos/playground/navi/constants/TrafficCongestionType;DLjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lai/pleos/playground/navi/data/TrafficCongestionInfo;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "toString",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "hashCode",
+        "desc": "()I"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "equals",
+        "desc": "(Ljava/lang/Object;)Z"
+      },
+      {
+        "kind": "method",
+        "flags": 4121,
+        "name": "write$Self$data_release",
+        "desc": "(Lai/pleos/playground/navi/data/TrafficCongestionInfo;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4097,
+        "name": "<init>",
+        "desc": "(IDDJLai/pleos/playground/navi/constants/TrafficCongestionType;DLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4121,
+        "name": "access$get$childSerializers$cp",
+        "desc": "()[Lkotlinx/serialization/KSerializer;"
+      },
+      {
+        "kind": "method",
+        "flags": 8,
+        "name": "<clinit>",
+        "desc": "()V"
+      }
+    ],
+    "ai/pleos/playground/navi/data/TrafficStatus.class": [
+      {
+        "kind": "field",
+        "flags": 25,
+        "name": "Companion",
+        "desc": "Lai/pleos/playground/navi/data/TrafficStatus$Companion;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "summary",
+        "desc": "Lai/pleos/playground/navi/data/TrafficCongestionSummary;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "congestionItemList",
+        "desc": "Ljava/util/List;",
+        "signature": "Ljava/util/List<Lai/pleos/playground/navi/data/TrafficCongestionInfo;>;"
+      },
+      {
+        "kind": "field",
+        "flags": 18,
+        "name": "trafficEventList",
+        "desc": "Ljava/util/List;",
+        "signature": "Ljava/util/List<Lai/pleos/playground/navi/data/TrafficEventInfo;>;"
+      },
+      {
+        "kind": "field",
+        "flags": 26,
+        "name": "$childSerializers",
+        "desc": "[Lkotlinx/serialization/KSerializer;",
+        "signature": "[Lkotlinx/serialization/KSerializer<Ljava/lang/Object;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "<init>",
+        "desc": "(Lai/pleos/playground/navi/data/TrafficCongestionSummary;Ljava/util/List;Ljava/util/List;)V",
+        "signature": "(Lai/pleos/playground/navi/data/TrafficCongestionSummary;Ljava/util/List<Lai/pleos/playground/navi/data/TrafficCongestionInfo;>;Ljava/util/List<Lai/pleos/playground/navi/data/TrafficEventInfo;>;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getSummary",
+        "desc": "()Lai/pleos/playground/navi/data/TrafficCongestionSummary;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getCongestionItemList",
+        "desc": "()Ljava/util/List;",
+        "signature": "()Ljava/util/List<Lai/pleos/playground/navi/data/TrafficCongestionInfo;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "getTrafficEventList",
+        "desc": "()Ljava/util/List;",
+        "signature": "()Ljava/util/List<Lai/pleos/playground/navi/data/TrafficEventInfo;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component1",
+        "desc": "()Lai/pleos/playground/navi/data/TrafficCongestionSummary;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component2",
+        "desc": "()Ljava/util/List;",
+        "signature": "()Ljava/util/List<Lai/pleos/playground/navi/data/TrafficCongestionInfo;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "component3",
+        "desc": "()Ljava/util/List;",
+        "signature": "()Ljava/util/List<Lai/pleos/playground/navi/data/TrafficEventInfo;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 17,
+        "name": "copy",
+        "desc": "(Lai/pleos/playground/navi/data/TrafficCongestionSummary;Ljava/util/List;Ljava/util/List;)Lai/pleos/playground/navi/data/TrafficStatus;",
+        "signature": "(Lai/pleos/playground/navi/data/TrafficCongestionSummary;Ljava/util/List<Lai/pleos/playground/navi/data/TrafficCongestionInfo;>;Ljava/util/List<Lai/pleos/playground/navi/data/TrafficEventInfo;>;)Lai/pleos/playground/navi/data/TrafficStatus;"
+      },
+      {
+        "kind": "method",
+        "flags": 4105,
+        "name": "copy$default",
+        "desc": "(Lai/pleos/playground/navi/data/TrafficStatus;Lai/pleos/playground/navi/data/TrafficCongestionSummary;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lai/pleos/playground/navi/data/TrafficStatus;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "toString",
+        "desc": "()Ljava/lang/String;"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "hashCode",
+        "desc": "()I"
+      },
+      {
+        "kind": "method",
+        "flags": 1,
+        "name": "equals",
+        "desc": "(Ljava/lang/Object;)Z"
+      },
+      {
+        "kind": "method",
+        "flags": 4121,
+        "name": "write$Self$data_release",
+        "desc": "(Lai/pleos/playground/navi/data/TrafficStatus;Lkotlinx/serialization/encoding/CompositeEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4097,
+        "name": "<init>",
+        "desc": "(ILai/pleos/playground/navi/data/TrafficCongestionSummary;Ljava/util/List;Ljava/util/List;Lkotlinx/serialization/internal/SerializationConstructorMarker;)V"
+      },
+      {
+        "kind": "method",
+        "flags": 4121,
+        "name": "access$get$childSerializers$cp",
+        "desc": "()[Lkotlinx/serialization/KSerializer;"
+      },
+      {
+        "kind": "method",
+        "flags": 8,
+        "name": "<clinit>",
+        "desc": "()V"
+      }
+    ],
+    "ai/pleos/playground/navi/constants/TrafficCongestionType.class": [
+      {
+        "kind": "field",
+        "flags": 25,
+        "name": "Companion",
+        "desc": "Lai/pleos/playground/navi/constants/TrafficCongestionType$Companion;"
+      },
+      {
+        "kind": "field",
+        "flags": 26,
+        "name": "$cachedSerializer$delegate",
+        "desc": "Lkotlin/Lazy;",
+        "signature": "Lkotlin/Lazy<Lkotlinx/serialization/KSerializer<Ljava/lang/Object;>;>;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "UNKNOWN",
+        "desc": "Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "FAST",
+        "desc": "Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "MODERATE",
+        "desc": "Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "SLOW",
+        "desc": "Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "field",
+        "flags": 16409,
+        "name": "HEAVY",
+        "desc": "Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "field",
+        "flags": 4122,
+        "name": "$VALUES",
+        "desc": "[Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "field",
+        "flags": 4122,
+        "name": "$ENTRIES",
+        "desc": "Lkotlin/enums/EnumEntries;"
+      },
+      {
+        "kind": "method",
+        "flags": 2,
+        "name": "<init>",
+        "desc": "(Ljava/lang/String;I)V",
+        "signature": "()V"
+      },
+      {
+        "kind": "method",
+        "flags": 9,
+        "name": "values",
+        "desc": "()[Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "method",
+        "flags": 9,
+        "name": "valueOf",
+        "desc": "(Ljava/lang/String;)Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "method",
+        "flags": 9,
+        "name": "getEntries",
+        "desc": "()Lkotlin/enums/EnumEntries;",
+        "signature": "()Lkotlin/enums/EnumEntries<Lai/pleos/playground/navi/constants/TrafficCongestionType;>;"
+      },
+      {
+        "kind": "method",
+        "flags": 4122,
+        "name": "$values",
+        "desc": "()[Lai/pleos/playground/navi/constants/TrafficCongestionType;"
+      },
+      {
+        "kind": "method",
+        "flags": 4121,
+        "name": "access$get$cachedSerializer$delegate$cp",
+        "desc": "()Lkotlin/Lazy;"
+      },
+      {
+        "kind": "method",
+        "flags": 8,
+        "name": "<clinit>",
+        "desc": "()V"
+      }
+    ]
+  }
+}

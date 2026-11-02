@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "com.hyundaiapp.cruisebreaker"
     compileSdk = 35
+    useLibrary("android.car", false)
 
     defaultConfig {
         applicationId = "com.hyundaiapp.cruisebreaker"
