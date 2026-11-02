@@ -43,6 +43,8 @@ data class TripSummaryUiState(
 data class SettingsUiState(
     val voiceEnabled: Boolean = true,
     val announceDistanceM: Int = 1_000,
+    /** 시동 때 자동 기록. S5 동의 후 기본 켜짐(PRD 5.4). 토글 화면은 길민종 */
+    val autoRecordEnabled: Boolean = true,
 )
 
 /** S5 첫 실행 동의(동의 버튼 외 동작은 동의 아님) + 차속 런타임 권한 */

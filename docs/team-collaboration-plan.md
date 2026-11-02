@@ -24,9 +24,9 @@
 | 이름 | 역할 | 개발 담당 | 그 외 |
 |---|---|---|---|
 | **장호연** (팀장·대표자) | 기획·제출 + 시연 도구 | 시연 시나리오 스크립트(`tools/`), release APK 빌드·서명, 저장소 README | 기획서 2개, 시연 영상 2개, 주최 측 문의, 서명 수집, 제출 메일 |
-| **황준용** | 공통 플랫폼 | `core` 모듈(Vehicle/NaviHelper 래퍼, 권한, capability 체크), 서버(리뷰·이벤트 저장, 집계 API) | Organization·저장소·브랜치 보호 세팅 |
+| **황준용** | 공통 플랫폼 | `core` 모듈(Vehicle/NaviHelper 래퍼, 권한, capability 체크), 서버(리뷰·이벤트 저장, 집계 API) | ~~Organization·저장소·브랜치 보호 세팅~~ → Organization은 만들지 않음(10-30 결정, 4절 1번) |
 | **이상준** | 차슐랭 로직 | 충전 세션 기록(충전구 열림 → SoC 변화 → 닫힘), 충전 인증 판정, 충전소 매칭(위치 ↔ 환경부 충전소 API) | |
-| **이민하** | 크루즈브레이커 로직 | 해제 이벤트 기록(크루즈·브레이크·조향), 정체 구간 필터, 구간 집계, **백그라운드 동결 실험(첫 주 최우선)** | |
+| **이민하** | 크루즈브레이커 로직 | 해제·통과 기록, 구간 ID, 진입 전 안내·음성, 기록 서비스, **백그라운드 동결 실험(첫 주 최우선)**. 판정 규칙 v2(11-01, 정체 필터 없앰): 크루즈브레이커 `docs/disengage-rules.md` | |
 | **길민종** | 두 앱 UI | 공통 테마, 차슐랭 별점·후기·충전소 화면, 크루즈브레이커 안내 화면(주행 중 UI·DO 규정) | 영상용 화면 연출(장호연과 함께) |
 
 ### 담당 경로
@@ -72,7 +72,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 ## 4. GitHub 운영 규칙
 
-1. **Organization으로 이전**(황준용, 11-01까지): 지금은 개인 계정(`hoyeoni1`) 저장소라 심사용 계정을 Collaborator로 초대하면 쓰기 권한까지 넘어간다. Organization에서는 읽기 권한만 줄 수 있다.
+1. **Organization은 만들지 않고 개인 계정(`hoyeoni1`) 저장소를 유지한다**(10-30 장호연 결정, 11-01 이 문서에 정정 — 전에는 "Organization으로 이전(황준용, 11-01까지)"이었음). 개인 계정 저장소는 심사용 계정을 Collaborator로 초대하면 쓰기 권한까지 넘어가는데, 이 문제는 주최 측 문의(9절 4번 심사용 GitHub 계정) 답변을 받은 뒤 정한다.
 2. **모든 변경은 PR로 올린다. 리뷰는 Claude, 머지는 장호연만 한다.**
    - 흐름: 브랜치에서 작업 → PR → **Claude 리뷰**(장호연 계정의 에이전트가 빌드·테스트·규칙을 확인하고 PR에 코멘트) → 작성자 수정 → **장호연 머지**
    - 작성자는 자기 PR을 머지하지 않는다. 에이전트도 머지하지 않는다.
@@ -122,7 +122,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 | 기간 | 장호연 | 황준용 | 이상준 | 이민하 | 길민종 |
 |---|---|---|---|---|---|
-| **10-29 ~ 11-01** 세팅 | 주최 측 문의 메일 발송, Playground 프로젝트 | Organization·보호 규칙, `core` 인터페이스 확정 | 충전 세션 상태 설계, 환경부 API 조사 | **백그라운드 동결 실험**, 크루즈 값 재확인 | 화면 구성·공통 테마 |
+| **10-29 ~ 11-01** 세팅 | 주최 측 문의 메일 발송, Playground 프로젝트 | `core` 인터페이스 확정 (~~Organization·보호 규칙~~ → 만들지 않음, 4절 1번) | 충전 세션 상태 설계, 환경부 API 조사 | **백그라운드 동결 실험**, 크루즈 값 재확인 | 화면 구성·공통 테마 |
 | **11-02 ~ 11-08** 핵심 흐름 | 기획서 초안 2개, 시연 스크립트 | `core` 실제 구현, 서버 | 충전 인증 흐름 실동작 | 해제 이벤트 → 구간 집계 실동작 | 두 앱 주요 화면 |
 | **11-05** 중간 점검 | 전원 | | | | |
 | **11-09 ~ 11-12** 완성 | 영상 촬영·편집, release APK, `sync-core.sh --check` | 서버 안정화, 버그 수정 | 버그 수정, 영상 지원 | 버그 수정, 영상 지원 | 화면 다듬기, 영상 연출 |
@@ -136,18 +136,22 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 ## 9. 주최 측 문의 (장호연, 이번 주)
 
-1. 주행 중 경로 안내가 앞에 있을 때 앱 프로세스가 얼어 Vehicle 이벤트가 끊김 — 백그라운드 수집 방법이 있는지
+메일 초안: [organizer-inquiry-email.md](organizer-inquiry-email.md) (10-31, 아래 1~7번 + 제출 관련 질문 포함. 11-01 8번 추가 → 메일 11번)
+
+1. ~~백그라운드 수집 방법~~ → 에뮬레이터에서 포그라운드 서비스로 해결(크루즈브레이커 `docs/background-freeze-experiment.md`). 대신 물을 것: 포그라운드 서비스(`specialUse`)와 부팅 자동 시작(`RECEIVE_BOOT_COMPLETED`)이 앱마켓 심사에서 허용되는지
 2. 실차에서 크루즈 해제 시 들어오는 `CruiseControlState` 값
 3. Pleos Connect 첫 탑재 차종에 전기차가 포함되는지
 4. 심사용 GitHub 계정명
 5. 시연 영상 길이·형식·제출 방법
-6. DO(`distractionOptimized`)를 선언한 앱이 adb 설치 상태에서 주행 중 차단됨(10-30 실측) — 공모전 앱이 주행 중 화면을 쓰려면 어떤 절차가 필요한지
+6. DO(`distractionOptimized`) 선언만으로 앱마켓 배포본도 주행 중 화면이 허용되는지, 별도 심사 절차가 있는지 (10-30 "adb 설치본 차단" 관찰은 차슐랭 화면을 착각한 것으로 10-31 확인 — 에뮬레이터에서는 DO 선언 앱이 차단되지 않음)
+7. 실차는 시동 off 때 헤드유닛이 완전히 꺼지는지, 절전(suspend)했다가 깨어나는지 — 절전이면 부팅 자동 시작이 안 걸림
+8. 크루즈브레이커 안내 음성(Pleos TTS SDK)용 `pleos.car.permission.TTS_SERVICE` 권한이 앱마켓 심사에서 승인되는지, 별도 신청 절차가 있는지 (11-01 이민하 요청)
 
 ## 10. 제출 체크리스트 (작품마다)
 
 - [ ] 접수양식: 부문·팀명·앱명, 구성원 5명 정보, 02 파트에 실명·개인정보 없음
 - [ ] 5명 전원 동의 체크 + 본인 서명 + 날짜
-- [ ] GitHub: `apk/<영문 앱이름>_release.apk`(release, 서명) — `Chachelin_release.apk` / `CruiseBreaker_release.apk`. 팀명은 넣지 않는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
+- [ ] GitHub: `apk/SamgakGorae_<영문 앱이름>_release.apk`(release, 서명) — `SamgakGorae_Chachelin_release.apk` / `SamgakGorae_CruiseBreaker_release.apk`. 사이트 규칙 `팀명_앱이름_release.apk`에 맞춰 영문 팀명을 넣는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
 - [ ] 두 저장소 `core` 일치 확인(`tools/sync-core.sh ../CruiseBreaker --check`), 저장소를 새로 clone해서 빌드되는지 확인
 - [ ] 심사용 계정 초대 + 접근 확인
 - [ ] 시연 영상 링크

@@ -5,10 +5,6 @@ import android.app.Application
 class CruiseBreakerApp : Application() {
     val container by lazy { AppContainer(this) }
 
-    override fun onCreate() {
-        super.onCreate()
-        // 주행 중 기록은 화면과 무관하게 계속한다. 단 내비가 앞에 오면 프로세스가 얼 수 있음(PRD 5.4, 이민하 실험)
-        container.signals.start()
-        container.disengageDetector.start(container.appScope)
-    }
+    // 차량·위치 신호 수신은 동의 후 RecordingService(AppContainer.startRecording)가 시작한다(이슈 #9).
+    // 디버그 빌드의 신호 모니터는 화면에 들어갈 때 따로 시작한다
 }

@@ -7,7 +7,7 @@ android {
     namespace = "com.hyundaiapp.core"
     compileSdk = 35
     // AAOS 표준 Car API(차속 PERF_VEHICLE_SPEED)
-    useLibrary("android.car")
+    useLibrary("android.car", false)
 
     defaultConfig {
         minSdk = 28

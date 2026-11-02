@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "com.hyundaiapp.cruisebreaker"
     compileSdk = 35
+    useLibrary("android.car", false)
 
     defaultConfig {
         applicationId = "com.hyundaiapp.cruisebreaker"
@@ -32,6 +33,8 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    // 안내 음성(RiskSpeaker). 기기 내(ON_DEVICE) 모드라 서버 등록 키가 필요 없다
+    implementation("ai.pleos.playground:TextToSpeech:3.3.1")
 
     val composeBom = platform("androidx.compose:compose-bom:2025.04.01")
     implementation(composeBom)
