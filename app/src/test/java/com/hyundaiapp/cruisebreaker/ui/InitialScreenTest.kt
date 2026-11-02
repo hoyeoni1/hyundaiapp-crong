@@ -10,8 +10,8 @@ class InitialScreenTest {
     }
 
     @Test
-    fun `release returning user enters driving screen`() {
-        assertEquals(Screen.DRIVING, initialScreen(debug = false, onboarded = true))
+    fun `release returning user can reach parked risk list and settings`() {
+        assertEquals(Screen.RISK_LIST, initialScreen(debug = false, onboarded = true))
     }
 
     @Test

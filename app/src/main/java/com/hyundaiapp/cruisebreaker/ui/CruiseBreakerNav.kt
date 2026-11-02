@@ -32,6 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hyundaiapp.cruisebreaker.AppContainer
 import com.hyundaiapp.cruisebreaker.BuildConfig
+import com.hyundaiapp.core.VehicleSignals
+import com.hyundaiapp.cruisebreaker.data.AppPrefs
+import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
+import com.hyundaiapp.cruisebreaker.domain.RiskAnnouncer
+import com.hyundaiapp.cruisebreaker.domain.TripStats
 import com.hyundaiapp.cruisebreaker.RecordingService
 import com.hyundaiapp.cruisebreaker.ui.components.rememberNotificationPermission
 import com.hyundaiapp.cruisebreaker.ui.debug.SignalMonitorScreen
@@ -63,45 +68,89 @@ enum class Screen(val title: String) {
 /** 간단한 화면 스택. 화면이 늘면 navigation-compose로 바꿔도 된다(길민종) */
 @Composable
 fun CruiseBreakerNav(container: AppContainer) {
-    val stack = remember { mutableStateListOf(initialScreen(BuildConfig.DEBUG, container.prefs.onboarded)) }
+    val context = LocalContext.current
+    val dependencies = remember(container, context) {
+        CruiseNavigationDependencies(
+            signals = container.signals,
+            prefs = container.prefs,
+            risks = container.risks,
+            announcer = container.announcer,
+            tripStats = container.tripStats,
+            onStart = { RecordingService.startIfAllowed(context) },
+            onWithdraw = container::withdrawConsent,
+        )
+    }
+    CruiseBreakerNavigation(dependencies, BuildConfig.DEBUG)
+}
+
+/** UI가 쓰는 기존 상태·콜백만 전달해 SDK 없이 화면 전환도 확인할 수 있게 한다. */
+internal data class CruiseNavigationDependencies(
+    val signals: VehicleSignals,
+    val prefs: AppPrefs,
+    val risks: SegmentRiskRepository,
+    val announcer: RiskAnnouncer,
+    val tripStats: TripStats,
+    val onStart: () -> Unit,
+    val onWithdraw: () -> Unit,
+)
+
+@Composable
+internal fun CruiseBreakerNavigation(dependencies: CruiseNavigationDependencies, debug: Boolean) {
+    val stack = remember { mutableStateListOf(initialScreen(debug, dependencies.prefs.onboarded)) }
+    var sessionStarted by remember { mutableStateOf(dependencies.prefs.onboarded) }
+    val drive by dependencies.signals.drive.collectAsState()
+    val currentScreen = visibleScreen(stack.last(), sessionStarted, drive)
     val go: (Screen) -> Unit = { stack.add(it) }
     val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
-    BackHandler(enabled = stack.size > 1) { back() }
+    val resetTo: (Screen) -> Unit = {
+        stack.clear()
+        if (debug && it != Screen.DEV_MENU) stack.add(Screen.DEV_MENU)
+        stack.add(it)
+    }
+    BackHandler(enabled = currentScreen != Screen.DRIVING && stack.size > 1) { back() }
 
     var terms by remember { mutableStateOf<Terms?>(null) }
     var confirmWithdraw by remember { mutableStateOf(false) }
+    val tripNavigation = remember { TripEndNavigation() }
+    LaunchedEffect(sessionStarted, drive) {
+        if (currentScreen == Screen.DRIVING) {
+            terms = null
+            confirmWithdraw = false
+        }
+        if (tripNavigation.shouldShowSummary(sessionStarted, drive)) resetTo(Screen.TRIP_SUMMARY)
+    }
     val context = LocalContext.current
     val (notificationsGranted, requestNotifications) = rememberNotificationPermission()
     val onboardingVm = viewModel {
         OnboardingViewModel(
-            container.prefs,
+            dependencies.prefs,
             speedPermissionGranted = { context.checkSelfPermission(SPEED_PERMISSION) == PackageManager.PERMISSION_GRANTED },
-            onStarted = { RecordingService.startIfAllowed(context) },
+            onStarted = dependencies.onStart,
         )
     }
     val speedPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         onboardingVm.onSpeedPermissionResult(granted)
-        container.signals.onPermissionsChanged()
+        dependencies.signals.onPermissionsChanged()
     }
 
     Surface(Modifier.fillMaxSize()) {
-        when (stack.last()) {
+        when (currentScreen) {
             Screen.DEV_MENU -> DevMenu(go)
             Screen.DRIVING -> {
-                val vm = viewModel { DrivingViewModel(container.signals, container.announcer) }
+                val vm = viewModel { DrivingViewModel(dependencies.signals, dependencies.announcer) }
                 val state by vm.state.collectAsState()
                 DrivingScreen(state)
             }
             Screen.SIGNALS -> {
                 // 신호 수신은 동의 후 기록 서비스가 시작한다. 개발 메뉴의 신호 모니터만 들어올 때 따로 켠다
-                DisposableEffect(container) {
-                    container.signals.start()
-                    onDispose { if (!container.prefs.onboarded) container.signals.stop() }
+                DisposableEffect(dependencies) {
+                    dependencies.signals.start()
+                    onDispose { if (!dependencies.prefs.onboarded) dependencies.signals.stop() }
                 }
-                SignalMonitorScreen(container.signals)
+                SignalMonitorScreen(dependencies.signals)
             }
             Screen.RISK_LIST -> {
-                val vm = viewModel { RiskListViewModel(container.signals, container.risks) }
+                val vm = viewModel { RiskListViewModel(dependencies.signals, dependencies.risks) }
                 // 화면에 들어올 때마다 새로 조회한다(방금 남긴 해제가 반영되게)
                 LaunchedEffect(Unit) { vm.refresh() }
                 val state by vm.state.collectAsState()
@@ -112,12 +161,12 @@ fun CruiseBreakerNav(container: AppContainer) {
                 )
             }
             Screen.TRIP_SUMMARY -> {
-                val vm = viewModel { TripSummaryViewModel(container.tripStats) }
+                val vm = viewModel { TripSummaryViewModel(dependencies.tripStats) }
                 val state by vm.state.collectAsState()
-                TripSummaryScreen(state, onShowRisks = { go(Screen.RISK_LIST) }, onDone = back)
+                TripSummaryScreen(state, onShowRisks = { resetTo(Screen.RISK_LIST) }, onDone = { resetTo(Screen.RISK_LIST) })
             }
             Screen.SETTINGS -> {
-                val vm = viewModel { SettingsViewModel(container.prefs, onWithdrawConsent = container::withdrawConsent) }
+                val vm = viewModel { SettingsViewModel(dependencies.prefs, onWithdrawConsent = dependencies.onWithdraw) }
                 val state by vm.state.collectAsState()
                 SettingsScreen(
                     state,
@@ -132,8 +181,8 @@ fun CruiseBreakerNav(container: AppContainer) {
                         onConfirm = {
                             confirmWithdraw = false
                             vm.withdrawConsent()
-                            stack.clear()
-                            stack.add(initialScreen(BuildConfig.DEBUG, container.prefs.onboarded))
+                            sessionStarted = false
+                            resetTo(initialScreen(debug, dependencies.prefs.onboarded))
                         },
                         onDismiss = { confirmWithdraw = false },
                     )
@@ -152,7 +201,8 @@ fun CruiseBreakerNav(container: AppContainer) {
                     onRequestNotifications = requestNotifications,
                     onStart = {
                         if (onboardingVm.start()) {
-                            if (stack.size > 1) back() else stack[0] = Screen.DRIVING
+                            sessionStarted = true
+                            if (stack.size > 1) back() else resetTo(Screen.RISK_LIST)
                         }
                     },
                 )
@@ -160,7 +210,7 @@ fun CruiseBreakerNav(container: AppContainer) {
         }
     }
 
-    terms?.let { TermsDialog(it, onDismiss = { terms = null }) }
+    if (currentScreen != Screen.DRIVING) terms?.let { TermsDialog(it, onDismiss = { terms = null }) }
 }
 
 /** 동의 철회 확인. 취소·바깥 누르기는 철회 아님 */
