@@ -10,20 +10,19 @@ import com.hyundaiapp.cruisebreaker.data.PendingDeletions
 import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
 import com.hyundaiapp.cruisebreaker.data.SharedPrefsAppPrefs
 import com.hyundaiapp.cruisebreaker.data.toUpload
+import com.hyundaiapp.cruisebreaker.data.UploadQueue
 import com.hyundaiapp.cruisebreaker.domain.DisengageDetector
 import com.hyundaiapp.cruisebreaker.domain.DisengageRules
 import com.hyundaiapp.cruisebreaker.domain.RiskAnnouncer
 import com.hyundaiapp.cruisebreaker.domain.RiskSpeaker
 import com.hyundaiapp.cruisebreaker.domain.TripStats
 import com.hyundaiapp.cruisebreaker.domain.TripTracker
-import com.hyundaiapp.cruisebreaker.domain.retrying
 import com.hyundaiapp.core.CoreFeature
 import com.hyundaiapp.core.PleosVehicleSignals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
@@ -60,6 +59,7 @@ class AppContainer(context: Context) {
 
     /** 기록 중일 때만 있다. [stopRecording]이 취소하면 기록 관련 코루틴이 모두 멈춘다 */
     private var recordingJob: Job? = null
+    private var uploadQueue: UploadQueue? = null
 
     /**
      * 해제 감지·업로드·주행 구분·안내·음성을 시작한다. [RecordingService]가 부른다. 여러 번 불러도 한 번만 시작.
@@ -73,26 +73,23 @@ class AppContainer(context: Context) {
         val scope = CoroutineScope(appScope.coroutineContext + job)
         signals.start()
 
-        // 업로드는 큐를 거친다: 감지기 쪽 수집은 큐에 넣기만 해서 늦어지지 않고(버퍼가 차서 버려지지 않게, PR #3 리뷰),
-        // 실제 전송은 한 줄로 차례대로 한다. 좌표가 없는 업로드 형태로 바꿔서 넣는다
-        // 실패하면 같은 기록을 5초·15초·1분·5분 간격으로 다시 보낸다(뒤 기록은 순서대로 기다림)
-        val uploads = Channel<suspend () -> Unit>(Channel.UNLIMITED)
-        scope.launch {
-            for (send in uploads) retrying(onFailure = { Log.w(TAG, "upload failed, retrying: $it") }) { send() }
-        }
+        // 업로드는 대기열을 거친다: 감지기 쪽 수집은 넣기만 해서 늦어지지 않고(PR #3 리뷰), 실제 전송은 한 줄로 차례대로,
+        // 실패하면 다시 보내되 영구 거절은 건너뛰고 500건을 넘으면 오래된 것부터 버린다(이슈 #19). 좌표가 없는 형태로 넣는다
+        val uploads = UploadQueue(log = { Log.w(TAG, it) }).also { uploadQueue = it }
+        scope.launch { uploads.run() }
         // 감지기보다 먼저 구독해야 첫 이벤트를 놓치지 않는다(같은 Main 디스패처에서 순서대로 시작)
         scope.launch {
             disengageDetector.events.collect {
                 Log.i(TAG, "disengage ${it.segment} speed=${it.speedKph}")
                 val record = it.toUpload(prefs.vehicleId())
-                uploads.trySend { events.upload(record) }
+                uploads.offer { events.upload(record) }
             }
         }
         scope.launch {
             disengageDetector.passes.collect {
                 Log.i(TAG, "pass ${it.segment}")
                 val record = it.toUpload(prefs.vehicleId())
-                uploads.trySend { events.upload(record) }
+                uploads.offer { events.upload(record) }
             }
         }
         disengageDetector.start(scope)
@@ -114,6 +111,12 @@ class AppContainer(context: Context) {
         speaker = null
         signals.stop()
         if (disengageDetector.dropped > 0) Log.w(TAG, "dropped records: ${disengageDetector.dropped}")
+        uploadQueue?.let { q ->
+            if (q.dropped + q.rejected + q.size > 0) {
+                Log.w(TAG, "uploads not sent: over capacity=${q.dropped} rejected=${q.rejected} left=${q.size}")
+            }
+        }
+        uploadQueue = null
         Log.i(TAG, "recording stopped")
     }
 

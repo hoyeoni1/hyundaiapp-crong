@@ -35,9 +35,19 @@ fun CruisePass.toUpload(vehicleId: String) =
     PassUpload(segment.geohash, segment.heading8, Instant.ofEpochMilli(atMs).atZone(KST).toLocalDate().toString(), vehicleId)
 
 /**
+ * 서버가 그 요청을 영영 받지 않을 때(형식 오류, 408·429를 뺀 4xx, 직렬화 오류) 저장소 구현이 던진다.
+ * 앱은 이 기록을 다시 보내지 않고 버린 뒤 다음 기록으로 넘어간다(이슈 #19). 그 밖의 예외(네트워크 끊김·5xx·408·429)는 다시 보낸다
+ */
+class PermanentFailureException(message: String, cause: Throwable? = null) : Exception(message, cause)
+
+/** 다시 보내도 안 될 실패인가. [IllegalArgumentException]은 직렬화·형식 오류로 본다 */
+fun isPermanentFailure(e: Throwable): Boolean = e is PermanentFailureException || e is IllegalArgumentException
+
+/**
  * 해제 이벤트·통과 기록 업로드. 실제 구현(서버)은 황준용, 그 전에는 [FakeCruiseServer].
  * 규칙(docs/disengage-rules.md "업로드와 차량 ID"): 생길 때마다 실시간으로 부른다. 실패(예외)하면 앱이 같은 기록을
- * 5초·15초·1분·5분 간격으로 다시 보낸다(메모리 대기열, 앱이 죽으면 못 보낸 기록은 사라짐).
+ * 5초·15초·1분·5분 간격으로 다시 보낸다([UploadQueue], 메모리 대기열 최대 500건, 앱이 죽으면 못 보낸 기록은 사라짐).
+ * 다시 보내도 안 될 실패는 [PermanentFailureException]으로 던진다.
  */
 interface CruiseEventRepository {
     suspend fun upload(event: DisengageUpload)
