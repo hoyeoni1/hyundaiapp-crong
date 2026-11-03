@@ -4,15 +4,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -48,15 +50,18 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         ScreenHeader("설정", onBack = onBack)
+        Text("안내", style = MaterialTheme.typography.titleMedium, color = CarColors.Primary)
         ToggleSetting(
             "음성 안내", "끄면 주행 화면 배너만 보여요",
             state.voiceEnabled, onVoiceEnabledChange,
         )
+        Text("크루즈 작동 중 500m 앞 해제 다발 구간을 안내해요", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
+        Text("기록", style = MaterialTheme.typography.titleMedium, color = CarColors.Primary)
         ToggleSetting(
             "자동 기록", "시동을 걸면 자동으로 기록해요. 꺼도 앱을 열면 기록해요",
             state.autoRecordEnabled, onAutoRecordEnabledChange,
         )
-        Text("크루즈 작동 중 500m 앞 위험 구간을 안내해요", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
+        Text("동의", style = MaterialTheme.typography.titleMedium, color = CarColors.Primary)
         Surface(
             color = CarColors.Surface,
             contentColor = CarColors.OnSurface,
@@ -83,6 +88,7 @@ fun SettingsScreen(
                 Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
             }
         }
+        Spacer(Modifier.height(24.dp))
     }
 }
 

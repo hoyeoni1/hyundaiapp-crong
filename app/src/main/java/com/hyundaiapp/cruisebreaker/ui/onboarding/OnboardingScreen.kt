@@ -1,6 +1,7 @@
 package com.hyundaiapp.cruisebreaker.ui.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,8 +20,9 @@ import androidx.compose.ui.unit.dp
 import com.hyundaiapp.cruisebreaker.ui.OnboardingUiState
 import com.hyundaiapp.cruisebreaker.ui.components.ConsentRow
 import com.hyundaiapp.cruisebreaker.ui.components.OnboardingStartAction
+import com.hyundaiapp.cruisebreaker.ui.components.ScreenHeader
+import com.hyundaiapp.cruisebreaker.ui.components.SecondaryButton
 import com.hyundaiapp.cruisebreaker.ui.theme.CarColors
-import com.hyundaiapp.cruisebreaker.ui.theme.CarDimens
 import com.hyundaiapp.cruisebreaker.ui.theme.CruiseBreakerTheme
 
 enum class Terms { LOCATION, PRIVACY }
@@ -41,35 +42,21 @@ fun OnboardingScreen(
     notificationsGranted: Boolean = false,
     onRequestNotifications: () -> Unit = {},
     notificationsNeedSettings: Boolean = false,
+    onBack: (() -> Unit)? = null,
 ) {
     val canStart = state.locationAgreed && state.privacyAgreed
-    Row(
-        Modifier.fillMaxSize().padding(horizontal = CarDimens.ScreenPadding, vertical = 40.dp),
-        horizontalArrangement = Arrangement.spacedBy(40.dp),
-    ) {
-        Column(Modifier.weight(2f).fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically)) {
-            Text("크루즈브레이커", style = MaterialTheme.typography.bodyLarge, color = CarColors.Primary, fontWeight = FontWeight.Medium)
-            Text("다른 차들이\n크루즈를 끈 곳을\n미리 알려 드려요", style = MaterialTheme.typography.headlineMedium)
-            Text(
-                "정확한 좌표 대신\n약 150m 구간 번호만 보내고,\n시각은 시간 단위로만 저장해요.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = CarColors.OnSurfaceVariant,
-            )
-            // 자동 기록은 동의 후 기본 켜짐, S4에서 끈다(docs/background-freeze-experiment.md 결정 3·4)
-            Text(
-                "시동을 걸면 앱을 열지 않아도\n주행을 자동으로 기록합니다.",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-            )
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val wide = maxWidth >= 1000.dp
+        val intro: @Composable () -> Unit = {
+            Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                Text("크루즈브레이커", style = MaterialTheme.typography.bodyLarge, color = CarColors.Primary)
+                Text("다른 차들이 크루즈를 끈 곳을 미리 알려 드려요", style = MaterialTheme.typography.headlineMedium)
+                Text("정확한 좌표 대신 약 150m 구간 번호를 보내고, 시각은 시간 단위로 저장해요.", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
+                Text("시동을 걸면 앱을 열지 않아도 주행을 자동으로 기록합니다. 설정에서 끌 수 있어요.", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+            }
         }
-        Column(
-            Modifier.weight(3f).fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-        ) {
-            Column(
-                Modifier.weight(1f).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
+        val consents: @Composable () -> Unit = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 ConsentRow(
                     "위치정보 이용 (필수)", state.locationAgreed, onAgreeLocation,
                     onShowTerms = { onShowTerms(Terms.LOCATION) },
@@ -79,10 +66,10 @@ fun OnboardingScreen(
                     onShowTerms = { onShowTerms(Terms.PRIVACY) },
                 )
                 ConsentRow(
-                    "차속 읽기 권한",
+                    "차속 읽기 권한 (선택)",
                     state.speedPermissionGranted,
                     onRequestSpeedPermission,
-                    description = "다음 창에 '위치 정보'로 표시돼요.\n느린 속도의 해제를 거르려고 차속만 읽어요.",
+                    description = "다음 창에 '위치 정보'로 표시돼요.\n느린 속도의 해제를 거르려고 차속을 읽어요.\n거부해도 기록하지만 저속 해제를 걸러내지 못할 수 있어요.",
                     agreeLabel = "권한 요청",
                     agreedLabel = "허용됨",
                 )
@@ -92,11 +79,21 @@ fun OnboardingScreen(
                     agreeLabel = if (notificationsNeedSettings) "알림 설정" else "알림 허용", agreedLabel = "허용됨",
                 )
             }
-            OnboardingStartAction(
-                enabled = canStart,
-                hint = "필수 항목에 동의해 주세요",
-                onStart = onStart,
+        }
+        Column(Modifier.fillMaxSize().padding(horizontal = if (wide) 48.dp else 32.dp, vertical = 32.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            if (onBack != null) ScreenHeader("동의 내용", onBack = onBack)
+            if (wide) Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                Column(Modifier.weight(2f).verticalScroll(rememberScrollState())) { intro() }
+                Column(Modifier.weight(3f).verticalScroll(rememberScrollState())) { consents() }
+            } else Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) { intro(); consents() }
+            Text(
+                "크루즈브레이커는 운전을 돕는 보조 안내예요. 안내가 없거나 늦을 수 있으니 항상 직접 도로를 살피세요.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = CarColors.OnSurface,
+                modifier = Modifier.fillMaxWidth(),
             )
+            if (onBack != null) SecondaryButton("설정으로 돌아가기", onBack, Modifier.fillMaxWidth())
+            else OnboardingStartAction(canStart, "필수 항목에 동의해 주세요", onStart)
         }
     }
 }
