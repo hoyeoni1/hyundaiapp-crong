@@ -3,6 +3,7 @@ package com.hyundaiapp.cruisebreaker.ui
 import com.hyundaiapp.cruisebreaker.ui.components.NotificationAction
 import com.hyundaiapp.cruisebreaker.ui.components.notificationAction
 import com.hyundaiapp.cruisebreaker.ui.components.notificationDecisionSeen
+import com.hyundaiapp.cruisebreaker.ui.components.notificationUnresolvedResults
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -33,6 +34,20 @@ class NotificationPermissionTest {
     }
     @Test fun `pending dialog keeps request label until a result arrives`() {
         assertEquals(NotificationAction.REQUEST, notificationAction(34, false, true, false, inFlight = true))
+    }
+
+    @Test fun `missing denial history falls back to settings after two unresolved requests`() {
+        val first = notificationUnresolvedResults(0, granted = false, showRationale = false)
+        assertEquals(NotificationAction.REQUEST, notificationAction(34, false, false, false, unresolvedResults = first))
+        val second = notificationUnresolvedResults(first, granted = false, showRationale = false)
+        assertEquals(NotificationAction.SETTINGS, notificationAction(34, false, false, false, unresolvedResults = second))
+        assertEquals(NotificationAction.REQUEST, notificationAction(34, false, false, false, inFlight = true, unresolvedResults = second))
+    }
+    @Test fun `confirmed permission result clears unresolved requests`() {
+        assertEquals(0, notificationUnresolvedResults(2, granted = true, showRationale = false))
+        val count = notificationUnresolvedResults(2, granted = false, showRationale = true)
+        assertEquals(0, count)
+        assertEquals(NotificationAction.REQUEST, notificationAction(34, false, true, true, unresolvedResults = count))
     }
 
 }
