@@ -6,37 +6,47 @@
 
 - 한 일 요약:
   - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). PRD·기획서·README 반영됨(장호연)
-  - **main에서 에뮬레이터 흐름 동작**(PR #3~#6, #10): S5 동의 → 기록 서비스 → 크루즈 작동 중 통과·해제 기록 → 500m 앞 안내(배너 + Pleos TTS) → S2·S3. 뒤로 보내도·재부팅 후에도 동작. S4 동의 철회
-  - **`fix/withdraw-server-delete`**(이슈 #11, #12 앱 쪽, PRD 5.6 11-02 결정):
-    - 철회하면 가명 차량 ID를 기기에 "삭제 대기"로 남기고 서버 삭제(`CruiseEventRepository.deleteMine`)를 성공할 때까지 5초·15초·1분·5분 간격으로 보냄. 앱이 죽었다 켜지면 이어서 보냄(`PendingDeletions`, `CruiseBreakerApp.onCreate`)
-    - 업로드 실패도 같은 간격으로 다시 보냄(메모리 대기열)
-    - androidx.core 직접 의존(1.13.1), 기록 중지 때 TTS 연결 놓음
-    - 가짜 서버는 차량 ID별로 올린 만큼만 지움(시드는 그대로)
-- 진행 중 브랜치·PR: `fix/withdraw-server-delete` (리뷰·머지 대기)
+  - **main에서 에뮬레이터 흐름 동작**(PR #3~#6, #10, #17): S5 동의 → 기록 서비스 → 크루즈 작동 중 통과·해제 기록 → 500m 앞 안내(배너 + Pleos TTS) → S2·S3. 뒤로 보내도·재부팅 후에도 동작. S4 동의 철회 → 서버 삭제를 성공할 때까지 재시도(`PendingDeletions`)
+  - **`fix/upload-queue-and-tts-release`**(이슈 #19, #21):
+    - `UploadQueue`: 업로드를 한 줄로 보내고, 일시 실패는 5초·15초·1분·5분 간격 재시도, 영구 거절(`PermanentFailureException`·`IllegalArgumentException`)은 그 기록만 버리고 다음으로, 500건을 넘으면 가장 오래된 것부터 버림. 버린 수는 기록 중지 때 로그
+    - 서버 삭제(`PendingDeletions`)는 영구 거절이어도 계속 재시도(규정상 반드시 끝나야 하고, 포기하면 지울 ID가 사라짐)
+    - `RiskSpeaker`: `released` 표시를 `ready`와 한 락으로 묶어 해제 뒤에는 SDK를 아예 부르지 않음
+  - 이슈 #20(철회 직전 업로드가 삭제 뒤 도착)은 황준용 PR #22에서 서버가 철회된 차량 ID의 업로드를 거절하는 방식으로 해결 → 앱 변경 없음
+- 진행 중 브랜치·PR: `fix/upload-queue-and-tts-release` (리뷰·머지 대기). 황준용 PR #22(Supabase)와 충돌 없음(`git merge-tree` 확인, 합친 상태에서 앱 73·core 29 테스트 통과)
 - 다음 할 일(우선순위 순):
-  1. 11-05 중간 점검 리허설: PR #15(장호연 `tools/demo-drive.sh`)가 머지되면 `bash tools/demo-drive.sh`로 한 번
-  2. 황준용 Supabase 서버가 나오면 가짜 서버를 바꾼 뒤 기록·안내·철회 삭제 확인
-  3. 이상준 차슐랭 충전 로직(PR #3) 교차 읽기(PT 대비)
+  1. PR #22 머지 후 실제 Supabase(DEMO)로 시연 흐름·철회 삭제 확인
+  2. 11-05 중간 점검 리허설: `bash tools/demo-drive.sh`(PR #15 머지됨)
+  3. 이상준 차슐랭 충전 로직 교차 읽기(PT 대비)
 - 막힌 점·질문(누구에게):
-  - 황준용: 서버 저장소 구현 때 `CruiseEventRepository` 세 함수 — `upload(DisengageUpload)`, `upload(PassUpload)`, `deleteMine(vehicleId)`(그 차량의 `cruise_events`·`cruise_passes` 즉시 완전 삭제, 지울 것이 없어도 성공). 실패는 예외로 던지면 앱이 다시 보냄
-  - 이상준: 차슐랭 `withdrawConsent`는 `deleteMine`을 한 번만 보내고 실패하면 끝남 → PRD 5.6 "성공할 때까지 다시 보낸다"에 맞추려면 크루즈브레이커 `PendingDeletions`처럼 기기에 저장해 두고 재시도(같은 방식으로 맞추자는 제안)
+  - 황준용: `SupabaseCruiseServer`에서 서버가 영영 받지 않을 응답(408·429를 뺀 4xx, 직렬화 오류)은 `PermanentFailureException`으로 던져 주기 — 지금은 업로드가 core outbox에 넣기만 해서 영향은 적지만 계약을 맞춰 둠. `deleteMine`은 지울 것이 없어도 성공(앱이 계속 다시 보냄)
+  - 황준용 PR #22가 `AppContainer.kt`(이민하 담당)를 고침 — 검토함: `PendingDeletions` 흐름을 지키고 backend 철회를 먼저 저장하는 방식이라 그대로 받아도 됨. 단 `withdrawConsent`의 `prefs.vehicleId()`는 ID가 없으면 새로 만들어 삭제 대기에 넣음(해는 없음, 빈 삭제 1건)
   - 장호연: 최소 SDK를 34로 올릴지(지금은 28 유지, 코드로 분기)
 - 주의(함정·직접 겪은 이상한 동작):
-  - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기
-  - 철회 뒤 기기에 남는 값은 `pending_server_deletions`(서버 삭제를 못 끝낸 차량 ID)뿐. 삭제가 성공하면 빈 목록
-  - 업로드 재시도 대기열은 메모리뿐 → 앱이 죽으면 못 보낸 기록은 사라짐(삭제 요청은 기기에 저장돼 남음)
+  - **Pleos TTS SDK 해제 동작(11-03 실측, 이슈 #21)**: 초기화 전에 `release()`하면 `onSuccess`가 오지 않음. 해제된 객체에 `setLocale`·`setAudioAttributes`·`speak`·`release`를 다시 불러도 예외 없음. **해제 뒤 `speak`도 실제로 읽음**(`tts start`→`tts done`) → 해제 뒤에는 이쪽에서 SDK를 부르지 말 것
+  - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기(PR #16 뒤 S5 [시작하기]는 화면 아래 고정)
+  - 철회 뒤 기기에 남는 값은 `pending_server_deletions`뿐. 삭제가 성공하면 빈 목록
+  - 업로드 대기열은 메모리뿐(최대 500건) → 앱이 죽으면 못 보낸 기록은 사라짐(삭제 요청은 기기에 저장돼 남음). PR #22 뒤에는 core outbox가 기기에 저장함
   - TTS: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 실패. Pleos TTS SDK는 `Locale.KOREA`(ko_KR)여야 함
-  - 시드 "시연 지점(에뮬레이터 위치 앞 400m)"은 실제 데이터 아님(PT에서 밝힐 것). 가짜 서버는 차량-일 중복 제거를 안 함
+  - 시드 "시연 지점(에뮬레이터 위치 앞 400m)"은 실제 데이터 아님(PT에서 밝힐 것)
   - lint `ImplicitSamInstance`(`stopService`) 경고는 오탐
   - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 해제 값(USER_OVERRIDE 등)은 재현 불가
   - Git Bash에서 `adb shell run-as ... cat /data/...`는 `MSYS_NO_PATHCONV=1`을 붙인다
 - 확인 방법:
-  - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17, 앱 48개)
-  - 시연 순서: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'controls?speed=0' 'gear?gear=Park'` → S3·S2. 로그 `adb logcat -s CruiseRecord`
-  - 철회: S4 [동의 철회] → [철회] → 로그 `consent withdrawn, server deletions pending=1` → `MSYS_NO_PATHCONV=1 adb shell run-as com.hyundaiapp.cruisebreaker --user 10 cat /data/user/10/com.hyundaiapp.cruisebreaker/shared_prefs/cruisebreaker.xml` → `pending_server_deletions`가 빈 목록
+  - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17, 앱 73개 — 길민종 화면 테스트 포함)
+  - 시연 순서: `bash tools/demo-drive.sh` 또는 수동 — 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'controls?speed=0' 'gear?gear=Park'` → S3·S2. 로그 `adb logcat -s CruiseRecord`
+  - 철회: S4 [동의 철회] → [철회] → 로그 `consent withdrawn, server deletions pending=N`. 철회 반복 확인: S5 동의 → 시작 → 1초 안에 S4 철회를 5번 반복해도 같은 pid, 크래시 없음
   - PR 올리기: `gh`(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 오후 (이민하, Claude 에이전트와 작업 — 이슈 #19·#21)
+- 한 일: `fix/upload-queue-and-tts-release` — `data/UploadQueue.kt`(새 파일), `PermanentFailureException`·`isPermanentFailure`, `retrying(isPermanent)`, `RiskSpeaker` 해제 락. 테스트 `UploadQueueTest`(새 파일, 5개)
+- 확인: TTS SDK 해제 동작을 임시 시험 빌드로 실측(위 "주의"), 고친 빌드로 동의→즉시 철회 5회 반복 크래시 없음. PR #22와 3-way 합치기 충돌 없음·테스트 통과
+- 결정한 것과 이유:
+  - 업로드 대기열 상한 500건, 넘치면 오래된 것부터 버림(이슈 제안대로). 영구 실패 판정은 저장소가 `PermanentFailureException`을 던지는 계약으로(core 예외 타입에 기대지 않게)
+  - 삭제는 영구 실패여도 계속 재시도(규정·지울 ID 보존)
+  - 이슈 #20은 서버 방식(PR #22, 철회된 ID 업로드 거절)으로 정리, 앱은 그대로
+- 바꾼 파일: `AppContainer.kt`, `data/{CruiseEventRepository,PendingDeletions,UploadQueue}.kt`, `domain/{Retry,RiskSpeaker}.kt`, `UploadQueueTest.kt`, `docs/handoff/lee-minha.md`
 
 ### 2026-11-03 (이민하, Claude 에이전트와 작업 — 철회 시 서버 삭제)
 - 한 일: `fix/withdraw-server-delete` — `PendingDeletions`(삭제 대기 저장·재시도·앱 시작 때 이어서), `CruiseEventRepository.deleteMine`, `AppPrefs.pendingDeletions`(철회와 같은 commit으로 옮김), `retrying`(5초·15초·1분·5분, 차슐랭과 같은 간격)으로 업로드 재시도, androidx.core 직접 의존(이슈 #11), TTS 연결 놓기, 가짜 서버 차량별 삭제. 테스트 44 → 48개(+core는 따로)
