@@ -17,6 +17,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-03 — 장호연이 이 PR 브랜치에 남은 수정을 이어서 반영(황준용 작업 대신)
+- 장호연 지시("다 진행해줘, 내가 팀장이니 내가 진행할게", Claude 에이전트가 작업). 황준용은 이 브랜치를 **pull한 뒤** 이어서 작업할 것
+- 한 일: release 기본 SIMULATED(`local.properties` `supabase.demo=false`일 때만 LIVE, 두 앱 `app/build.gradle.kts`), `BackendConfig.consentVersion`(core, 두 앱 동일) + core 테스트 1개, 새 migration `20261103000100_score_failure_penalty.sql`(점수 = 별점 × (1 − 30일 실패율)), `20261103000200_demo_failure_station.sql`(st-004 실패 잦은 시드), `refresh-demo-dates.sql`이 새 시드(소유자 42, 충전 325)를 인식, PGlite 테스트 2개 추가(17개 통과), main merge(README 충돌 해결)
+- **원격 미적용**: 두 migration은 장호연이 대시보드로 적용 예정(`server/deploy.md` "11-03 추가 migration"). CLI 이력은 적용 뒤 `migration repair --status applied`로 맞추기
+- 확인: 두 앱 `assembleDebug assembleRelease test lint` 통과(차슐랭 208, 크루즈 192), release BuildConfig `SUPABASE_SIMULATED = true`
+
 ### 2026-11-03 — 서버 PR 피드백 1·2 반영
 - 차슐랭 신규 충전소 밖 충전을 서버 outbox 대신 암호화/noBackup 로컬 저장소로 분기. 재실행/오프라인 내 기록 병합, 중복 방지, 철회 즉시 삭제·늦은 저장 차단을 구현했다. 이전 서버/outbox 기록은 소급 이전하지 않는다.
 - 시드 날짜 갱신 SQL·상태 조회·운영 절차 추가. 고정 SEED 소유자/건수를 확인하고 한국 날짜를 기준으로 원래 행만 갱신한다. 같은 날 재실행 가능, 변형 시드 중단, LIVE/SIMULATED 보존. 원격 실행과 무료 플랜 운영 대책은 이번 범위 밖이다.
