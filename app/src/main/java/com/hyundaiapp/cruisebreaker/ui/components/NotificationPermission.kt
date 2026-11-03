@@ -17,6 +17,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
@@ -27,11 +28,16 @@ data class NotificationPermissionState(val granted: Boolean, val openSettings: B
 
 internal enum class NotificationAction { NONE, REQUEST, SETTINGS }
 
-internal fun notificationAction(sdk: Int, granted: Boolean, requested: Boolean, showRationale: Boolean): NotificationAction = when {
+internal fun notificationAction(sdk: Int, granted: Boolean, requested: Boolean, showRationale: Boolean, inFlight: Boolean = false): NotificationAction = when {
     sdk < 33 || granted -> NotificationAction.NONE
+    inFlight -> NotificationAction.REQUEST
     requested && !showRationale -> NotificationAction.SETTINGS
     else -> NotificationAction.REQUEST
 }
+
+/** 첫 창을 선택 없이 닫은 경우(false + rationale 없음)는 거부 이력으로 확정하지 않는다. */
+internal fun notificationDecisionSeen(previous: Boolean, granted: Boolean, showRationale: Boolean): Boolean =
+    previous || granted || showRationale
 
 /** 자동 팝업 없음. 재요청이 안 되면 사용자가 누른 때에만 알림 설정을 연다. */
 @Composable
@@ -50,8 +56,14 @@ fun rememberNotificationPermission(): NotificationPermissionState {
     var granted by remember { mutableStateOf(isGranted()) }
     var requested by remember { mutableStateOf(prefs.getBoolean("notifications_requested", false)) }
     var rationale by remember { mutableStateOf(needsRationale()) }
+    var inFlight by rememberSaveable { mutableStateOf(false) }
     val refresh = { granted = isGranted(); rationale = needsRationale() }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { refresh() }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        refresh()
+        requested = notificationDecisionSeen(requested, granted, rationale)
+        prefs.edit().putBoolean("notifications_requested", requested).apply()
+        inFlight = false
+    }
     DisposableEffect(lifecycleOwner, context) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) refresh()
@@ -59,14 +71,13 @@ fun rememberNotificationPermission(): NotificationPermissionState {
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    val action = notificationAction(Build.VERSION.SDK_INT, granted, requested, rationale)
+    val action = notificationAction(Build.VERSION.SDK_INT, granted, requested, rationale, inFlight)
     return NotificationPermissionState(granted, action == NotificationAction.SETTINGS) {
         // 시스템 설정에서 바뀐 직후에도 최신 값으로 판단한다.
-        when (notificationAction(Build.VERSION.SDK_INT, isGranted(), requested, needsRationale())) {
+        if (!inFlight) when (notificationAction(Build.VERSION.SDK_INT, isGranted(), requested, needsRationale())) {
             NotificationAction.NONE -> refresh()
             NotificationAction.REQUEST -> {
-                requested = true
-                prefs.edit().putBoolean("notifications_requested", true).apply()
+                inFlight = true
                 launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
             NotificationAction.SETTINGS -> {

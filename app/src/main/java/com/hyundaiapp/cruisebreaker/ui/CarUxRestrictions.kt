@@ -18,23 +18,33 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
+internal interface UxRestrictionSource {
+    fun start()
+    fun refresh()
+    fun stop()
+}
+
 /** UI 사용 제한만 읽는다. 동의 전 차량·위치 기록 파이프라인은 시작하지 않는다. null은 미확인. */
 @Composable
-internal fun rememberCarUxRestricted(): Boolean? {
+internal fun rememberCarUxRestricted(
+    createSource: (Context, (Boolean?) -> Unit) -> UxRestrictionSource = ::CarUxRestrictionSource,
+): Boolean? {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var restricted by remember { mutableStateOf<Boolean?>(null) }
     DisposableEffect(context, lifecycleOwner) {
-        val source = CarUxRestrictionSource(context) { restricted = it }
+        val source = createSource(context) { restricted = it }
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_START -> source.start()
-                Lifecycle.Event.ON_STOP -> source.stop()
+                Lifecycle.Event.ON_START -> { source.start(); source.refresh() }
                 else -> Unit
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) source.start()
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            source.start()
+            source.refresh()
+        }
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             source.stop()
@@ -45,7 +55,7 @@ internal fun rememberCarUxRestricted(): Boolean? {
 
 /** minSdk 28에서도 연결 대기로 UI를 막지 않도록 비동기 ServiceConnection을 쓴다. */
 @Suppress("DEPRECATION")
-private class CarUxRestrictionSource(private val context: Context, private val onChanged: (Boolean?) -> Unit) {
+private class CarUxRestrictionSource(private val context: Context, private val onChanged: (Boolean?) -> Unit) : UxRestrictionSource {
     private var car: Car? = null
     private var manager: CarUxRestrictionsManager? = null
     private var started = false
@@ -53,7 +63,7 @@ private class CarUxRestrictionSource(private val context: Context, private val o
     private var generation = 0
     private var connectionGeneration = 0
 
-    fun start() {
+    override fun start() {
         if (started) return
         started = true
         val current = ++generation
@@ -100,7 +110,16 @@ private class CarUxRestrictionSource(private val context: Context, private val o
         }
     }
 
-    fun stop() {
+    override fun refresh() {
+        // 설정 화면 복귀 시 연결을 끊었다 다시 여는 대신 최신 플랫폼 값을 먼저 확인한다.
+        try {
+            onChanged(if (connected) manager?.currentCarUxRestrictions?.isRequiresDistractionOptimization else null)
+        } catch (_: Exception) {
+            onChanged(null)
+        }
+    }
+
+    override fun stop() {
         generation++
         connectionGeneration++
         started = false
