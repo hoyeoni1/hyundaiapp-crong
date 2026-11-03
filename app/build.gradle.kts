@@ -1,8 +1,15 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+val backendProperties = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+fun backendString(key: String): String = "\"" + backendProperties.getProperty(key, "").replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
     namespace = "com.hyundaiapp.cruisebreaker"
@@ -15,11 +22,17 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "0.1"
+        buildConfigField("String", "SUPABASE_URL", backendString("supabase.url"))
+        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", backendString("supabase.publishableKey"))
     }
 
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    buildTypes {
+        getByName("debug") { buildConfigField("boolean", "SUPABASE_SIMULATED", "true") }
+        getByName("release") { buildConfigField("boolean", "SUPABASE_SIMULATED", "false") }
     }
 
     compileOptions {

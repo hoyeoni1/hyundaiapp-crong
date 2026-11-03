@@ -2,17 +2,28 @@
 
 담당 경로: `core/`(복사본 — 수정은 차슐랭에서), 서버, `app/.../data/` 실제 구현
 
-## 현재 상태 (2026-11-02 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
-- SDK 진단·Windows 테스트 기반은 차슐랭 PR #4 / 크루즈 PR #14 제출 완료. 제품 core 계약을 유지했으며 원격 main 머지는 장호연 대기.
-- 서버 작업 브랜치: `codex/supabase-foundation-20261102`. 원본은 차슐랭 `server/`; SDK PR과 분리했다.
-- 실행 가능한 SQL migration 2개(initial schema / demo data), preflight·verify SQL 및 `server/deploy.md` 준비 완료. 앱용 7개+관리용 2개 테이블, RLS, 인증 RPC 11개, 소유권·중복 방지·실패 정정·철회·집계 포함.
-- PGlite 0.5.14 PostgreSQL에서 15개 테스트 통과. 충전소 10·충전 기록 300·해제 400·통과 2,000 시드와 재적용 중복 방지, 원본 접근 차단, KST·28일·9칸/차량-일 집계를 검증했다. 실제 Supabase Auth/JWT·PostgREST·다중 연결 동시성은 미검증.
-- CLI login/link 연결 완료 후 원격 2개 버전·시드 10/300/400/2000·테이블 9개 RLS·RPC 11개 권한을 독립 확인했다. 함수 fingerprint도 로컬과 일치했다. 두 버전의 CLI 표준 이력을 applied로 등록했고 migration list 정합·dry-run upToDate=true 확인. 관리자 Secret key는 저장·사용하지 않았다.
-- 차슐랭 점수는 우선 평균 별점(5개 미만 null), 실패 횟수는 별도다. 실패 감점·자동 보관 만료·Auth 정리는 미구현이며 정책 확정 후 적용한다.
-- 다음 작업: Anonymous Sign-In 활성화(현재 false) → 실제 인증/API/동시성 확인 → Android 인증·영속 outbox·실제 저장소 연결. DB 생성·이력 정합은 완료했지만 앱 서버 연결은 아직 아니다.
+- 브랜치: `codex/supabase-foundation-20261102`. 서버 원본은 차슐랭 `server/`. 기존 SDK 진단 PR #4/크루즈 #14와 별개로 서버 작업은 아직 push·새 PR 발행하지 않았다.
+- Supabase schema·시드 2개 migration 적용 및 CLI 이력 정합 완료. 기존 SQL·시드를 다시 실행하지 않았으며 기존 RLS/RPC 권한과 함수 내용이 정상이다.
+- 사용자 Anonymous Sign-In 활성화 후 실제 JWT HTTP 통합 테스트 통과(독립 사용자 로그인, 업로드/후기/집계, 타인 원본 차단, 크루즈 기록, 토큰 갱신, 철회·늦은 업로드 거절).
+- core v0.5.0 제품 backend 추가: HTTPS, 익명 인증·토큰 갱신, Keystore AES-GCM/noBackup AtomicFile, 앱/프로젝트/debug-live별 인증 분리, 영속 outbox, 이전 동의 세대의 철회 재시도 보존. 기존 VehicleSignals/NaviControl API는 유지한다.
+- 두 AppContainer 및 실제 저장소를 연결. Git 제외 local.properties의 공개 URL/키가 있으면 Supabase 사용, 없으면 기존 Fake 사용. 이 PC의 debug APK는 실제 DEMO 집계에 연결된다. release는 LIVE 데이터만 보며 환경부 API 캐시는 아직 없다.
+- 차슐랭 충전 흐름이 필요해 이상준 PR #3 head 737fb38을 로컬 브랜치에 merge했다. 원격 PR/main은 머지하지 않음. 이후 PR에 선행 의존성과 타인의 구현을 명시해야 한다.
+- 검증: 앱 debug/release 차슐랭 각63·크루즈 각44, core debug28/release14(backend 신규11) 통과. 두 앱 debug/release 빌드·앱 lint 오류0. Pleos 에뮬레이터에서 양쪽 제품 backend/실제 HTTPS/Keystore 복원/영속 outbox/철회 ACK 확인. 해당 독립 fixture는 기존 앱 동의 상태를 변경하지 않는다.
+- 한계: 실제 제품 전체 SDK 주입/UI 시연은 아직 재검사 전. WorkManager·프로세스 종료 후 독립 재시도, 철회 대기 UI, 영속 읽기 캐시와 환경부 API/정식 약관·보관 정책은 후속. 현재 outbox는 앱 실행 중·다음 실행에서 재시도한다.
+- 상세: 차슐랭 server/android-connection.md. 다음은 제품 시연 리허설과 위 한계 보완. 관리자 Secret key는 저장·사용하지 않았으며 토큰/개인 설정/CLI 캐시는 Git 제외다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 — Supabase 실제 Android 연결·검증
+- Anonymous Sign-In=true 확인 후 HTTP 원격 통합 테스트를 추가하고 통과. 그 run의 테스트 계정/업무 기록을 UUID marker로 한정해 정리했다.
+- core.backend, 앱 실제 저장소/Gradle 공개 설정/INTERNET 권한 연결. 차슐랭 PR #3은 로컬 merge만 했다. 두 core는 0.5.0으로 동일하게 동기화.
+- Keystore 암호화 상태·FIFO outbox·영구 오류 보관·재시도·철회 세대 보존을 구현하고 신규 테스트11개 통과. 앱/코어 양 variant 테스트와 빌드·lint 통과.
+- user10 Pleos emulator에서 두 앱의 shell 전용 debug fixture가 실제 제품 backend로 익명 인증, 세션 재로드, 영속 작업 업로드, 서버 철회 및 로컬 인증 제거를 통과. 릴리스에는 fixture/probe Activity가 없다.
+- 식별된 Android 테스트 설치의 서버 차단 행/익명 계정을 CLI로 정리. 실패 검사에서 식별하지 못한 최소 REVOKED 차단 정보는 남아 있을 수 있으며 집계에 포함되지 않는다. 기존 시드는 변경하지 않음.
+- Android 검사 첫 시도에서 INTERNET 신규 권한 추가 직후 EPERM 발생 → force-stop 후 정상. 이후 검사 대기열에 이전 정리 작업이 먼저 처리되는 점을 반영해 fixture drain을 고침.
+
 
 ### 2026-11-02 — CLI 원격 검증 및 표준 migration 이력 정합 완료
 - 사용자 login/link 완료 후 CLI db query로 자체 적용 버전 2건, 시드 충전소 10/충전 300/해제 400/통과 2000, RLS 9개 모두 true, RPC 11개 anon=false/authenticated=true 확인. 원격 함수 fingerprint f0b69344326a5769b916cafeb7698bbe는 로컬 SQL 적용 결과와 일치.

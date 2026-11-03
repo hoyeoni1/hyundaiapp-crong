@@ -2,6 +2,8 @@
 
 두 앱(차슐랭·크루즈브레이커)이 함께 쓰는 모듈입니다. **앱 코드는 Pleos SDK를 직접 부르지 않고 이 모듈만 씁니다.**
 
+2026-11-03 core v0.5.0: `com.hyundaiapp.core.backend`에 제품용 Supabase 익명 인증·Keystore 암호화 상태·영속 outbox·철회 재시도를 추가했다. 기존 VehicleSignals/NaviControl API는 유지한다. 이것은 debug 전용 SDK probe와 별개이며 release에도 포함된다. debug/live 및 앱/프로젝트별 상태를 분리한다. 워커는 현재 앱 프로세스와 다음 실행에서 동작하며 WorkManager 스케줄링은 후속이다.
+
 - 담당: 황준용 (수정은 황준용만, 다른 사람은 요청)
 - 원본: 차슐랭 저장소. 크루즈브레이커에는 `tools/sync-core.sh`로 복사
 - 버전: `core/VERSION` (고치면 올리고, PR 제목에 `core vX.Y.Z`)

@@ -8,6 +8,7 @@ import com.hyundaiapp.cruisebreaker.data.CruiseEventRepository
 import com.hyundaiapp.cruisebreaker.data.FakeCruiseServer
 import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
 import com.hyundaiapp.cruisebreaker.data.SharedPrefsAppPrefs
+import com.hyundaiapp.cruisebreaker.data.SupabaseCruiseServer
 import com.hyundaiapp.cruisebreaker.data.toUpload
 import com.hyundaiapp.cruisebreaker.domain.DisengageDetector
 import com.hyundaiapp.cruisebreaker.domain.DisengageRules
@@ -17,6 +18,10 @@ import com.hyundaiapp.cruisebreaker.domain.TripStats
 import com.hyundaiapp.cruisebreaker.domain.TripTracker
 import com.hyundaiapp.core.CoreFeature
 import com.hyundaiapp.core.PleosVehicleSignals
+import com.hyundaiapp.core.backend.BackendConfig
+import com.hyundaiapp.core.backend.EncryptedBackendStore
+import com.hyundaiapp.core.backend.HttpsBackendTransport
+import com.hyundaiapp.core.backend.SupabaseBackend
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,9 +45,19 @@ class AppContainer(context: Context) {
     /** S4 설정·S5 동의 */
     val prefs: AppPrefs = SharedPrefsAppPrefs(context)
 
-    private val server = FakeCruiseServer()
-    val risks: SegmentRiskRepository = server
-    val events: CruiseEventRepository = server
+    val backend: SupabaseBackend? = if (BuildConfig.SUPABASE_URL.isNotBlank()) {
+        val config = BackendConfig(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY, "CRUISEBREAKER", BuildConfig.SUPABASE_SIMULATED)
+        SupabaseBackend(config, EncryptedBackendStore(context, config.storageNamespace), HttpsBackendTransport(config), appScope)
+    } else null
+    private val fakeServer = FakeCruiseServer()
+    private val remoteServer = backend?.let { SupabaseCruiseServer(it, prefs::vehicleId) { prefs.onboarded } }
+    val risks: SegmentRiskRepository = remoteServer ?: fakeServer
+    val events: CruiseEventRepository = remoteServer ?: fakeServer
+
+    init {
+        if (prefs.onboarded) backend?.activate(prefs.vehicleId())
+        backend?.let { b -> appScope.launch { b.status.collect { Log.i("SupabaseSync", it) } } }
+    }
 
     private val rules = DisengageRules()
     val disengageDetector = DisengageDetector(signals, rules)
@@ -63,6 +78,7 @@ class AppContainer(context: Context) {
      */
     fun startRecording() {
         if (recordingJob?.isActive == true) return
+        backend?.activate(prefs.vehicleId())
         val job = SupervisorJob(appScope.coroutineContext[Job])
         recordingJob = job
         val scope = CoroutineScope(appScope.coroutineContext + job)
@@ -113,10 +129,11 @@ class AppContainer(context: Context) {
      * 서버에 이미 올라간 기록의 삭제는 서버 구현(황준용)과 정한다(PRD 5.6).
      */
     fun withdrawConsent() {
+        val vehicleId = prefs.vehicleId()
         appContext.stopService(Intent(appContext, RecordingService::class.java))
         stopRecording()
         tripStats.reset()
-        prefs.clearConsentAndData()
+        try { backend?.withdraw(vehicleId) } finally { prefs.clearConsentAndData() }
         Log.i(TAG, "consent withdrawn")
     }
 
