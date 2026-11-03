@@ -54,7 +54,7 @@ success() {
   local soc=$SOC_FROM
   while [ "$soc" -lt "$SOC_TO" ]; do
     soc=$((soc + SOC_STEP)); [ "$soc" -gt "$SOC_TO" ] && soc=$SOC_TO
-    say "② SoC ${soc}% — 화면의 SoC·실측 속도가 오른다"
+    say "② SoC ${soc}% — 화면의 SoC·계산 평균 속도가 오른다"
     vc "ev-battery?field=soc&value=${soc}"
     wait_s "$STEP"
   done
