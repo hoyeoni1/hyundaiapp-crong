@@ -28,8 +28,16 @@ interface AppPrefs {
     /**
      * 동의 철회(이슈 #7, 앱 개발 규정 "철회 시 즉시 중단·삭제"): 동의 2개와 가명 차량 ID를 지운다.
      * 다시 동의하면 새 차량 ID가 만들어져 이전 기록과 이어지지 않는다. 음성·자동 기록 설정은 기본값으로 돌린다.
+     * 지운 차량 ID는 같은 저장에서 [pendingDeletions]로 옮긴다 — 서버 기록 삭제(PRD 5.6, 이슈 #12)가 성공할 때까지
+     * 남겨 두기 위해서다. 중간에 앱이 죽어도 ID를 잃지 않는다.
      */
     fun clearConsentAndData()
+
+    /** 서버 기록 삭제를 아직 못 끝낸 가명 차량 ID. 철회 뒤에 남는 유일한 값 */
+    val pendingDeletions: Set<String>
+
+    /** 서버 삭제가 끝나면 부른다 */
+    fun removePendingDeletion(vehicleId: String)
 }
 
 class SharedPrefsAppPrefs(context: Context) : AppPrefs {
@@ -59,8 +67,18 @@ class SharedPrefsAppPrefs(context: Context) : AppPrefs {
     @SuppressLint("ApplySharedPref")
     @Synchronized
     override fun clearConsentAndData() {
-        // 철회는 바로 반영돼야 하므로 commit(동기 저장)
-        prefs.edit().clear().commit()
+        val pending = pendingDeletions + listOfNotNull(prefs.getString(VEHICLE_ID, null))
+        // 철회는 바로 반영돼야 하므로 commit(동기 저장). clear()는 같은 commit 안의 put보다 먼저 적용된다
+        prefs.edit().clear().putStringSet(PENDING_DELETIONS, pending).commit()
+    }
+
+    override val pendingDeletions: Set<String>
+        get() = prefs.getStringSet(PENDING_DELETIONS, emptySet()).orEmpty().toSet()
+
+    @SuppressLint("ApplySharedPref")
+    @Synchronized
+    override fun removePendingDeletion(vehicleId: String) {
+        prefs.edit().putStringSet(PENDING_DELETIONS, pendingDeletions - vehicleId).commit()
     }
 
     private companion object {
@@ -71,6 +89,7 @@ class SharedPrefsAppPrefs(context: Context) : AppPrefs {
 
         // 옛 VehicleId 객체와 같은 키(이미 설치된 앱의 ID를 그대로 쓴다)
         const val VEHICLE_ID = "vehicle_id"
+        const val PENDING_DELETIONS = "pending_server_deletions"
     }
 }
 
@@ -82,14 +101,22 @@ class InMemoryAppPrefs(
     override var privacyAgreed: Boolean = false,
 ) : AppPrefs {
     private var id: String? = null
+    private val pending = mutableSetOf<String>()
 
     override fun vehicleId(): String = id ?: UUID.randomUUID().toString().also { id = it }
 
     override fun clearConsentAndData() {
+        id?.let { pending += it }
         voiceEnabled = true
         autoRecordEnabled = true
         locationAgreed = false
         privacyAgreed = false
         id = null
+    }
+
+    override val pendingDeletions: Set<String> get() = pending.toSet()
+
+    override fun removePendingDeletion(vehicleId: String) {
+        pending -= vehicleId
     }
 }

@@ -2,41 +2,47 @@
 
 담당 경로: 크루즈브레이커 로직 — `app/src/main/java/com/hyundaiapp/cruisebreaker/` 아래 `ui/` 화면을 뺀 전부(`domain/`, `data/`, ViewModel, `AppContainer`·`CruiseBreakerApp`·`RecordingService`). 화면(`ui/` Screen·테마)은 길민종
 
-## 현재 상태 (2026-11-01 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
-  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). PRD·기획서·README에도 반영됨(장호연, 11-01)
-  - **main(PR #3~#6 머지)에서 에뮬레이터 흐름 동작**: S5 동의 → 기록 서비스 → 크루즈 작동 중 통과·해제 기록 → 500m 앞 안내(S1 배너 10초 + Pleos TTS) → S2 목록·S3 요약. 앱을 뒤로 보내도·재부팅 후에도 동작
-  - **리뷰 후속 `fix/consent-and-review-followups`**(이슈 #7·#8, #9의 신호 수신 부분, PR #3 선택 제안):
-    - 동의 철회: S4 [동의 철회] → 확인 창 → 기록 서비스 정지·신호 수신 끊음·배너 내림·기기의 동의·가명 차량 ID·주행 요약 삭제. 서비스가 다시 살아나도 동의가 없으면 바로 멈춤
-    - 동의 전에는 차량·위치 신호를 받지 않음(신호 모니터만 화면에 들어갈 때 켬)
-    - API 28~33 호환(`ServiceCompat`, specialUse 타입은 34+에서만), TTS 준비 값 `@Volatile`, 주변 조회를 따로 띄우고 5초 시간 초과
-    - 업로드는 좌표 없는 형태(`DisengageUpload`·`PassUpload`)로만 받음, 큐를 거쳐 감지기가 막히지 않음, 같은 작동 중 같은 구간은 통과 1번
-- 진행 중 브랜치·PR: `fix/consent-and-review-followups` (리뷰·머지 대기)
+  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). PRD·기획서·README 반영됨(장호연)
+  - **main에서 에뮬레이터 흐름 동작**(PR #3~#6, #10): S5 동의 → 기록 서비스 → 크루즈 작동 중 통과·해제 기록 → 500m 앞 안내(배너 + Pleos TTS) → S2·S3. 뒤로 보내도·재부팅 후에도 동작. S4 동의 철회
+  - **`fix/withdraw-server-delete`**(이슈 #11, #12 앱 쪽, PRD 5.6 11-02 결정):
+    - 철회하면 가명 차량 ID를 기기에 "삭제 대기"로 남기고 서버 삭제(`CruiseEventRepository.deleteMine`)를 성공할 때까지 5초·15초·1분·5분 간격으로 보냄. 앱이 죽었다 켜지면 이어서 보냄(`PendingDeletions`, `CruiseBreakerApp.onCreate`)
+    - 업로드 실패도 같은 간격으로 다시 보냄(메모리 대기열)
+    - androidx.core 직접 의존(1.13.1), 기록 중지 때 TTS 연결 놓음
+    - 가짜 서버는 차량 ID별로 올린 만큼만 지움(시드는 그대로)
+- 진행 중 브랜치·PR: `fix/withdraw-server-delete` (리뷰·머지 대기)
 - 다음 할 일(우선순위 순):
-  1. 11-05 중간 점검 시연 리허설(아래 "확인 방법" 순서대로)
-  2. 장호연 위치 재생 시연 모드가 나오면 실제 경로에서 안내 확인
-  3. 이상준 차슐랭 로직 PR 교차 읽기(PT 대비)
+  1. 11-05 중간 점검 리허설: PR #15(장호연 `tools/demo-drive.sh`)가 머지되면 `bash tools/demo-drive.sh`로 한 번
+  2. 황준용 Supabase 서버가 나오면 가짜 서버를 바꾼 뒤 기록·안내·철회 삭제 확인
+  3. 이상준 차슐랭 충전 로직(PR #3) 교차 읽기(PT 대비)
 - 막힌 점·질문(누구에게):
-  - 황준용: **업로드 인터페이스가 바뀜** — `CruiseEventRepository.upload(DisengageUpload / PassUpload)`(좌표·차속 없음, 해제 시각은 시간 단위, 통과는 한국 날짜, `vehicleId` 포함). 실패 시 쌓아 두고 재전송은 저장소 구현에서. **동의 철회 때 서버에 이미 올라간 기록을 어떻게 지울지**(가명 ID로 삭제 요청 API 등) 정해서 PRD 5.6에
-  - 길민종(이슈 #9): S4에 [동의 철회] 줄을 내가 넣었음(`SettingsScreen`의 `onWithdrawConsent`, 모양은 바꿔도 됨) — 안내 거리 삭제·자동 기록 토글과 같이 정리. S5 차속 권한 문구, S5 알림 권한 요청, S2 브레이크 막대 삭제(`UiStates.kt`는 같은 PR에서 합의). `MainActivity`의 차속 권한 즉시 요청 삭제
-  - 장호연: 최소 SDK를 34로 올릴지(지금은 28 유지하고 코드로 분기함)
+  - 황준용: 서버 저장소 구현 때 `CruiseEventRepository` 세 함수 — `upload(DisengageUpload)`, `upload(PassUpload)`, `deleteMine(vehicleId)`(그 차량의 `cruise_events`·`cruise_passes` 즉시 완전 삭제, 지울 것이 없어도 성공). 실패는 예외로 던지면 앱이 다시 보냄
+  - 이상준: 차슐랭 `withdrawConsent`는 `deleteMine`을 한 번만 보내고 실패하면 끝남 → PRD 5.6 "성공할 때까지 다시 보낸다"에 맞추려면 크루즈브레이커 `PendingDeletions`처럼 기기에 저장해 두고 재시도(같은 방식으로 맞추자는 제안)
+  - 장호연: 최소 SDK를 34로 올릴지(지금은 28 유지, 코드로 분기)
 - 주의(함정·직접 겪은 이상한 동작):
   - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기
-  - 동의를 철회한 뒤 같은 프로세스에서 다시 동의해도 정상 재시작됨(감지기·안내기가 시작할 때 이전 상태를 지움)
-  - TTS: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 실패. Pleos TTS SDK는 `Locale.KOREA`(ko_KR)여야 함("ko"면 엔진 오류)
+  - 철회 뒤 기기에 남는 값은 `pending_server_deletions`(서버 삭제를 못 끝낸 차량 ID)뿐. 삭제가 성공하면 빈 목록
+  - 업로드 재시도 대기열은 메모리뿐 → 앱이 죽으면 못 보낸 기록은 사라짐(삭제 요청은 기기에 저장돼 남음)
+  - TTS: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 실패. Pleos TTS SDK는 `Locale.KOREA`(ko_KR)여야 함
   - 시드 "시연 지점(에뮬레이터 위치 앞 400m)"은 실제 데이터 아님(PT에서 밝힐 것). 가짜 서버는 차량-일 중복 제거를 안 함
-  - lint `ImplicitSamInstance`(`stopService`) 경고는 오탐 — `Intent`로 멈추는 정상 호출
-  - 부팅 중 `ai.pleos.service.car`(시스템) 충돌 로그는 우리 앱과 무관
-  - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 해제 값(USER_OVERRIDE 등)은 재현 불가. 해석은 `CruiseStateInterpreter`에만
-  - Git Bash에서 `adb shell run-as ... cat /data/...`는 경로가 바뀌므로 `MSYS_NO_PATHCONV=1`을 붙인다
+  - lint `ImplicitSamInstance`(`stopService`) 경고는 오탐
+  - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 해제 값(USER_OVERRIDE 등)은 재현 불가
+  - Git Bash에서 `adb shell run-as ... cat /data/...`는 `MSYS_NO_PATHCONV=1`을 붙인다
 - 확인 방법:
-  - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17, 44개)
-  - 시연 순서: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'gear?gear=Park'` → S3 요약·S2 목록. 로그 `adb logcat -s CruiseRecord`
-  - 철회: S4 [동의 철회] → [철회] → `adb shell dumpsys activity services com.hyundaiapp.cruisebreaker | grep RecordingService` 없음, `MSYS_NO_PATHCONV=1 adb shell run-as com.hyundaiapp.cruisebreaker --user 10 cat /data/user/10/com.hyundaiapp.cruisebreaker/shared_prefs/cruisebreaker.xml` → `<map />`
+  - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17, 앱 48개)
+  - 시연 순서: 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'controls?speed=0' 'gear?gear=Park'` → S3·S2. 로그 `adb logcat -s CruiseRecord`
+  - 철회: S4 [동의 철회] → [철회] → 로그 `consent withdrawn, server deletions pending=1` → `MSYS_NO_PATHCONV=1 adb shell run-as com.hyundaiapp.cruisebreaker --user 10 cat /data/user/10/com.hyundaiapp.cruisebreaker/shared_prefs/cruisebreaker.xml` → `pending_server_deletions`가 빈 목록
   - PR 올리기: `gh`(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 (이민하, Claude 에이전트와 작업 — 철회 시 서버 삭제)
+- 한 일: `fix/withdraw-server-delete` — `PendingDeletions`(삭제 대기 저장·재시도·앱 시작 때 이어서), `CruiseEventRepository.deleteMine`, `AppPrefs.pendingDeletions`(철회와 같은 commit으로 옮김), `retrying`(5초·15초·1분·5분, 차슐랭과 같은 간격)으로 업로드 재시도, androidx.core 직접 의존(이슈 #11), TTS 연결 놓기, 가짜 서버 차량별 삭제. 테스트 44 → 48개(+core는 따로)
+- 에뮬레이터 확인: 동의 → 주행(안내·기록) → 철회 → `pending=1` → 가짜 서버 삭제 성공 → 대기 목록 빔, 서비스 없음 → 다시 동의 → TTS 새로 연결, 안내·기록 정상
+- 결정한 것과 이유: 삭제 대기 ID는 동의·차량 ID를 지우는 같은 저장(commit)에서 옮김 — 사이에 앱이 죽어도 지울 ID를 잃지 않게. 업로드 재시도는 순서를 지키려고 한 줄로(앞 기록이 성공해야 다음)
+- 바꾼 파일: `app/build.gradle.kts`, `AppContainer.kt`, `CruiseBreakerApp.kt`, `data/{AppPrefs,CruiseEventRepository,FakeCruiseServer}.kt`, `data/PendingDeletions.kt`·`domain/Retry.kt`(새 파일), `domain/RiskSpeaker.kt`, 테스트 `PendingDeletionsTest`(새 파일), `docs/handoff/lee-minha.md`
 
 ### 2026-11-01 밤 (이민하, Claude 에이전트와 작업 — 리뷰 후속)
 - 한 일: `fix/consent-and-review-followups` — 이슈 #7(동의 철회), #8(API 28 호환·TTS 가시성·주변 조회), #9 중 동의 전 신호 수신, PR #3 선택 제안 4개 반영. 테스트 34 → 44개, lint `NewApi` 없음

@@ -6,6 +6,7 @@ import android.util.Log
 import com.hyundaiapp.cruisebreaker.data.AppPrefs
 import com.hyundaiapp.cruisebreaker.data.CruiseEventRepository
 import com.hyundaiapp.cruisebreaker.data.FakeCruiseServer
+import com.hyundaiapp.cruisebreaker.data.PendingDeletions
 import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
 import com.hyundaiapp.cruisebreaker.data.SharedPrefsAppPrefs
 import com.hyundaiapp.cruisebreaker.data.toUpload
@@ -15,6 +16,7 @@ import com.hyundaiapp.cruisebreaker.domain.RiskAnnouncer
 import com.hyundaiapp.cruisebreaker.domain.RiskSpeaker
 import com.hyundaiapp.cruisebreaker.domain.TripStats
 import com.hyundaiapp.cruisebreaker.domain.TripTracker
+import com.hyundaiapp.cruisebreaker.domain.retrying
 import com.hyundaiapp.core.CoreFeature
 import com.hyundaiapp.core.PleosVehicleSignals
 import kotlinx.coroutines.CoroutineScope
@@ -50,8 +52,11 @@ class AppContainer(context: Context) {
     val tripStats = TripStats()
     val announcer = RiskAnnouncer(rules)
 
-    /** 시스템 음성 서비스에 붙으므로 기록을 시작할 때 만든다 */
-    private val speaker by lazy { RiskSpeaker(context) }
+    /** 동의 철회 때 서버 기록 삭제. 앱 수명 동안 돈다(기록이 멈춰도 삭제는 끝까지 보냄) */
+    private val deletions = PendingDeletions(prefs, events, onFailure = { Log.w(TAG, "server delete failed, retrying: $it") })
+
+    /** 시스템 음성 서비스에 붙으므로 기록을 시작할 때 만들고 멈출 때 놓는다(이슈 #11) */
+    private var speaker: RiskSpeaker? = null
 
     /** 기록 중일 때만 있다. [stopRecording]이 취소하면 기록 관련 코루틴이 모두 멈춘다 */
     private var recordingJob: Job? = null
@@ -70,8 +75,11 @@ class AppContainer(context: Context) {
 
         // 업로드는 큐를 거친다: 감지기 쪽 수집은 큐에 넣기만 해서 늦어지지 않고(버퍼가 차서 버려지지 않게, PR #3 리뷰),
         // 실제 전송은 한 줄로 차례대로 한다. 좌표가 없는 업로드 형태로 바꿔서 넣는다
+        // 실패하면 같은 기록을 5초·15초·1분·5분 간격으로 다시 보낸다(뒤 기록은 순서대로 기다림)
         val uploads = Channel<suspend () -> Unit>(Channel.UNLIMITED)
-        scope.launch { for (send in uploads) runCatching { send() }.onFailure { Log.w(TAG, "upload failed: $it") } }
+        scope.launch {
+            for (send in uploads) retrying(onFailure = { Log.w(TAG, "upload failed, retrying: $it") }) { send() }
+        }
         // 감지기보다 먼저 구독해야 첫 이벤트를 놓치지 않는다(같은 Main 디스패처에서 순서대로 시작)
         scope.launch {
             disengageDetector.events.collect {
@@ -92,7 +100,7 @@ class AppContainer(context: Context) {
         trips.start(scope)
         scope.launch { announcer.announcements.collect { Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}") } }
         tripStats.start(scope, trips, announcer, disengageDetector)
-        speaker.start(scope, announcer.announcements) { prefs.voiceEnabled }
+        RiskSpeaker(appContext).also { speaker = it }.start(scope, announcer.announcements) { prefs.voiceEnabled }
         announcer.start(scope, signals, risks, trips)
     }
 
@@ -102,6 +110,8 @@ class AppContainer(context: Context) {
         recordingJob = null
         job.cancel()
         announcer.reset()
+        speaker?.release()
+        speaker = null
         signals.stop()
         if (disengageDetector.dropped > 0) Log.w(TAG, "dropped records: ${disengageDetector.dropped}")
         Log.i(TAG, "recording stopped")
@@ -110,15 +120,19 @@ class AppContainer(context: Context) {
     /**
      * 동의 철회(이슈 #7, 앱 개발 규정 "철회 시 즉시 활용 중단·저장 데이터 삭제"):
      * 기록 서비스를 멈추고, 기기에 남은 동의·가명 차량 ID·주행 요약을 지운다. 다시 동의하면 새 차량 ID로 시작한다.
-     * 서버에 이미 올라간 기록의 삭제는 서버 구현(황준용)과 정한다(PRD 5.6).
+     * 서버에 올라간 이 차량의 기록은 [PendingDeletions]가 삭제를 요청한다(성공할 때까지, PRD 5.6).
      */
     fun withdrawConsent() {
         appContext.stopService(Intent(appContext, RecordingService::class.java))
         stopRecording()
         tripStats.reset()
         prefs.clearConsentAndData()
-        Log.i(TAG, "consent withdrawn")
+        deletions.resume(appScope)
+        Log.i(TAG, "consent withdrawn, server deletions pending=${prefs.pendingDeletions.size}")
     }
+
+    /** 앱이 켜질 때 부른다: 지난번에 못 끝낸 서버 삭제 요청을 이어서 보낸다 */
+    fun resumePendingDeletions() = deletions.resume(appScope)
 
     private companion object {
         const val TAG = "CruiseRecord"
