@@ -87,10 +87,12 @@ slow_release() {
 }
 
 arrive() {
-  scene "도착: 크루즈 해제, 정차, 기어 P → 주행 요약 화면(위험 구간 통과·안내 횟수·내 기록)"
-  release
+  scene "도착: 정차, 크루즈 해제, 기어 P → 주행 요약 화면(위험 구간 통과·안내 횟수·내 기록)"
+  # 먼저 세운다. 60km/h 이상에서 해제하면 도착도 해제로 기록된다(규칙 v2)
   vc 'controls?speed=0'
   sleep 2
+  release
+  sleep 1
   vc 'gear?gear=Park'
 }
 
@@ -128,6 +130,7 @@ replay_stop() {
 }
 
 # 경로 시작 후 경로 시각 t(초)가 될 때까지 기다린다(배속 반영)
+# date +%s%3N은 GNU date(Git Bash·Linux) 전용. macOS 기본 date에서는 안 된다
 wait_until() {
   local target_ms remain
   target_ms=$(awk -v t="$1" -v r="$RATE" 'BEGIN { printf "%d", t / r * 1000 }')
@@ -190,7 +193,7 @@ case "${1:-}" in
   "") fixed ;;
   route) route ;;
   reset) reset_state ;;
-  stop) replay_stop; release; vc 'controls?speed=0' 'gear?gear=Park' ;;
+  stop) replay_stop; vc 'controls?speed=0'; sleep 2; release; vc 'gear?gear=Park' ;;
   *) sed -n '2,/^set -euo/p' "$0" | sed '$d'; exit 1 ;;
 esac
 say "끝. 하트비트는 계속 돈다(그만두려면: bash tools/vconsole.sh down)"
