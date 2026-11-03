@@ -1,6 +1,6 @@
 # 크루즈브레이커 (Cruise Breaker)
 
-다른 차량들이 크루즈 컨트롤을 해제하는 지점을 모아, 운전자 개입이 반복되는 위험 구간을 진입 전에 알려 주는 Pleos Connect 앱. 팀 삼각고래 · 일반 부문.
+다른 차량들이 크루즈 컨트롤을 해제하는 지점을 모아, 크루즈 해제가 반복되는 구간(해제 다발 구간)을 진입 전에 알려 주는 Pleos Connect 앱. 팀 삼각고래 · 일반 부문.
 
 - 기획: [PRD.md](PRD.md)
 - 핵심 신호: Vehicle SDK `DrivingMode` 크루즈 상태 + AAOS 차속(해제 조건 60km/h) + NaviHelper 위치·진행 방향. 안내 음성은 Pleos TTS SDK
