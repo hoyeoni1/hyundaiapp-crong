@@ -7,9 +7,12 @@ import com.hyundaiapp.core.Gear
 internal fun canShowParkedScreens(drive: DriveState): Boolean =
     drive.gear == Gear.PARK && (drive.speedKph == null || drive.speedKph == 0f)
 
-/** 동의 후 신호 대기·D/R/N 상태에서는 개발 메뉴·설정 대신 터치 없는 S1만 보여 준다. */
-internal fun visibleScreen(requested: Screen, sessionStarted: Boolean, drive: DriveState): Screen =
-    if (sessionStarted && !canShowParkedScreens(drive)) Screen.DRIVING else requested
+/** 플랫폼이 정차 UI를 허용할 때만 연다. 기어 미수신은 허용 상태를 덮어쓰지 않는다. */
+internal fun visibleScreen(requested: Screen, drive: DriveState, uxRestricted: Boolean?): Screen {
+    val knownMoving = drive.gear in setOf(Gear.DRIVE, Gear.REVERSE, Gear.NEUTRAL) ||
+        (drive.speedKph != null && drive.speedKph != 0f)
+    return if (uxRestricted != false || knownMoving) Screen.DRIVING else requested
+}
 
 /** D를 거친 다음 P로 돌아왔을 때 한 번만 요약을 연다. 신호 대기는 주행 종료로 보지 않는다. */
 internal class TripEndNavigation {

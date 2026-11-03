@@ -40,6 +40,7 @@ fun OnboardingScreen(
     onStart: () -> Unit,
     notificationsGranted: Boolean = false,
     onRequestNotifications: () -> Unit = {},
+    notificationsNeedSettings: Boolean = false,
 ) {
     val canStart = state.locationAgreed && state.privacyAgreed
     Row(
@@ -88,7 +89,7 @@ fun OnboardingScreen(
                 ConsentRow(
                     "주행 기록 알림 (선택)", notificationsGranted, onRequestNotifications,
                     description = "기록 중에는 '주행 기록 중' 알림을 표시해요.\n허용하지 않아도 주행 기록은 계속돼요.",
-                    agreeLabel = "알림 허용", agreedLabel = "허용됨",
+                    agreeLabel = if (notificationsNeedSettings) "알림 설정" else "알림 허용", agreedLabel = "허용됨",
                 )
             }
             OnboardingStartAction(

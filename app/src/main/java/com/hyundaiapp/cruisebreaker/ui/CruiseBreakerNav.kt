@@ -1,6 +1,7 @@
 package com.hyundaiapp.cruisebreaker.ui
 
 import android.content.pm.PackageManager
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -80,7 +81,7 @@ fun CruiseBreakerNav(container: AppContainer) {
             onWithdraw = container::withdrawConsent,
         )
     }
-    CruiseBreakerNavigation(dependencies, BuildConfig.DEBUG)
+    CruiseBreakerNavigation(dependencies, BuildConfig.DEBUG, rememberCarUxRestricted(), context)
 }
 
 /** UI가 쓰는 기존 상태·콜백만 전달해 SDK 없이 화면 전환도 확인할 수 있게 한다. */
@@ -95,11 +96,16 @@ internal data class CruiseNavigationDependencies(
 )
 
 @Composable
-internal fun CruiseBreakerNavigation(dependencies: CruiseNavigationDependencies, debug: Boolean) {
+internal fun CruiseBreakerNavigation(
+    dependencies: CruiseNavigationDependencies,
+    debug: Boolean,
+    uxRestricted: Boolean?,
+    context: Context = LocalContext.current,
+) {
     val stack = remember { mutableStateListOf(initialScreen(debug, dependencies.prefs.onboarded)) }
     var sessionStarted by remember { mutableStateOf(dependencies.prefs.onboarded) }
     val drive by dependencies.signals.drive.collectAsState()
-    val currentScreen = visibleScreen(stack.last(), sessionStarted, drive)
+    val currentScreen = visibleScreen(stack.last(), drive, uxRestricted)
     val go: (Screen) -> Unit = { stack.add(it) }
     val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
     val resetTo: (Screen) -> Unit = {
@@ -112,15 +118,14 @@ internal fun CruiseBreakerNavigation(dependencies: CruiseNavigationDependencies,
     var terms by remember { mutableStateOf<Terms?>(null) }
     var confirmWithdraw by remember { mutableStateOf(false) }
     val tripNavigation = remember { TripEndNavigation() }
-    LaunchedEffect(sessionStarted, drive) {
+    LaunchedEffect(sessionStarted, drive, uxRestricted) {
         if (currentScreen == Screen.DRIVING) {
             terms = null
             confirmWithdraw = false
         }
         if (tripNavigation.shouldShowSummary(sessionStarted, drive)) resetTo(Screen.TRIP_SUMMARY)
     }
-    val context = LocalContext.current
-    val (notificationsGranted, requestNotifications) = rememberNotificationPermission()
+    val notifications = rememberNotificationPermission()
     val onboardingVm = viewModel {
         OnboardingViewModel(
             dependencies.prefs,
@@ -197,8 +202,9 @@ internal fun CruiseBreakerNavigation(dependencies: CruiseNavigationDependencies,
                     onAgreePrivacy = onboardingVm::agreePrivacy,
                     onRequestSpeedPermission = { speedPermission.launch(SPEED_PERMISSION) },
                     onShowTerms = { terms = it },
-                    notificationsGranted = notificationsGranted,
-                    onRequestNotifications = requestNotifications,
+                    notificationsGranted = notifications.granted,
+                    onRequestNotifications = notifications.request,
+                    notificationsNeedSettings = notifications.openSettings,
                     onStart = {
                         if (onboardingVm.start()) {
                             sessionStarted = true
