@@ -67,6 +67,12 @@ class RiskSpeaker(context: Context) {
         }
     }
 
+    /** 시스템 음성 서비스 연결을 놓는다(기록 중지·동의 철회). 다시 쓰려면 새로 만든다 */
+    fun release() {
+        ready = false
+        tts.release()
+    }
+
     private companion object {
         const val TAG = "CruiseRecord"
     }

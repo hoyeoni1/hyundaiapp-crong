@@ -36,9 +36,16 @@ fun CruisePass.toUpload(vehicleId: String) =
 
 /**
  * 해제 이벤트·통과 기록 업로드. 실제 구현(서버)은 황준용, 그 전에는 [FakeCruiseServer].
- * 규칙(docs/disengage-rules.md "업로드와 차량 ID"): 생길 때마다 실시간으로 부르고, 실패하면 구현이 쌓아 두었다가 다시 보낸다.
+ * 규칙(docs/disengage-rules.md "업로드와 차량 ID"): 생길 때마다 실시간으로 부른다. 실패(예외)하면 앱이 같은 기록을
+ * 5초·15초·1분·5분 간격으로 다시 보낸다(메모리 대기열, 앱이 죽으면 못 보낸 기록은 사라짐).
  */
 interface CruiseEventRepository {
     suspend fun upload(event: DisengageUpload)
     suspend fun upload(pass: PassUpload)
+
+    /**
+     * 동의 철회(PRD 5.6, 11-02 결정): 이 가명 차량 ID의 `cruise_events`·`cruise_passes`를 서버에서 즉시 완전 삭제.
+     * 지울 것이 없어도 오류가 아니다(같은 요청을 다시 보내도 됨). 실패하면 예외 → 앱이 [PendingDeletions]로 다시 보낸다
+     */
+    suspend fun deleteMine(vehicleId: String)
 }

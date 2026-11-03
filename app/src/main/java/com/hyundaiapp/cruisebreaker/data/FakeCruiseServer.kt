@@ -19,6 +19,7 @@ data class SeedCell(
  *
  * 위험 판단은 서버 규칙(docs/disengage-rules.md "서버 판단")처럼 같은 방향 9칸을 합산한다.
  * 다른 점: 차가 하나뿐이라 차량-일 중복 제거와 28일 기간은 하지 않는다. 행은 기록이 있는 칸만 돌려준다.
+ * 동의 철회 삭제([deleteMine])는 그 차량 ID로 올린 만큼만 칸에서 뺀다(시드는 그대로).
  */
 class FakeCruiseServer(
     seed: List<SeedCell> = SEED,
@@ -27,6 +28,9 @@ class FakeCruiseServer(
     private class Cell(val roadName: String, var disengages: Int = 0, var passes: Int = 0)
 
     private val cells = HashMap<SegmentKey, Cell>()
+
+    /** 차량 ID별로 올린 [해제 수, 통과 수]. [deleteMine]용 */
+    private val byVehicle = HashMap<String, HashMap<SegmentKey, IntArray>>()
 
     init {
         for (s in seed) {
@@ -37,12 +41,35 @@ class FakeCruiseServer(
     }
 
     override suspend fun upload(event: DisengageUpload) {
-        synchronized(cells) { cellAt(SegmentKey(event.segmentId, event.heading8)).disengages += 1 }
+        synchronized(cells) {
+            val key = SegmentKey(event.segmentId, event.heading8)
+            cellAt(key).disengages += 1
+            mine(event.vehicleId, key)[0] += 1
+        }
     }
 
     override suspend fun upload(pass: PassUpload) {
-        synchronized(cells) { cellAt(SegmentKey(pass.segmentId, pass.heading8)).passes += 1 }
+        synchronized(cells) {
+            val key = SegmentKey(pass.segmentId, pass.heading8)
+            cellAt(key).passes += 1
+            mine(pass.vehicleId, key)[1] += 1
+        }
     }
+
+    override suspend fun deleteMine(vehicleId: String) {
+        synchronized(cells) {
+            val mine = byVehicle.remove(vehicleId) ?: return
+            for ((key, counts) in mine) {
+                val cell = cells.getValue(key)
+                cell.disengages -= counts[0]
+                cell.passes -= counts[1]
+                if (cell.disengages == 0 && cell.passes == 0 && cell.roadName.isEmpty()) cells.remove(key)
+            }
+        }
+    }
+
+    private fun mine(vehicleId: String, key: SegmentKey): IntArray =
+        byVehicle.getOrPut(vehicleId) { HashMap() }.getOrPut(key) { IntArray(2) }
 
     override suspend fun nearby(center: GeoPoint, radiusM: Double): List<SegmentRisk> = synchronized(cells) {
         cells.keys.map { riskOf(it) }
