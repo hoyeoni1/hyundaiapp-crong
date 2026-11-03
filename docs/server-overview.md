@@ -112,6 +112,8 @@ Auth 사용자 자체는 Supabase `auth.users`에 있다. 사용자 이름·이�
 
 ### 차슐랭
 
+- 신규 충전소 밖 충전(NOT_AT_STATION 또는 충전소 ID 없음)은 **기기에만 저장**한다. 별도 암호화/noBackup 영속 저장소이며 서버 outbox에 넣지 않는다. 내 기록은 로컬+서버를 합쳐 보여 주고, 철회 시 기기 기록을 즉시 삭제한다. 기존 버전의 서버/outbox 데이터는 소급 이전하지 않는다.
+
 - 현재 점수는 평균 별점이며 후기 5개 미만은 null(평가 중)이다. 실패율 감점은 PRD 초안에만 있고 **구현하지 않았다**.
 - 유효 SUCCESS만 인증 수에 포함한다. 평균 kW는 null을 분모에서도 제외한다.
 - 최근 7일 FAILED 횟수와 상위 태그·별점 분포는 별도 제공한다. 타인 실패 시각은 원본 대신 시간대 단위로 축약한다.
@@ -151,6 +153,7 @@ $supabaseCli = Join-Path $env:LOCALAPPDATA 'hyundai-dev\supabase\supabase.exe'
 
 - initial schema와 demo data 두 migration은 이미 원격에 적용됐고 CLI 표준 이력도 맞췄다. 다시 초기화하거나 db reset하지 않는다. 새 변경은 새 migration으로 추가한다.
 - `verify.sql`은 버전·시드 건수·RLS·RPC 권한·함수 fingerprint를 하나의 JSON으로 반환한다.
+- 시드 날짜 갱신은 차슐랭 `server/demo-maintenance.md`를 따른다. `supabase/refresh-demo-dates.sql`은 고정 시드 소유자와 건수를 검증한 뒤 한국 날짜에 맞춘다. 실제 앱 데이터는 유지하며 migration 재실행/DB reset은 하지 않는다.
 - 시드는 충전소 10곳, 충전 세션 300건, 해제 400건, 통과 2,000건이다. 모두 실제 관측을 대체한 가상 시연 데이터로 구분한다.
 - 로컬 PostgreSQL 검증은 `server/`에서 의존성 설치 후 `node --test tests/database.test.mjs`. 소유권·중복·날짜 경계·정정·철회·시드를 실행 검증한다.
 - 명시적 원격 검사는 `node tests/remote-smoke.mjs`. 별도 임시 익명 계정과 기록을 만들고 해당 run 표식으로 한정해 정리한다.
