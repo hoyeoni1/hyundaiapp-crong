@@ -4,12 +4,13 @@
 
 ## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
-- 한 일 요약: UI PR #24는 main 머지 완료. [PR #30](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/30)은 #29의 화면 용어를 해제 다발 구간으로 통일했고, [PR #27](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/27)은 미구현 검토안을 PRD 9절로 분리했다. 두 작업의 현재 상태·검증·이력을 이 문서에 함께 보존한다.
-- 진행 중 브랜치·PR: `fix/disengagement-ui-terms` / #30, `docs/observation-based-prd` / #27. 둘 다 머지 가능 리뷰이며, 최종 채택·머지는 장호연 담당.
-- 다음 할 일: 시연 영상용 #30과 검토안 #27의 채택/머지 후 x86 Pleos에서 tools/demo-drive.sh 시연, S2 제목·S3 버튼과 자막, 차속 권한·시스템 Back/Home·내비 왕복·P/D/P 전환과 주행 제한을 확인한다.
-- 막힌 점·질문: 이민하 [#25](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/25) 오류/빈 결과·조회 기준 계약, [#26](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/26) 미확인 요약 복원, 장호연 [차슐랭 #14](https://github.com/hoyeoni1/hyundaiapp-chachelin/issues/14) 동의 단계/태그/실제 약관 전문은 미완료. 실차·x86 Pleos 검증은 팀 환경이 필요하다.
-- 주의: #30은 화면 문자열만, #27의 9절은 미구현 제안이다. 오류 계약·새 안내 정책·검증 로그 구현 완료로 해석하지 않는다. 판정 규칙 원본은 main과 같고 주행 배너·TTS·수식·임계값은 변경하지 않았다.
-- 확인 방법: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug`. #30의 일반 검사와 기존 임시 UI 18검사는 PASS. #27은 제품 코드 diff 0·9절 밖 본문 동일·링크·수치·diff check를 확인한다. 실제 Pleos 시연 결과는 별도이며 아래 검증 요약에 범위를 명시한다.
+- 한 일 요약: #25의 이민하11-03 결정에 따라 S2 조회 실패 알림을 추가하지 않고, S5에 “크루즈브레이커는 운전을 돕는 보조 안내예요. 안내가 없거나 늦을 수 있으니 항상 직접 도로를 살피세요.”를 한 문단으로 표시. 화면 하단에서 시작/복귀 버튼과 함께 보이고 좁은 폭에서는 자연스럽게 줄바꿈한다.
+- 진행 중 브랜치·PR: `fix/onboarding-advisory` / [PR #31](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/31), 최신 main cc25446 기반. S2의 미사용 errorMessage/locationNotice/onRetry 표시 인수는 제거. UiState·ViewModel·서비스·주행 배너·판정/집계는 변경 없음. 기존 #27/#30은 main 머지 완료.
+- 다음 할 일: UI PR 검토 후 x86 Pleos S5 표시·정차 동의 재열람·시작 버튼 접근성을 확인. #25의 책임 제한 등 실제 약관 전문은 장호연 확정/반영 대기이며 UI 문구만으로 이슈를 닫지 않음.
+- 막힌 점·질문: 장호연의 실제 약관 전문(B01) 제공 필요. D01은 main PRD의 명시 동의 즉시 저장 정책 유지. #26은 이민하가 추가 구현 불필요로 닫았으므로 미확인 자동 요약 복원 계약을 더 기다리지 않음; S2의 최근 주행 요약으로 다시 조회 가능.
+- 주의: 조회 실패가 해결되거나 요약 저장 로직이 새로 구현된 것이 아니라 제품 결정에 따라 범위를 변경한 것. 보조 안내를 새 필수 동의 항목으로 만들지 않음. 약관/책임 제한 문구는 작성하지 않음. PRD9절의 예전 검토 제안은 이번 #25/#26 결정과 구분.
+- 확인 방법: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug`. 별도 임시 UI19검사 PASS(기존15+S5 신규4);1280×720·600×1024/fontScale1.5·1024×600/fontScale1.5에서 문구 전체/시작·복귀 버튼 표시와76dp 이상 영역, 기존 동의 조건 유지 확인. 실제 Pleos 검증은 별도.
+- 증거: `output/cruisebreaker-onboarding-advisory-2026-11-03/`에 결정 원문·검사 코드/로그/XML·화면 보존. 이전 감사의 원본과 작업 기록은 유지.
 
 ## 공유 검증 요약
 
@@ -21,12 +22,21 @@
 |설정→동의 재열람→명시적 복귀|설정 복귀, 서비스 시작 콜백0회|
 |외부 차속 허용/회수 후 ON_RESUME|권한 표시 갱신2조건 PASS|
 |자동 주행 요약 Android Back|Activity 종료 없이 목록 복귀|
-|Activity STOP 중 D→P 후 RESUME|자동 요약 표시; Nav 완전 재생성은 #26 미해결|
-|600dp/fontScale1.5, 제공된 오류/조회 기준/캐시 실패 입력|표시 전용3검사 PASS; 실제 VM/Nav 공급은 #25 미해결|
+|Activity STOP 중 D→P 후 RESUME|자동 요약 표시; Nav 재생성 자동 재표시는 #26 결정으로 추가 요구 철회|
+|과거 S2 오류/조회 기준 표시 준비|예전 표시 전용3검사는 이력으로 보존. #25 결정으로 해당 인수 제거; 현재 검증에는 포함하지 않음|
+|S5 보조 안내1280/600/1024dp·큰 글자·동의 재열람|신규4검사 PASS: 문구 전체·시작/복귀 표시, 기존 동의 조건 유지|
 
-일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+표시 전용3 PASS이며 앱 일반 테스트에 포함되지 않는다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
+일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 현재 UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+S5 신규4 PASS이며 앱 일반 테스트에 포함되지 않는다. 이전 S2 표시 전용3검사는 #25 결정으로 폐기한 제안의 과거 검증이다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 — #25 결정의 S5 보조 안내와 #26 범위 종료 반영
+- #25 댓글과 사용자 전달 문구를 확인해 S5 하단에 정확히 표시. 큰 글자·좁은/낮은 화면에서도 문구와 시작/복귀 버튼이 잘리지 않음.
+- S2 오류/조회 기준/재시도용 미사용 표시 인수를 제거. 화면은 기존 UiState와 콜백3개만 받음. 로직·UiState 변경 없음.
+- #26은 다음 D/철회 전 TripStats 보존 + S2 최근 주행 요약 버튼으로 충분하다는 이민하 결정으로 추가 구현 없이 종료. 과거 자동 재표시 인수 실패를 현재 미해결 결함으로 보고하지 않음.
+- 기존15+신규4 UI검사 PASS. S5 문구는 별도 동의 항목이 아니며, 필수 동의 전 시작 비활성/동의 후 시작 가능/재열람 복귀 onStart0회 유지.
+- 실제 약관·책임 제한은 장호연 담당으로 남기고 #25 자동 종료 문구를 PR에 넣지 않음. 이전 날짜별 감사 기록은 이력으로 보존.
+
 
 ### 2026-11-03 — PR #27/#30 선택 리뷰와 인수인계 충돌 정리
 - 현재 상태에 UI 용어 작업과 PRD 제안을 함께 적고 다음 할 일·담당별 막힌 점·확인 방법을 복원. 두 브랜치의 이력은 보존하며 동일한 handoff로 맞춰 상호 충돌을 제거한다. PR을 먼저 머지하거나 한쪽 코드를 다른 PR에 가져오지 않는다.
