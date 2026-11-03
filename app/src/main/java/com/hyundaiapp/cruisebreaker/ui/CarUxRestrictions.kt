@@ -18,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
+/** 실제 Car 서비스 없이 설정 복귀·단절·해제의 생명주기를 검증하기 위한 주입 경계. */
 internal interface UxRestrictionSource {
     fun start()
     fun refresh()
