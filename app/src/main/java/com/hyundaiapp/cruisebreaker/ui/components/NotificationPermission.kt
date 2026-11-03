@@ -62,7 +62,15 @@ fun rememberNotificationPermission(): NotificationPermissionState {
     var unresolvedResults by remember { mutableStateOf(prefs.getInt("notifications_unresolved_results", 0)) }
     var rationale by remember { mutableStateOf(needsRationale()) }
     var inFlight by rememberSaveable { mutableStateOf(false) }
-    val refresh = { granted = isGranted(); rationale = needsRationale() }
+    val refresh = {
+        granted = isGranted()
+        rationale = needsRationale()
+        // 설정에서 허용한 결과도 반영해 지난 미확인 횟수가 다음 요청에 남지 않게 한다.
+        if (granted && unresolvedResults != 0) {
+            unresolvedResults = 0
+            prefs.edit().putInt("notifications_unresolved_results", 0).apply()
+        }
+    }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         refresh()
         requested = notificationDecisionSeen(requested, granted, rationale)
