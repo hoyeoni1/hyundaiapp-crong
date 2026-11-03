@@ -5,7 +5,7 @@
 ## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
 - 한 일 요약: 사용자 요청으로 PRD의 관측·해석 구분을 구체적인 수정안으로 작성. 해제 다발 구간으로 제품 표현을 수정하고 차량-일 분모 해석, 빈 결과/조회 실패 상태, 안내 노출 검증 로그와 검증 기준을 제안했다. 판정 규칙 원본도 함께 맞췄고 기존 수치 기준은 유지한다.
-- 진행 중 브랜치·PR: `docs/observation-based-prd` (PR 생성 후 링크 기록). 기존 UI 작업은 별도 PR #24: https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/24
+- 진행 중 브랜치·PR: `docs/observation-based-prd` — https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/27. 기존 UI 작업은 별도 PR #24: https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/24
 - 다음 할 일: 장호연·이민하·황준용: 조회 실패 시 새 안내 보류와 API 표본 상태, 기기 내 한 주행 검증 로그 범위 검토. 합의 후 구현 PR로 분리하고 장호연이 제출 원고·DOCX 갱신.
 - 남은 UI 확인: x86 Pleos PC에서 가로·세로, 알림 설정 복귀, 동의 철회/재동의 및 결과/정차 화면 복귀 확인. 약관 전문 확정 후 `TermsDialog` 교체. 기존 UI PR에서 이어서 진행한다.
 - 검토 사항: PRD는 장호연, 크루즈 판정 원본은 이민하 검토 대상. 사용자가 명시적으로 PRD 수정·PR 제출을 요청해 검토 브랜치로 작성했다. 담당자의 승인이나 머지가 완료됐다고 간주하지 않는다.
