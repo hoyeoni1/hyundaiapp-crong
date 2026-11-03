@@ -41,6 +41,13 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-03 — Supabase PR #10·#22 남은 수정 직접 반영(황준용 브랜치)
+- 장호연 결정("다 진행해줘", 브랜치는 황준용 PR에 바로, DB 적용은 장호연이 대시보드에서). Claude 에이전트가 작업
+- 반영: release 시연 데이터 모드 기본(`supabase.demo`), 점수 공식 migration `20261103000100`, 실패 잦은 시연 충전소 st-004 migration `20261103000200`, refresh SQL 갱신, `consent_version` = 약관 초안 판 번호, #10 README 충돌 해결(main merge)
+- 확인: PGlite 17개, 두 앱 `assembleDebug assembleRelease test lint` 통과(208, 192). 전체 lint 통과 = #9는 #10 머지로 해결
+- **남은 것(장호연)**: #10·#22 머지 → 대시보드에서 두 migration 적용(`server/deploy.md` "11-03 추가 migration", verify 기대 charge_sessions 325) → 시연 리허설
+- 바꾼 파일(이 문서 외는 PR 브랜치): `app/build.gradle.kts`, `AppContainer.kt`, `core/.../BackendTransport.kt`·`SupabaseBackend.kt`·테스트, `server/` migration 2개·refresh·테스트·문서, `docs/server-overview.md`
+
 ### 2026-11-03 — 길민종 PR 머지(차슐랭 #18, 크루즈 #31)
 - 한 일(Claude 에이전트와 함께, 장호연 "Yes, merge both" 지시): 차슐랭 #18(길민종 인수인계만, `8b697d1`), 크루즈 #31(S5 보조 안내, `abee7f2`) 머지. 크루즈 main `assembleDebug test :app:lintDebug` 통과
 - 크루즈 #25: S5 안내는 반영됨. 책임 제한 문구는 약관 초안 4절에 있음 → 약관 확정 뒤 닫기
