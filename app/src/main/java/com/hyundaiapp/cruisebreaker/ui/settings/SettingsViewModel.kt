@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 
 /**
  * S4 설정. 값은 [AppPrefs]에 바로 저장한다(음성 안내는 다음 안내부터 적용).
- * 안내 거리는 500m 고정(11-01 결정) → 화면에서 바꿔도 반영하지 않는다. 거리 선택은 길민종이 화면에서 지울 예정.
+ * 안내 거리는 500m 고정이므로 설정 상태에 넣지 않는다.
  */
 class SettingsViewModel(
     private val prefs: AppPrefs,
@@ -37,11 +37,7 @@ class SettingsViewModel(
 
     private fun fromPrefs() = SettingsUiState(
         voiceEnabled = prefs.voiceEnabled,
-        announceDistanceM = FIXED_DISTANCE_M,
         autoRecordEnabled = prefs.autoRecordEnabled,
     )
 
-    private companion object {
-        const val FIXED_DISTANCE_M = 500
-    }
 }

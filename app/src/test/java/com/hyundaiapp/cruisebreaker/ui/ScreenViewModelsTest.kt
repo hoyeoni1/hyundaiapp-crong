@@ -87,16 +87,17 @@ class ScreenViewModelsTest {
     }
 
     @Test
-    fun `S4 설정은 바로 저장되고 안내 거리는 500m 고정`() {
+    fun `S4 음성과 자동 기록 설정은 바로 저장된다`() {
         val prefs = InMemoryAppPrefs()
         val vm = SettingsViewModel(prefs)
-        assertEquals(500, vm.state.value.announceDistanceM)
 
         vm.setVoiceEnabled(false)
         vm.setAutoRecordEnabled(false)
         assertFalse(prefs.voiceEnabled)
         assertFalse(prefs.autoRecordEnabled)
         assertFalse(vm.state.value.voiceEnabled)
+        assertFalse(vm.state.value.autoRecordEnabled)
+        assertFalse(SettingsViewModel(prefs).state.value.autoRecordEnabled)
     }
 
     @Test
