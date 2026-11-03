@@ -42,6 +42,14 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-03 — 시연 가능 상태 마무리(PR 차슐랭 #19, 크루즈 #32)
+- 장호연 지시("할 수 있는 거 다 해 줘, 두 앱이 구동·운영·시연 가능한 상태"). Claude 에이전트가 작업
+- 한 일: 약관 전문 앱 연결(`ui/TermsText.kt`), 리뷰 태그 쌍 배타(#17, 차슐랭), 크루즈 S5 문구, `simulation_time_scale` 버그 수정(차슐랭), release 서명 설정 + `tools/build-release.sh`
+- **서명 키 생성**: 저장소 밖 `C:/Users/H/.samgakgorae/samgakgorae-release.jks`(비밀번호는 같은 폴더 README.txt, 두 저장소 `local.properties`의 `release.*`에도 들어감). **이 폴더를 백업할 것**
+- 확인: 두 앱 `assembleDebug test lint` 통과. 에뮬레이터(Fake)에서 `demo-charge.sh success/fail`, `demo-drive.sh` 전 장면 통과, 약관 창·태그 규칙 화면 확인, 서명된 release APK 설치·실행(크래시 0)
+- 남은 것: PR #19·#32 머지 → 황준용에게 Supabase 키·migration 받기 → 서버 연결 리허설 → `bash tools/build-release.sh`로 제출 APK 만들어 커밋
+- 바꾼 파일: 이 문서(코드는 PR)
+
 ### 2026-11-03 — 약관(B01) 값 확정
 - 장호연 결정("메일만, 나머지 추천대로"): 시행일 11-14, 판 번호 유지, 서비스 종료 30일 안 삭제, 철회 표시는 서비스 종료 때 삭제, 보호책임자 장호연, 연락처 hoyhoyhoyeoni@gmail.com(전화번호는 공개되므로 안 넣음). 크루즈: 28일 지난 기록 따로 안 지움, 책임 제한에 고의·중과실 예외, S5 문구 "기록에는 좌표 대신 약 150m 구간 번호만 저장하고"로 변경(길민종)
 - 한 일: 두 저장소 `docs/terms-draft.md`를 확정본으로(【확정 필요】 0개). 남은 【확인 필요】는 Supabase 리전·요청 로그(황준용). #14에 길민종 연결 요청
