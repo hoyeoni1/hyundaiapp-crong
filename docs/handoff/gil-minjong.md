@@ -4,14 +4,12 @@
 
 ## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
-- 한 일 요약: 한 줄 경고의 폭별 동등 문구(최소56sp), 위험 목록 단일 열·선택 상세·집계 기준, 최근 주행 요약·단일 목록 복귀, 설정 동의 재열람 Back·시작 콜백 미호출, 차속 ON_RESUME 재조회, STOP 중 D→P 복귀 요약, 설정 그룹·동의 반응형 정리.
-- 진행 중 브랜치·PR: `fix/ui-audit-followups`, [PR #24](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/24). 2026-11-03 리뷰는 머지 가능이며 선택 제안 후속 반영. 머지는 장호연. 기존 알림 PR은 머지 완료.
-- 다음 할 일: PR 검토 후 x86 Pleos에서 실제 차속 권한·시스템 Back/Home·내비 왕복·주행 제한 및 화면 배치를 확인.
-- 담당 계약/내용 대기: 이민하: S2 오류/빈 결과·위치 기준 UiState(F05), Nav 완전 재생성에도 남는 완료 주행/요약 확인 상태(F09 잔여). 장호연/이민하: 동의 저장과 최종 시작 단계(D01), 설정 맥락 복원 정책(NAV-06). 장호연: 약관 전문(B01).
-- 검증: 두 앱 일반 `assembleDebug test :app:lintDebug`, 별도 임시 Robolectric UI 28검사(차슐랭 debug10/release3, 크루즈 debug15). 수정 전 main과 동일 조건 6쌍 캡처. 임시 QA 의존성·코드는 제품에 추가하지 않음.
-- 팀 공유 근거: 아래 "공유 검증 요약"과 PR 본문의 같은 표를 사용. 길민종 PC 전용 원본·캡처는 `/Users/gilminjong/Dev/output/hyundai-ui-fixes-2026-11-03/`에 있으며 팀 공용 링크가 아니다. 기존 handoff 원문과 작업 기록 보존.
-- 경계: Screen/Nav/공통 UI만 수정. core·ViewModel·data/domain·집계·서비스·서버 PR은 수정/머지하지 않음. STOP 복귀 개선을 프로세스 종료/재부팅 복원으로 주장하지 않음.
-- 실제 인계 이슈: [F05 #25](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/25)·[F09잔여 #26](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/26) 이민하, [정책/약관 차슐랭 #14](https://github.com/hoyeoni1/hyundaiapp-chachelin/issues/14) 장호연. 오류·조회 기준·재시도 Screen 표현은 준비하지만 VM/Nav 연결 전이므로 F05는 미완료.
+- UI PR #24는 main 머지 완료. 최신 main 기반 `fix/disengagement-ui-terms`에서 [#29](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/29)의 화면 용어를 위험 구간→해제 다발 구간으로 교체.
+- 범위: S2 목록/로딩/오류/빈 결과/미리보기, S3 목록 복귀, S4 안내 설명, 개발 메뉴 화면 이름. 코드/API 식별자·주석·주행 배너·TTS·판정/집계 규칙은 유지.
+- 검증: 기존 임시 UI18검사 PASS(좁은 폭/큰 글자·오류/빈 결과·복귀·배너/터치0 포함). 일반 assembleDebug/test/app lint PASS. 실제 Pleos 시연은 팀 x86 환경에서 확인 필요.
+- 병행 문서 제안: PR #27은 별도 docs/observation-based-prd worktree에서 main 결정 본문을 유지하고 검토 제안(미구현)을9절에만 모음. 판정 원본 변경 없음. 제안의 최종 채택은 장호연·로직 담당 결정.
+- 잔여: 이민하 [#25](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/25) 오류/조회 기준 계약, [#26](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/26) 요약 재생성 계약, 장호연 [차슐랭 #14](https://github.com/hoyeoni1/hyundaiapp-chachelin/issues/14) 동의 단계/태그/약관은 미완료. 용어 결정 답은 main·PR #27 댓글에 있어 #29에 반영함.
+- 팀 공유 검증 요약은 아래에 유지. 개인 PC 전용 원본은 `output/hyundai-review-followups-2026-11-03-round2/`에 보존. 머지는 장호연.
 
 ## 공유 검증 요약
 
@@ -29,6 +27,12 @@
 일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+표시 전용3 PASS이며 앱 일반 테스트에 포함되지 않는다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 — #29 해제 다발 구간 화면 용어 반영
+- 장호연11-03 결정에 따라 S2/S3/S4·디버그 화면 이름을 해제 다발 구간으로 통일. Preview 이름도 같은 용어. 코드/API risk 식별자와 주석·주행 배너·TTS·상태 계약은 변경하지 않음.
+- #25 오류 구분·#26 요약 복원 계약이 해결된 것처럼 보고하지 않음. 이번 작업은 확정된 화면 문자열 교체.
+- 임시 UI18검사와 일반 assembleDebug/test/app lint PASS. 기획 PR #15/#27의 정리는 별도 브랜치로 유지해 UI PR에 섞지 않음.
+
 
 ### 2026-11-03 — PR 선택 리뷰 후속
 - 두 UI PR 모두 필수 수정 없는 머지 가능 리뷰. 팀원이 열 수 없는 로컬 경로를 공유 근거로 요구하지 않도록 본문·PR에 검증 조건/결과 표를 추가. 원본 경로는 PC 전용으로 명시.

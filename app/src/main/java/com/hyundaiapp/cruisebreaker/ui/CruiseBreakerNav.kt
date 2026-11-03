@@ -58,7 +58,7 @@ import com.hyundaiapp.cruisebreaker.ui.summary.TripSummaryViewModel
 enum class Screen(val title: String) {
     DEV_MENU("개발 메뉴"),
     DRIVING("S1 주행 화면"),
-    RISK_LIST("S2 위험 구간 목록"),
+    RISK_LIST("S2 해제 다발 구간 목록"),
     TRIP_SUMMARY("S3 주행 후 요약"),
     SETTINGS("S4 설정"),
     ONBOARDING("S5 첫 실행 동의"),

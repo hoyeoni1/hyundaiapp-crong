@@ -50,7 +50,7 @@ fun TripSummaryScreen(
                     SummaryDetails(state)
                 }
             }
-            PrimaryButton("위험 구간 목록으로", onShowRisks, Modifier.fillMaxWidth())
+            PrimaryButton("해제 다발 구간 목록으로", onShowRisks, Modifier.fillMaxWidth())
         }
     }
 }
