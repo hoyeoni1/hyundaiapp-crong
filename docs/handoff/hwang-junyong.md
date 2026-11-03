@@ -4,18 +4,23 @@
 
 ## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
-- 브랜치: `codex/supabase-foundation-20261102`. 서버 원본은 차슐랭 `server/`. 기존 SDK 진단 PR #4/크루즈 #14와 별개로 서버 작업은 아직 push·새 PR 발행하지 않았다.
-- Supabase schema·시드 2개 migration 적용 및 CLI 이력 정합 완료. 기존 SQL·시드를 다시 실행하지 않았으며 기존 RLS/RPC 권한과 함수 내용이 정상이다.
-- 사용자 Anonymous Sign-In 활성화 후 실제 JWT HTTP 통합 테스트 통과(독립 사용자 로그인, 업로드/후기/집계, 타인 원본 차단, 크루즈 기록, 토큰 갱신, 철회·늦은 업로드 거절).
-- core v0.5.0 제품 backend 추가: HTTPS, 익명 인증·토큰 갱신, Keystore AES-GCM/noBackup AtomicFile, 앱/프로젝트/debug-live별 인증 분리, 영속 outbox, 이전 동의 세대의 철회 재시도 보존. 기존 VehicleSignals/NaviControl API는 유지한다.
-- 두 AppContainer 및 실제 저장소를 연결. Git 제외 local.properties의 공개 URL/키가 있으면 Supabase 사용, 없으면 기존 Fake 사용. 이 PC의 debug APK는 실제 DEMO 집계에 연결된다. release는 LIVE 데이터만 보며 환경부 API 캐시는 아직 없다.
-- 차슐랭 충전 흐름이 필요해 이상준 PR #3 head 737fb38을 로컬 브랜치에 merge했다. 원격 PR/main은 머지하지 않음. 이후 PR에 선행 의존성과 타인의 구현을 명시해야 한다.
-- 검증: 앱 debug/release 차슐랭 각63·크루즈 각44, core debug28/release14(backend 신규11) 통과. 두 앱 debug/release 빌드·앱 lint 오류0. Pleos 에뮬레이터에서 양쪽 제품 backend/실제 HTTPS/Keystore 복원/영속 outbox/철회 ACK 확인. 해당 독립 fixture는 기존 앱 동의 상태를 변경하지 않는다.
-- 한계: 실제 제품 전체 SDK 주입/UI 시연은 아직 재검사 전. WorkManager·프로세스 종료 후 독립 재시도, 철회 대기 UI, 영속 읽기 캐시와 환경부 API/정식 약관·보관 정책은 후속. 현재 outbox는 앱 실행 중·다음 실행에서 재시도한다.
-- 상세: 차슐랭 server/android-connection.md. 다음은 제품 시연 리허설과 위 한계 보완. 관리자 Secret key는 저장·사용하지 않았으며 토큰/개인 설정/CLI 캐시는 Git 제외다.
+- 브랜치: `codex/supabase-foundation-20261102`. 서버 원본은 차슐랭 `server/`. 이전 SDK 진단 PR(차슐랭 #4/크루즈 #14)과 충전 PR #3은 팀장이 main에 반영한 상태다. 이번 PR은 서버·제품 backend 연결과 문서다.
+- 최신 main을 양쪽 로컬 브랜치에 병합했다(차슐랭 778b7c5 / 크루즈 9f873fb 기준). 최신 화면·알림·삭제 재시도를 보존하고, 크루즈 AppContainer 충돌은 영속 철회와 PendingDeletions를 함께 유지하도록 해결했다.
+- Supabase 두 migration 및 CLI 이력 정합 완료. 이번 최종 검사는 읽기/드라이런만 실행: RLS 9개, authenticated 전용 RPC 11개, 시드 10/300/400/2000, 함수 fingerprint 일치. 대기 migration 없음. SQL/시드는 다시 적용하지 않았다.
+- core v0.5.1: HTTPS 익명 인증·갱신, Keystore AES-GCM/noBackup 영속 상태, FIFO outbox, 세대별 철회 재시도와 서버 ACK 대기를 제공한다. CAR_INFO 미선언 getter 제거(#9), 선택적 내비 요청/취소는 런타임 권한 확인 후 실행한다. 두 core는 동일하다.
+- 두 앱 실제 저장소 연결: 공개 URL/키 설정 시 Supabase, 설정 없으면 Fake. debug는 DEMO, release는 LIVE. deleteMine은 서버 삭제 ACK 후에만 성공하여 PendingDeletions를 지우게 했다. 새 회귀 테스트로 오프라인 삭제 대기·실패 재시도·ACK 완료를 검증한다.
+- 최종 통합 검증: debug/release 앱 빌드 및 앱 테스트 각68, core debug29/release15(backend12) 통과. app lint 오류0/경고19, core lint 오류0/경고3. 로컬 DB 테스트15(차슐랭 원본) 및 공통 파일 일치 검사 통과.
+- 상세 서버 설명은 `docs/server-overview.md`: 구조·테이블·11 RPC·인증/RLS·재전송/철회·시드·운영/검증·남은 한계. `server/README.md`와 연결/설계 문서, docs/README 및 이 인수인계를 최신화했다.
+- 실제 JWT HTTP 통합 검사와 양쪽 Pleos debug fixture(HTTPS·Keystore 복원·영속 outbox·철회 ACK)는 이전 연결 단계에서 통과했다. 이번 최신 main 통합 후 전체 SDK 주입/UI 시연은 재검사 전이다.
+- 남은 일: 전체 제품 시연, WorkManager, 철회 대기 UI, 영속 읽기 캐시, 환경부 API 캐시, 약관/보관 정책 확정. 원격 main 머지와 최종 배포는 팀장 장호연이 한다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-03 — 최신 main 통합 및 서버 인수인계 정리
+- 원격 main을 양쪽 브랜치에 병합. 기존 알림·화면·기록 큐·삭제 재시도를 유지하고, 서버 철회가 로컬 큐 등록에서 끝나지 않도록 awaitWithdrawal ACK 계약을 연결했다.
+- core v0.5.1로 동기화. 미선언 CAR_INFO getter 제거 및 내비 검색/취소 권한 guard 추가. lambda 경계를 lint가 추적하지 못하는 두 메서드에만 근거를 적어 MissingPermission을 제한적으로 억제한다. 런타임 권한 검사는 유지한다.
+- 서버 개요 문서를 신설하고 기존 설계/연결/운영 문서의 과거 미구현 표시를 수정했다. 원본 migration은 차슐랭 한 곳에서 관리한다.
+- DB 검증 및 db push --dry-run 정상. 원격 스키마/시드 변경 없음. 검증 결과와 PR 링크는 아래 현재 상태에서 확인한다.
 ### 2026-11-03 — Supabase 실제 Android 연결·검증
 - Anonymous Sign-In=true 확인 후 HTTP 원격 통합 테스트를 추가하고 통과. 그 run의 테스트 계정/업무 기록을 UUID marker로 한정해 정리했다.
 - core.backend, 앱 실제 저장소/Gradle 공개 설정/INTERNET 권한 연결. 차슐랭 PR #3은 로컬 merge만 했다. 두 core는 0.5.0으로 동일하게 동기화.
