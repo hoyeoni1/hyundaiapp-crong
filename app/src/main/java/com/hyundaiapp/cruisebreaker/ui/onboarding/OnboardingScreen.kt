@@ -86,6 +86,12 @@ fun OnboardingScreen(
                 Column(Modifier.weight(2f).verticalScroll(rememberScrollState())) { intro() }
                 Column(Modifier.weight(3f).verticalScroll(rememberScrollState())) { consents() }
             } else Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) { intro(); consents() }
+            Text(
+                "크루즈브레이커는 운전을 돕는 보조 안내예요. 안내가 없거나 늦을 수 있으니 항상 직접 도로를 살피세요.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = CarColors.OnSurface,
+                modifier = Modifier.fillMaxWidth(),
+            )
             if (onBack != null) SecondaryButton("설정으로 돌아가기", onBack, Modifier.fillMaxWidth())
             else OnboardingStartAction(canStart, "필수 항목에 동의해 주세요", onStart)
         }
