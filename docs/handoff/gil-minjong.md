@@ -11,8 +11,18 @@
 - 검증: 두 앱 일반 `assembleDebug test :app:lintDebug`, 별도 임시 Robolectric UI 28검사(차슐랭 debug10/release3, 크루즈 debug15). 수정 전 main과 동일 조건 6쌍 캡처. 임시 QA 의존성·코드는 제품에 추가하지 않음.
 - 자료: `/Users/gilminjong/Dev/output/hyundai-ui-fixes-2026-11-03/`의 CHECKLIST·OWNER-CONTRACTS·REPORT·before/after·qa. 기존 dirty handoff는 before 백업과 이전 작업 기록으로 보존.
 - 경계: Screen/Nav/공통 UI만 수정. core·ViewModel·data/domain·집계·서비스·서버 PR은 수정/머지하지 않음. STOP 복귀 개선을 프로세스 종료/재부팅 복원으로 주장하지 않음.
+- 실제 인계 이슈: [F05 #25](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/25)·[F09잔여 #26](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/26) 이민하, [정책/약관 차슐랭 #14](https://github.com/hoyeoni1/hyundaiapp-chachelin/issues/14) 장호연. 오류·조회 기준·재시도 Screen 표현은 준비하지만 VM/Nav 연결 전이므로 F05는 미완료.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 — 감사 잔여의 실제 담당 인계·수용 기준 연결
+- F05 표시 준비: errorMessage/locationNotice/onRetry 선택 입력으로 오류·기준 안내·캐시 실패/재시도 표현. 기존15 UI+새3검사 PASS, 제목/설정 유지 추가 확인, 일반 assembleDebug/test/app lint PASS. VM/Nav 연결은 아직 하지 않아 F05는 미완료.
+- 로컬 owner_contract만 남기지 않고 담당자 배정 GitHub 이슈5건으로 연결. 최신 서버/업로드 PR에는 남은 VM·주행 요약·요청 결과 계약이 없음을 대조.
+- 실제 인계 이슈: [F05 #25](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/25)·[F09잔여 #26](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/26) 이민하, [정책/약관 차슐랭 #14](https://github.com/hoyeoni1/hyundaiapp-chachelin/issues/14) 장호연. 오류·조회 기준·재시도 Screen 표현은 준비하지만 VM/Nav 연결 전이므로 F05는 미완료.
+- 현재 head의 별도 인수 기준5개를 실행해 미완료를 재현(차슐랭3, 크루즈2 실패). 이 실패를 일반 빌드나 이미 통과한 UI28검사의 실패로 섞지 않음.
+- D01은 기존 PRD의 명시 동의 저장 정책을 유지하는 최소안과 근거를 제시. D02 배타 규칙은 아직 미정. 약관 전문은 작성하지 않음.
+- 전체 수정은 미완료. 소유자 계약 수신 후 UI 연결·같은 인수 기준 재검수 예정. 자료: `output/hyundai-ui-fixes-2026-11-03/followups/`.
+
 
 ### 2026-11-03 — UI 감사 후속 구현과 전후 검증
 - 구현: 한 줄 경고의 폭별 동등 문구(최소56sp), 위험 목록 단일 열·선택 상세·집계 기준, 최근 주행 요약·단일 목록 복귀, 설정 동의 재열람 Back·시작 콜백 미호출, 차속 ON_RESUME 재조회, STOP 중 D→P 복귀 요약, 설정 그룹·동의 반응형 정리.

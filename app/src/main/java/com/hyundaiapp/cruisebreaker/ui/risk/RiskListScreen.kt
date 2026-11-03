@@ -3,7 +3,6 @@ package com.hyundaiapp.cruisebreaker.ui.risk
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,10 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -36,6 +36,7 @@ import com.hyundaiapp.cruisebreaker.ui.RiskListUiState
 import com.hyundaiapp.cruisebreaker.ui.RiskRowUi
 import com.hyundaiapp.cruisebreaker.ui.components.CarCard
 import com.hyundaiapp.cruisebreaker.ui.components.CarIcons
+import com.hyundaiapp.cruisebreaker.ui.components.EmptyState
 import com.hyundaiapp.cruisebreaker.ui.components.MeterBar
 import com.hyundaiapp.cruisebreaker.ui.components.ScreenHeader
 import com.hyundaiapp.cruisebreaker.ui.components.SecondaryButton
@@ -51,12 +52,16 @@ private const val RISK_RATE = 0.30
 /**
  * S2 위험 구간 목록(정차 중). 왼쪽 목록, 오른쪽 고른 구간 상세.
  * 고른 구간은 화면 안에서만 쓰는 값이라 UiState가 아니라 여기서 기억한다.
+ * 오류·조회 기준은 로직에서 확정한 값만 받는다. 화면에서 위치나 서버 결과를 추정하지 않는다.
  */
 @Composable
 fun RiskListScreen(
     state: RiskListUiState,
     onSummaryClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    errorMessage: String? = null,
+    locationNotice: String? = null,
+    onRetry: (() -> Unit)? = null,
 ) {
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     val selected = state.items.firstOrNull { it.id == selectedId } ?: state.items.firstOrNull()
@@ -68,11 +73,19 @@ fun RiskListScreen(
                 SecondaryButton("최근 주행 요약", onSummaryClick, height = CarDimens.TouchTargetSmall)
                 SecondaryButton("설정", onSettingsClick, height = CarDimens.TouchTargetSmall)
             }
-            when {
-                state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(64.dp)) }
-                selected == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("근처에 위험 구간이 없어요", style = MaterialTheme.typography.titleLarge, color = CarColors.OnSurfaceVariant)
+            if (locationNotice != null) Text(locationNotice, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
+            if (selected != null && (errorMessage != null || state.loading)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(if (state.loading) "최신 정보를 확인하고 있어요" else "갱신하지 못했어요. 이전 정보를 표시해요",
+                        style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant, modifier = Modifier.weight(1f))
+                    if (!state.loading && onRetry != null) SecondaryButton("다시 시도", onRetry, height = CarDimens.TouchTargetSmall)
                 }
+            }
+            when {
+                state.loading && selected == null -> EmptyState("위험 구간을 불러오는 중이에요", loading = true, modifier = Modifier.weight(1f))
+                errorMessage != null && selected == null -> EmptyState("위험 구간을 불러오지 못했어요", errorMessage, onRetry = onRetry,
+                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()))
+                selected == null -> EmptyState("근처에 위험 구간이 없어요", onRetry = onRetry, modifier = Modifier.weight(1f))
                 wide -> Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                     LazyColumn(Modifier.weight(3f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(state.items, key = { it.id }) { row -> RiskRow(row, row.id == selected.id) { selectedId = row.id } }
