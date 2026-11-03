@@ -16,9 +16,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +42,6 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -47,7 +50,7 @@ import com.hyundaiapp.cruisebreaker.ui.theme.CarDimens
 import java.util.Locale
 
 /*
- * 두 앱 공통 화면 부품. 차슐랭 CarComponents.kt와 같은 내용(패키지만 다름).
+ * 두 앱 공통 화면 부품. 크루즈브레이커 CarComponents.kt와 같은 내용(패키지만 다름).
  * 부품은 상태를 갖지 않는다. 값과 콜백만 받는다.
  */
 
@@ -104,7 +107,7 @@ fun SecondaryButton(
     }
 }
 
-/** 고르면 파랗게 채워지는 버튼(태그·안내 거리·차종 등). 하나만 고르는 곳은 role = Role.RadioButton */
+/** 선택은 테두리·약한 배경으로 표시한다. 하나만 고르는 곳은 Role.RadioButton. */
 @Composable
 fun SelectableButton(
     selected: Boolean,
@@ -119,8 +122,8 @@ fun SelectableButton(
         shape = ButtonShape,
         border = BorderStroke(2.dp, if (selected) CarColors.Primary else CarColors.Outline),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = if (selected) CarColors.Primary else Color.Transparent,
-            contentColor = if (selected) CarColors.OnAccent else CarColors.OnSurface,
+            containerColor = if (selected) CarColors.SurfaceVariant else Color.Transparent,
+            contentColor = CarColors.OnSurface,
         ),
         contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = modifier
@@ -139,7 +142,9 @@ fun SelectableButton(
     role: Role = Role.Checkbox,
 ) {
     SelectableButton(selected, onClick, modifier, role = role) {
-        Text(text, style = if (selected) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyLarge)
+        Icon(CarIcons.Check, contentDescription = null, tint = if (selected) CarColors.Primary else Color.Transparent, modifier = Modifier.size(24.dp))
+        Box(Modifier.size(8.dp))
+        Text(text, style = MaterialTheme.typography.bodyLarge)
     }
 }
 
@@ -172,6 +177,7 @@ fun StatTile(
     modifier: Modifier = Modifier,
     unit: String? = null,
     valueColor: Color = CarColors.OnSurface,
+    valueMaxLines: Int = 1,
     valueStyle: TextStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
     caption: String? = null,
     color: Color = CarColors.Surface,
@@ -180,7 +186,7 @@ fun StatTile(
     CarCard(modifier, color = color, contentPadding = PaddingValues(20.dp), verticalArrangement = verticalArrangement) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(value, style = valueStyle, color = valueColor, maxLines = 1)
+            Text(value, style = valueStyle, color = valueColor, maxLines = valueMaxLines)
             if (unit != null) {
                 Text(
                     unit,
@@ -236,22 +242,26 @@ fun ScreenHeader(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     onBack: (() -> Unit)? = null,
-    actions: @Composable RowScope.() -> Unit = {},
+    actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        if (onBack != null) {
-            IconButton(onClick = onBack, modifier = Modifier.size(CarDimens.TouchTargetSmall)) {
-                Icon(CarIcons.ChevronLeft, contentDescription = "뒤로", modifier = Modifier.size(32.dp))
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        val compact = maxWidth < 840.dp
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                if (onBack != null) {
+                    IconButton(onClick = onBack, modifier = Modifier.size(CarDimens.TouchTargetSmall)) {
+                        Icon(CarIcons.ChevronLeft, contentDescription = "뒤로", modifier = Modifier.size(32.dp))
+                    }
+                    Box(Modifier.size(8.dp))
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(title, style = MaterialTheme.typography.headlineMedium)
+                    if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
+                }
+                if (!compact && actions != null) Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically, content = actions)
             }
-            Box(Modifier.size(8.dp))
+            if (compact && actions != null) Row(Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically, content = actions)
         }
-        Row(Modifier.weight(1f), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text(title, style = MaterialTheme.typography.headlineMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (subtitle != null) {
-                Text(subtitle, style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp))
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically, content = actions)
     }
 }
 
@@ -275,10 +285,10 @@ fun ConsentRow(
                 Column(textModifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(title, style = MaterialTheme.typography.titleMedium)
                     if (description != null) {
-                        Text(description, style = MaterialTheme.typography.bodySmall, color = CarColors.OnSurfaceVariant)
+                        Text(description, style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
                     }
                     if (onShowTerms != null) {
-                        TextButton(onClick = onShowTerms, contentPadding = PaddingValues(0.dp)) {
+                        TextButton(onClick = onShowTerms, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = CarDimens.TouchTargetSmall)) {
                             Text("내용 보기", style = MaterialTheme.typography.bodyMedium, color = CarColors.Primary)
                         }
                     }
@@ -327,23 +337,68 @@ fun ConsentRow(
 
 /** 긴 비활성 사유는 버튼과 분리해, 시작 버튼은 항상 한 줄로 읽히게 한다. */
 @Composable
-fun OnboardingStartAction(enabled: Boolean, hint: String, onStart: () -> Unit, modifier: Modifier = Modifier) {
+fun OnboardingStartAction(enabled: Boolean, hint: String, onStart: () -> Unit, modifier: Modifier = Modifier, label: String = "시작하기") {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (!enabled) {
             Text(hint, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         }
-        PrimaryButton("시작하기", onStart, Modifier.fillMaxWidth(), enabled = enabled)
+        PrimaryButton(label, onStart, Modifier.fillMaxWidth(), enabled = enabled)
     }
 }
 
 /* ---- 숫자 포맷: UiState에는 원래 값만 있고 포맷은 화면에서 한다 ---- */
 
 fun formatKm(distanceM: Double?): String =
-    distanceM?.let { String.format(Locale.KOREA, "%.1fkm", it / 1000) } ?: "-"
+    distanceM?.let { String.format(Locale.KOREA, "%.1f km", it / 1000) } ?: "-"
 
 fun formatPercent(ratio: Double): String = String.format(Locale.KOREA, "%.0f%%", ratio * 100)
 
 fun formatOneDecimal(value: Double): String = String.format(Locale.KOREA, "%.1f", value)
 
 fun formatWhole(value: Double?): String = value?.let { String.format(Locale.KOREA, "%.0f", it) } ?: "-"
+
+/** 모달의 행동은 64dp 이상. 닫기·취소는 동의로 취급하지 않는다. */
+@Composable
+fun CarAlertDialog(title: String, message: String, confirmLabel: String, onConfirm: () -> Unit,
+    onDismiss: () -> Unit, dismissLabel: String? = null, destructive: Boolean = false) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = CarColors.Surface,
+        titleContentColor = CarColors.OnSurface,
+        textContentColor = CarColors.OnSurface,
+        title = { Text(title, style = MaterialTheme.typography.titleLarge) },
+        text = { Text(message, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.verticalScroll(rememberScrollState())) },
+        confirmButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (dismissLabel != null) TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 64.dp)) {
+                    Text(dismissLabel, style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurface)
+                }
+                TextButton(onClick = onConfirm, modifier = Modifier.heightIn(min = 64.dp)) {
+                    Text(confirmLabel, style = MaterialTheme.typography.labelLarge, color = if (destructive) CarColors.Warning else CarColors.Primary)
+                }
+            }
+        },
+    )
+}
+
+@Composable
+fun EmptyState(title: String, message: String? = null, loading: Boolean = false, onRetry: (() -> Unit)? = null, modifier: Modifier = Modifier) {
+    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            if (loading) CircularProgressIndicator(Modifier.size(64.dp))
+            Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+            if (message != null) Text(message, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant, textAlign = TextAlign.Center)
+            if (onRetry != null) PrimaryButton("다시 시도", onRetry)
+        }
+    }
+}
+
+@Composable
+fun DestructiveButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    OutlinedButton(onClick = onClick, shape = ButtonShape, border = BorderStroke(2.dp, CarColors.Warning),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = CarColors.Warning),
+        contentPadding = PaddingValues(horizontal = 24.dp), modifier = modifier.heightIn(min = 64.dp)) {
+        Text(text, style = MaterialTheme.typography.bodyLarge)
+    }
+}
