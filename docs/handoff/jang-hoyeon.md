@@ -21,7 +21,7 @@
 - 다음 할 일(우선순위 순, 11-03 밤 최종 점검):
   1. Supabase 원격 적용(대시보드 SQL Editor): `20261103000100` → `20261103000200` → `refresh-demo-dates.sql` → `verify.sql`(charge_sessions 325). 순서·기대값은 차슐랭 `server/deploy.md` "11-03 추가 migration"
   2. 두 저장소 `local.properties`에 `supabase.url`·`supabase.publishableKey` 넣기(지금 이 PC엔 없음 → 빌드가 조용히 Fake). 그다음 서버 연결 상태로 두 시연 스크립트 리허설
-  3. 약관 확정(B01): `docs/terms-draft.md`(두 앱) 【확정 필요】 채우기 → 길민종 `TermsDialog` 연결. 판 번호를 바꾸면 각 AppContainer `termsVersion`도. 확정 뒤 크루즈 #25 닫기
+  3. 약관(B01): 11-03 값 확정 완료 → 길민종 `TermsDialog` 연결 대기(#14). 황준용 답(Supabase 리전·요청 로그)이 오면 【확인 필요】 2곳 고치기. 판 번호를 바꾸면 각 AppContainer `termsVersion`도. 확정 뒤 크루즈 #25 닫기
   4. 남은 팀원 이슈: 차슐랭 #17(이상준 태그 VM, 시연 전 필수), #12·#13(이상준·황준용 UI 감사 계약). #8(차슐랭)·#20(크루즈)은 #10·#22 머지로 해결됨 → 근거 확인 뒤 닫기
   5. 주최 측 문의 메일 발송 — `docs/organizer-inquiry-email.md`에 위치기반서비스 신고 여부 문항 추가 권장. 심사용 GitHub 계정명(4번) 답을 받아야 아래 7번 가능
   6. release 서명 키 생성(저장소 밖 보관) + `signingConfig` 설정 → `apk/SamgakGorae_Chachelin_release.apk`·`apk/SamgakGorae_CruiseBreaker_release.apk` 커밋(지금 `apk/` 폴더 없음)
