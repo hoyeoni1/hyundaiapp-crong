@@ -12,7 +12,9 @@ import ai.pleos.playground.navi.data.RouteStartInfo
 import ai.pleos.playground.navi.data.RouteStateInfo
 import ai.pleos.playground.navi.helper.NaviHelper
 import ai.pleos.playground.navi.helper.listener.NaviHelperEventListener
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Handler
 import com.hyundaiapp.core.ChargerOperatorInfo
 import com.hyundaiapp.core.CongestionLevel
@@ -132,7 +134,12 @@ internal class NaviSource(
         navi = null
     }
 
+    // Permission is checked before entering runCatching; lint does not follow this lambda boundary.
+    @SuppressLint("MissingPermission")
     fun requestRoute(destination: RouteDestination) {
+        if (context.checkSelfPermission("pleos.car.permission.NAVI_ROUTE_SEARCH") != PackageManager.PERMISSION_GRANTED) {
+            return error("길안내 검색 권한이 없어 경로를 요청하지 않음")
+        }
         val n = navi?.takeIf { ready } ?: return error("내비 준비 전이라 경로 요청을 못 함")
         runCatching {
             n.requestRoute(
@@ -153,7 +160,12 @@ internal class NaviSource(
         }.onFailure { error("경로 요청 실패: ${it.message}") }
     }
 
+    // Same explicit runtime check as requestRoute, before the optional SDK lambda.
+    @SuppressLint("MissingPermission")
     fun cancelRoute() {
+        if (context.checkSelfPermission("pleos.car.permission.NAVI_ROUTE_SEARCH") != PackageManager.PERMISSION_GRANTED) {
+            return error("길안내 검색 권한이 없어 경로를 취소하지 않음")
+        }
         navi?.takeIf { ready }?.let { runCatching { it.cancelRoute() } }
     }
 

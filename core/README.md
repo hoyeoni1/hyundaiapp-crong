@@ -2,6 +2,8 @@
 
 두 앱(차슐랭·크루즈브레이커)이 함께 쓰는 모듈입니다. **앱 코드는 Pleos SDK를 직접 부르지 않고 이 모듈만 씁니다.**
 
+2026-11-03 core v0.5.1: `com.hyundaiapp.core.backend`에 제품용 Supabase 익명 인증·Keystore 암호화 상태·영속 outbox·철회 재시도를 추가했다. 기존 VehicleSignals/NaviControl API는 유지한다. 서버 삭제 ACK를 기다리는 awaitWithdrawal로 앱 PendingDeletions와 연결한다. CAR_INFO가 없는 배터리 용량 getter는 제거하고 차종 프리셋을 유지한다. debug SDK probe와 별개로 backend는 release에도 포함되며 debug/live 및 앱/프로젝트별 상태를 분리한다. 선택적 경로 요청/취소는 NAVI_ROUTE_SEARCH의 실제 허용 여부를 검사한다. WorkManager 스케줄링은 후속이다. 같은 v0.5.1 PR에서(11-03 장호연) `BackendConfig.consentVersion`을 추가해 설치 등록 때 앱이 정한 약관 판 번호를 보낸다(기본값 `development-v1`, 두 앱은 각 AppContainer의 `termsVersion`을 넘김).
+
 - 담당: 황준용 (수정은 황준용만, 다른 사람은 요청)
 - 원본: 차슐랭 저장소. 크루즈브레이커에는 `tools/sync-core.sh`로 복사
 - 버전: `core/VERSION` (고치면 올리고, PR 제목에 `core vX.Y.Z`)
@@ -50,34 +52,34 @@ fake.setEv { copy(chargePortOpen = true, socPercent = 40) }
 
 - [ ] 실기기·장시간 동작 확인(재연결, 서비스 끊김 시 재시도)
 - [ ] Pleos SDK가 `getCurrentGearSelectionState`, `isEvChargePortOpen`, `getEvBatteryCapacity` 등을 deprecated로 표시함("Google 프로퍼티를 쓰라") → AAOS `GEAR_SELECTION`·`EV_CHARGE_PORT_OPEN`·`INFO_EV_BATTERY_CAPACITY`로 바꿀지 결정(퍼미션이 달라짐)
-- [ ] 백그라운드 수집 구조(포그라운드 서비스 등) — 이민하 실험 결과 반영
+- [x] 백그라운드 수집 구조 — 앱별 기록 서비스·동의 게이트는 각 앱 담당자의 구현에 연결됨
 - [ ] 단위 테스트 보강(SDK 값 → 상태 변환 함수)
 
 ## 로컬 SDK probe와 제품 SDK 구분 (core v0.4.0 통합)
 
 앱이 사용하는 `com.hyundaiapp.core.VehicleSignals`, `PleosVehicleSignals(context, Set<CoreFeature>)`,
-`FakeVehicleSignals`, `NaviControl`은 원격 main의 계약과 구현을 유지한다. 기어, 배터리 용량,
-길안내 제어, 제품 신호 모니터, 기록 서비스·동의 철회 로직을 변경하지 않는다.
+`FakeVehicleSignals`, `NaviControl`의 제품 계약은 유지한다. 최신 앱 기록 서비스·권한 UX에 실제 서버 저장소를 연결했고,
+v0.5.1에서는 선언하지 않은 CAR_INFO를 요구하는 배터리 용량 getter만 제거했다. 용량은 앱의 차종 프리셋을 사용한다.
 
 기존 로컬 snapshot 기반 진단 구현은 `com.hyundaiapp.core.probe`로 분리해 `src/debug`에만 둔다.
 probe 테스트도 `src/testDebug`에만 있으므로 release 소스·테스트에 유입되지 않는다.
 `tools/windows-test.ps1 diagnostics`와 `windows-smoke.ps1`은 이 독립 SDK probe를 실행한다.
 probe PASS는 SDK 접근 검증이며 제품 감지기·동의·업로드 흐름 전체의 통합 검증을 대신하지 않는다.
 제품 SDK는 각 앱의 개발 메뉴 → 신호 모니터, 제품 로직은 앱 단위 테스트와 시연 흐름으로 검증한다.
-새로 만드는 앱 코드는 probe를 import하지 않는다. 두 구현을 단일 backend로 합치는 작업은 후속 검토 사항이다.
+새로 만드는 앱 코드는 probe를 import하지 않는다. 제품 SDK 신호 수신과 probe 수신 구현을 하나로 합치는 작업은 후속 검토 사항이다. 서버 전송용 core.backend는 이 SDK 수신 통합과 별개다.
 
 probe 계약과 이전 검증 방법은 아래에 보존한다. 아래 예제의 타입은 모두
 `com.hyundaiapp.core.probe` 패키지이며 debug 빌드에서만 사용할 수 있다.
 
 ---
 
-# core v0.3.1 — 차량 신호와 실제 SDK 연결
+## 이전 snapshot 설계 — 현재는 debug probe 전용
 
-원본은 차슐랭 저장소다. 두 앱은 `VehicleSignals.snapshot`을 구독한다. `FakeVehicleSignals`는 수동 입력, `PleosVehicleSignals`는 실제 읽기 전용 SDK 어댑터다.
+아래는 v0.3.1 때 작성한 진단 모델의 참고 문서다. 현재 제품 앱은 상단의 evBattery/drive/cruise 계약을 사용한다. 아래 `VehicleSignals.snapshot`, `FakeVehicleSignals`, `PleosVehicleSignals`는 모두 com.hyundaiapp.core.probe에 속한다.
 
 v0.3.1은 release에 포함되지 않는 debug 전용 `SdkDiagnosticsActivity`를 추가한다. 반복 실행·콘솔 자동 검증은 [Windows 로컬 테스트](../docs/windows-local-testing.md)를 따른다.
 
-## 앱에서 연결하기
+## debug probe 연결 예제
 
 개인정보 동의 화면을 완료한 뒤 앱 수명 관리 코드에서 생성한다. Activity 화면 전환마다 stop하면 그 사이 기록이 끊긴다. 주행 중 수집을 유지할 서비스의 소유권과 백그라운드 동결 해결은 앱 측 작업이다.
 

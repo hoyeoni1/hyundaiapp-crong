@@ -1,5 +1,8 @@
 # 프로젝트 문서
 
+- [두 앱 공통 서버 설명서](server-overview.md): 팀원 빠른 연결(local.properties·debug 빌드·연결 검사), Supabase 구조·테이블·RPC·인증·재전송·철회·배포와 남은 범위.
+- [황준용 인수인계](handoff/hwang-junyong.md): 우리 변경 범위와 최신 검증 결과.
+
 - [Windows 로컬 SDK 테스트 환경 구축·실행](windows-local-testing.md): 새 PC 설치, JDK·Android SDK·Pleos AVD 설정, 진단 화면, 반복 검사 및 검증 결과.
 
 ## 참고 문서 (2026-10-29 기준 사본)
