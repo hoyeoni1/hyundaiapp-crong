@@ -2,6 +2,7 @@ package com.hyundaiapp.cruisebreaker.ui.driving
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,12 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hyundaiapp.cruisebreaker.ui.DrivingUiState
 import com.hyundaiapp.cruisebreaker.ui.PreviewData
 import com.hyundaiapp.cruisebreaker.ui.components.CarIcons
@@ -38,7 +41,7 @@ import com.hyundaiapp.cruisebreaker.ui.theme.CruiseBreakerTheme
 @Composable
 fun DrivingScreen(state: DrivingUiState) {
     Column(
-        Modifier.fillMaxSize().background(CarColors.Background).padding(horizontal = 48.dp, vertical = 40.dp),
+        Modifier.fillMaxSize().background(CarColors.Background).padding(horizontal = 24.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
@@ -55,7 +58,7 @@ fun DrivingScreen(state: DrivingUiState) {
             Banner(banner)
         } else {
             Text(
-                if (state.recording) "앞쪽에 안내할 구간이 없어요" else "차량 신호를 기다리는 중이에요",
+                if (state.recording) "안내가 있으면 여기에 표시해요" else "차량 신호를 기다리는 중이에요",
                 style = MaterialTheme.typography.titleLarge,
                 color = CarColors.OnSurfaceVariant,
                 maxLines = 1,
@@ -79,32 +82,24 @@ private fun RecordingChip(recording: Boolean) {
             tint = if (recording) CarColors.Primary else CarColors.Disabled,
             modifier = Modifier.size(18.dp),
         )
-        Text(if (recording) "기록 중" else "차량 연결 대기", style = MaterialTheme.typography.bodyLarge)
+        Text(if (recording) "차량 연결됨" else "차량 연결 대기", style = MaterialTheme.typography.bodyLarge)
     }
 }
 
-/** 안내 배너. 한 줄 고정(넘치면 말줄임), 움직임 없음 */
+/** 안내 배너. 표준 안내는 폭에 맞는 동등한 문구를 골라 거리·해제 경고를 한 줄로 보존한다. */
 @Composable
 private fun Banner(text: String) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(CarColors.Warning)
-            .padding(horizontal = 56.dp, vertical = 48.dp)
-            .semantics { liveRegion = LiveRegionMode.Assertive },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(32.dp),
-    ) {
-        Icon(CarIcons.Warning, contentDescription = null, tint = CarColors.OnAccent, modifier = Modifier.size(88.dp))
-        Text(
-            text,
-            style = MaterialTheme.typography.displayMedium,
-            color = CarColors.OnAccent,
-            maxLines = 1,
-            softWrap = false,
-            overflow = TextOverflow.Ellipsis,
-        )
+    BoxWithConstraints(Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(CarColors.Warning).padding(horizontal = 12.dp, vertical = 32.dp)) {
+        val measurer = rememberTextMeasurer()
+        val widthPx = with(LocalDensity.current) { maxWidth.toPx() }
+        val normal = MaterialTheme.typography.displayMedium
+        val minimum = normal.copy(fontSize = 56.sp, lineHeight = 64.sp)
+        val distance = Regex("^(\\d+(?:\\.\\d+)?m) 앞 크루즈 해제 잦은 구간$").matchEntire(text)?.groupValues?.get(1)
+        val candidates = listOf(text) + if (distance != null) listOf("$distance 앞 해제 잦음", "$distance 해제주의") else emptyList()
+        val chosen = candidates.firstOrNull { measurer.measure(it, minimum, softWrap = false).size.width <= widthPx } ?: text
+        val style = if (measurer.measure(chosen, normal, softWrap = false).size.width <= widthPx) normal else minimum
+        Text(chosen, style = style, color = CarColors.OnAccent, maxLines = 1, softWrap = false,
+            modifier = Modifier.align(Alignment.Center).semantics { liveRegion = LiveRegionMode.Assertive })
     }
 }
 
