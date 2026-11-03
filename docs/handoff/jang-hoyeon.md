@@ -2,45 +2,113 @@
 
 담당 경로: `tools/`(원본은 차슐랭), `apk/`, `README.md`, `PRD.md`, `docs/`, 릴리스. 이 저장소 앱 뼈대도 만들었음
 
-## 현재 상태 (2026-11-01 저녁 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-02 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
-    - **머지된 main은 빌드·테스트 미검증**: 머지·리뷰한 PC(호공이)에 JDK·Android SDK가 없음 → 개발 PC에서 `./gradlew assembleDebug test` 필요
+    - 11-02: PR #10(동의 철회, 이슈 #7·#8)과 황준용 core v0.4.0 debug SDK 진단(PR #14)도 머지. 머지된 main(`bdc8f88`)에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0)
   - 문서를 판정 규칙 v2(`docs/disengage-rules.md`)에 맞춤(11-01): `PRD.md`, 기획서 원고 `docs/proposal.md`, `README.md`
     - **기획서 DOCX(`docs/submission/cruisebreaker-application.docx`)는 아직 옛 원고(1km 안내·정체 필터) 기준** → 재생성 필요(호공이 PC에 python 없음)
     - 재생성: `python tools/build-proposal-docx.py docs/submission/application-form-template.docx docs/proposal.md "<앱명>" docs/submission/cruisebreaker-application.docx`
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
-  - 아직 없는 것: 실제 서버(황준용), 동의 철회(이슈 #7), 위치 재생 시연 모드, release 서명
+  - 아직 없는 것: 실제 서버(황준용 — Supabase로 확정(11-02, PC 호스팅 안 함). 황준용이 이미 작업했고 곧 커밋 예정), 위치 재생 시연 모드, release 서명
 - 진행 중 브랜치·PR·이슈:
-  - 열린 PR 없음(PR #1~#6 모두 머지)
-  - 11-01 리뷰 결과 이슈: https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/7 (이민하, 동의 철회 경로 — **제출 전 필수**), https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/8 (이민하, minSdk 28·TTS ready·주변 조회), https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/9 (길민종, S5 첫 실행 흐름·S2/S4/S5 정리)
-  - 장호연 `feat/demo-scripts`(10-30, 커밋 2개) — **PR 없음**. main보다 27커밋 뒤처짐, main을 merge하면 이 문서(`docs/handoff/jang-hoyeon.md`)에서 충돌(11-01 확인, 강제 해결 안 함). 스크립트 내용도 옛 규칙(1km 안내, 정체 장면 `jam-*`) 기준이라 v2에 맞게 고쳐야 함
+  - 열린 PR 없음(PR #1~#6, #10, #14 머지)
+  - 열린 이슈: #9·#13(길민종), #11(이민하, androidx.core 직접 의존), #12(황준용, 동의 철회 시 서버 기록 처리 — 제출 전). #7·#8은 PR #10으로 닫힘
+  - 장호연 `feat/demo-scripts`(두 저장소) — 11-02 main merge(인수인계 충돌은 main 쪽으로 해결) + 판정 규칙 v2·현재 앱에 맞게 고쳐 PR. `demo-drive.sh` 기본은 고정 위치 시연(위치 재생 없이 지금 앱으로 동작, 이민하 확인 순서와 같음), `route`는 앱 위치 재생 모드가 생긴 뒤. 가짜 콘솔·가짜 adb로 값 순서만 확인했고 **에뮬레이터 실행은 아직**(이상준이 `demo-charge.sh`는 에뮬레이터에서 확인함)
   - 기타: 문서(`PRD.md`, `README.md`, `docs/`)는 PR 없이 `main`에 바로 push(10-30 결정)
-- 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). **정기 작업이 #3에만 코멘트(11-01 18:10 `✅`)를 남기고 #4~#6에는 안 남김 → 점검 필요**
-- 다음 할 일(우선순위 순):
-  1. 개발 PC에서 main(`ccfdcdc` 이후) `./gradlew assembleDebug test` — PR #3~#6 머지 후 빌드 미검증
-  2. 주최 측 문의 메일 발송 — 초안 `docs/organizer-inquiry-email.md` **11문항**(11-01 11번 `TTS_SERVICE` 권한 추가), 팀원 CC 넣고 대표자 메일로 발송
-  3. 기획서 DOCX 재생성(원고가 11-01 v2로 바뀜) + 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 시연 영상). 기능 번호가 F1·F3·F4·F5(F2 삭제)로 비어 있음 → 번호를 당길지 결정
-  4. 이슈 #7~#9 진행 확인(11-05 중간 점검). #7은 제출 전 필수
-  5. `feat/demo-scripts`: main merge 충돌(이 문서) 직접 해결 + `demo-drive.sh`를 v2(500m, 저속 해제 장면)로 고친 뒤 PR(두 저장소)
-  6. 정기 리뷰 작업이 새 커밋·PR을 실제로 보는지 점검
-  7. 01 참가신청서·04 서명 칸 채우고 5명 서명 수집
-  8. Pleos Playground 프로젝트 생성·팀원 추가, 황준용에게 core 초안 인계·서버 요청(`docs/disengage-rules.md` "팀원별 요청")
-  9. release 서명 키 생성(키 파일은 저장소에 넣지 않음)
+- 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). 11-02 PR #14·차슐랭 #3·#4에 코멘트가 달려 정상 동작 확인
+- 다음 할 일(우선순위 순, 11-03 정리):
+  1. 황준용 Supabase 서버 커밋·PR 받으면 리뷰·머지 → 두 앱 Fake 저장소 교체 확인. 서버 삭제 함수(가명 차량 ID, 두 앱 공통)로 크루즈브레이커 이슈 #12 닫기. 서버 연결 뒤 두 시연 스크립트 다시 리허설
+  2. 이슈 진행 확인(제출 11-14 전): 차슐랭 #9(황준용, core가 선언 안 된 `CAR_INFO`로 `getEvBatteryCapacity` 호출 → 앱 심사 위험·core lint 실패), 차슐랭 #8(이상준, 철회 삭제 재시도 — 크루즈브레이커 PR #17 방식), 크루즈브레이커 #19(업로드 무한 재시도·큐 무제한), #20(철회 직전 업로드가 삭제 뒤 도착), #21(TTS 초기화 전 release)
+  3. 주최 측 문의 메일 발송 — 초안 `docs/organizer-inquiry-email.md` 11문항(10번 Vehicle Control 공개 시점, 11번 `TTS_SERVICE` 승인). 11-03 공식 문서 확인: 새로 열린 SDK 없음
+  4. 기획서 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 시연 영상) 채우고 DOCX 재생성(11-03 최신 md로 한 번 재생성함, 이 PC는 `py -3` 사용)
+  5. 01 참가신청서·04 서명 칸 채우고 5명 서명 수집
+  6. Pleos Playground 프로젝트 생성·팀원 추가(콘솔에서 프로젝트별 SDK 상태 확인 가능)
+  7. release 서명 키 생성(키 파일은 저장소에 넣지 않음), 시연 영상 촬영(두 시연 스크립트는 11-03 에뮬레이터 리허설 통과)
 - 막힌 점·질문:
-  - 황준용·이상준은 두 저장소에 원격 브랜치·커밋·PR이 없음(11-01 확인) → 11-05 전에 직접 확인
-  - Collaborator 중 `wklee316`, `Aodlf123`가 누구인지 문서에 없음 → 확인해서 `docs/handoff/README.md` 등에 GitHub 아이디 적기(이슈 담당자 지정에 필요)
+  - GitHub 아이디 확인(11-02 PR로): 이상준 `wklee316`, 황준용 `Aodlf123` → `docs/handoff/README.md`에도 적을 것
   - Organization은 만들지 않음(10-30). 심사용 계정 권한·저장소 주소의 계정명 노출은 주최 측 답변 대기(팀 문서 4절 1번, 9절 4번)
 - 주의:
   - gh는 브라우저 로그인이라 계정 전체 권한이다. 두 저장소로 줄이려면 fine-grained 토큰(Contents 읽기, Pull requests 읽기·쓰기)으로 다시 로그인
   - 결정 사항: 부문 **일반**, 팀명 **삼각고래**, APK는 `apk/SamgakGorae_CruiseBreaker_release.apk`(10-30)
   - 판정 규칙의 "28일"은 집계 기간(최근 28일만 셈)이다. 서버 보관 기간·삭제 정책은 아직 정하지 않음(이슈 #7과 함께 황준용과 정할 것)
   - Virtual Console은 하트비트가 없으면 쓰기가 503 → `tools/vconsole.sh up` 먼저
+  - 장호연 개발 PC는 python이 `py -3`(3.14)으로 있음(DOCX 재생성 가능, 11-03 확인)
   - 장호연 개발 PC의 CLI 빌드는 JAVA_HOME이 없음 → `export JAVA_HOME="E:\AndroidStudio\jbr"`(JDK 21, Gradle 빌드·테스트 통과 확인). 호공이(OpenClaw) PC에는 JDK·SDK·python이 없어 빌드·DOCX 재생성 불가
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 — 최종 검토
+- 한 일(Claude 에이전트와 함께, 장호연 지시): 열린 PR 0건 확인. main 빌드·테스트(차슐랭 176개, 크루즈브레이커 156개, 실패 0)·앱 lint 통과, 두 저장소 core 동일
+- 찾은 것: `:core:lintDebug` 오류 3건. `NAVI_ROUTE_SEARCH` 2건은 앱 매니페스트에 있어 문제 아님. `getEvBatteryCapacity`의 `CAR_INFO`는 어느 앱에도 선언 안 됨 → Pleos 문서상 심사 불통과 사유라 차슐랭 이슈 #9로 황준용에게(호출 제거 권장)
+- 바꾼 파일: 이 문서
+
+### 2026-11-03 — PR #7·#18 머지, 시연 리허설, 기획서 DOCX 재생성
+- 한 일(Claude 에이전트와 함께, 장호연 "전부 검토 후 진행" 지시):
+  - 길민종 알림 권한 복구 PR(차슐랭 #7, 크루즈브레이커 #18): 리뷰 뒤 커밋(설정에서 허용하면 미확인 횟수 초기화) 확인, 브랜치 빌드·테스트 통과(156개, 136개) → 머지
+  - 에뮬레이터 리허설(최신 main 디버그 빌드 새로 설치, 동의부터):
+    - 차슐랭 `demo-charge.sh success`: S4 "인증 충전 완료 · 시흥동 주민센터 · 40%→80% · 35분 · 53kW" + 별점. `fail`: S5 "충전 실패를 기록했어요". S1 시흥동 인증 21→22, 7일 실패 4→5, S6에 인증·실패 두 줄
+    - 크루즈브레이커 `demo-drive.sh`(고정 위치): S5가 동의 전 정차 상태에서 정상 표시(PR #16 UX 제한 OK) → 출발 시 배너 "500m 앞 크루즈 해제 잦은 구간" + TTS 재생 → 90km/h 해제만 기록(`disengage ... speed=90.0`), 40km/h 해제·도착은 기록 안 됨 → P에서 S3 "지난 위험 구간 1곳 · 음성 안내 1회 · 내가 보탠 기록 1건"
+  - 기획서 DOCX 재생성(두 앱, 11-03 md 기준). python은 이 PC에 `py -3`로 있었음
+- 주의: 리허설 도우미가 [완료] 대신 "인증 충전 완료" 글자를 눌러 첫 리뷰는 제출되지 않았음(앱 문제 아님). `demo-*.sh` 출력을 `| tail`로 받으면 하트비트가 파이프를 잡아 명령이 안 끝남 → 파일로 받을 것
+- 바꾼 파일: `docs/submission/*-application.docx`, 이 문서
+
+### 2026-11-03 — 남은 일 점검
+- 한 일(Claude 에이전트와 함께, 장호연 지시): 최신 main 받아 남은 일 점검. 오늘 머지된 PR(차슐랭 #5·#6, 크루즈브레이커 #15·#16·#17) 반영 후 main 빌드·테스트 통과(차슐랭 172개, 크루즈브레이커 152개, 실패 0). 두 저장소 core 동일
+- 새로 생긴 것: 길민종 PR(차슐랭 #7, 크루즈브레이커 #18), 리뷰 이슈(차슐랭 #8, 크루즈브레이커 #19·#20·#21). Supabase 커밋은 아직 없음
+- 위 "다음 할 일"을 지금 상태로 다시 씀
+- 바꾼 파일: 이 문서
+
+### 2026-11-03 — 시연 스크립트 도착 장면 수정(PR 리뷰 반영)
+- 한 일(Claude 에이전트와 함께, 장호연 지시): Claude PR 리뷰 "수정 필요" 반영. `demo-drive.sh`의 `arrive()`와 `stop`이 100km/h에서 크루즈를 꺼서 도착도 해제로 기록되던 문제 → 차속 0으로 먼저 세운 뒤 해제, 그다음 P
+- `wait_until`의 `date +%s%3N`이 GNU date 전용이라는 주석 추가(선택 제안)
+- 확인: 가짜 콘솔·가짜 adb로 고정 모드·`stop` 순서 확인(정차 → 해제 → P). 에뮬레이터 리허설은 아직
+- 바꾼 파일: `tools/demo-drive.sh`(두 저장소 같은 내용), 이 문서
+
+### 2026-11-03 — 길민종 PR #16 에뮬레이터 확인
+- 한 일(Claude 에이전트와 함께, 장호연 지시): PR #16(`fix/onboarding-and-v2-ui`, `208e175`) 릴리스 빌드를 디버그 키로 서명해 이 PC의 Pleos 에뮬레이터에 새로 설치하고 확인. 결과는 PR 코멘트(https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/16#issuecomment-6592746314)
+- 확인한 것: 리뷰 뒤에 추가된 `CarUxRestrictionsManager` 연결이 실제로 동작함(P `DO: false` → D `DO: true` → P `DO: false`). 첫 실행 S5(권한 팝업 없음), 차속 거부·알림 허용 후 시작, P에서 S2·S4, D·80km/h S1(터치 0개), P 복귀 S3 한 번 → [확인] S2, 철회 → S5·서비스 중지, 동의 전 D는 터치 없는 S1, 재동의 → 재시작. **머지해도 됨**
+- 알게 된 것: 차속 권한을 거부하면 정차 중 크루즈 해제도 `speed=null` 해제로 기록됨(규칙 v2: 차속 없으면 속도 조건 건너뜀). PR 문제는 아님. PRD 8절에 적을지 이민하와 정하기
+- 함정: 에뮬레이터를 처음 띄웠을 때 시작 중 죽고 오류 보고 창에서 멈춤(adb에 안 보임) → `qemu-system-x86_64.exe` 종료, AVD 폴더의 `*.lock` 삭제 후 같은 명령으로 다시 띄우니 정상. 앱은 사용자 10으로 돌아서 `dumpsys package`의 권한은 `User 10` 아래를 봐야 함
+- 못 본 것: 자동 기록 끔 + 재부팅, Car 서비스 연결이 끊겼다 돌아오는 경우, 세로 화면
+- 바꾼 파일: 이 문서
+
+### 2026-11-03 — 기획서 md 초안 갱신(DOCX 재생성 전)
+- 한 일(Claude 에이전트와 함께, 장호연 지시): 두 앱 `docs/proposal.md`에 10-30·11-01 이후 결정(11-02 PRD 반영분, 길민종 PR #6·#16 내용)을 넣음. 양식 칸 구조(## 1.~8.)는 그대로
+  - 크루즈브레이커: 개인정보·안전에 동의 전 신호 안 받음, 권한은 설명 후 요청(거부해도 사용), 자동 기록 끄기, 철회 시 서버 즉시 삭제, `CarUxRestrictions`로 정차 화면 허용 판단(PR #16), 7번 칸에 고정 위치 시연·시연용 위험 구간
+- 결정한 것과 이유: 기능 번호 F2 빈칸은 PRD·PR·문서가 모두 같은 번호를 써서 기획서만 당기지 않음
+- 남은 것: DOCX 재생성(`tools/build-proposal-docx.py`, python 필요), 7번 칸 【제출 전 기입】 2곳(GitHub 주소·시연 영상)
+- 바꾼 파일: 두 저장소 `docs/proposal.md`, 이 문서
+
+### 2026-11-02 — 결정 3개 PRD 반영(이상준 질문·시연 배속·서버)
+- 한 일(Claude 에이전트와 함께, 장호연 결정): Claude 추천안을 그대로 승인하고 PRD에 반영. 팀원 메시지 초안은 채팅으로 받음(발송은 장호연)
+- 결정한 것과 이유:
+  1. 차슐랭 PRD 5.3에 없는 경우는 기록하지 않음(이상준 안 승인): 성공도 실패도 아닌 세션이 점수를 흐리지 않게. 단 충전소 **조회 실패**는 "충전소 아님"으로 단정하지 않고 업로드 전에 다시 조회(서버 연결 후 인증 충전 누락 방지)
+  2. 앱이 뒤에 있을 때 결과 알림 넣기(누르면 S4/S5, S7에서 알림 권한 요청). 리뷰가 핵심인데 지금은 앱을 열어야만 평가 화면이 보임. 서버 다음 순서(이상준)
+  3. 시연 배속 ×120 유지, PT·영상 자막에서 밝힘(실제 속도로는 30분)
+  4. 동의 철회 → 가명 차량 ID로 서버 삭제 함수 호출, 그 차량 기록 즉시 완전 삭제, 앱은 성공할 때까지 재시도(두 앱 같은 방식, 크루즈브레이커 이슈 #12)
+  5. 충전소 밖 충전(`NOT_AT_STATION`)은 서버에 안 올리고 기기에만(S6 표시). 필요한 데이터만 수집, PRD 5.5 스키마와 일치
+- 바꾼 파일: `PRD.md`(5.6 동의 철회 삭제, 7절 고정 위치 시연), 이 문서. 차슐랭 `PRD.md`도 같은 날 반영(차슐랭 인수인계 참고)
+
+### 2026-11-02 — 시연 스크립트 v2 정리·PR
+- 한 일(Claude 에이전트와 함께, 장호연 지시): `feat/demo-scripts`에 main merge(이 문서 충돌은 main 내용으로), 스크립트를 v2와 현재 앱에 맞춤
+  - `tools/demo-drive.sh`: 기본 = 고정 위치 시연(출발 → 500m 앞 안내 → 100km/h 해제 기록 → 40km/h 해제는 기록 안 함 → 정차 요약). `route` = 경로 재생(1배속). 차속 권한 `pm grant`를 스크립트가 줌
+  - `tools/demo/gyeongbu-north.csv`: 표시만 다시 만듦(안내 500m, 정체 `jam` → 저속 `slow` 300m). 좌표는 그대로. 이 PC에 python이 없어 `make-route.py`를 node로 옮겨 기존 CSV와 똑같이 나오는지 확인한 뒤 생성
+  - `tools/demo-charge.sh`: 전제에 S7 동의 먼저, 시연 배속 ×120 추가(이상준 요청)
+- 결정한 것과 이유:
+  - 정체 장면을 저속 해제로 바꿈: v2에서 정체 필터가 없어지고 "해제 순간 60km/h 이상"만 셈
+  - 경로 재생은 1배속 기본: 안내가 3분에 한 번뿐이라 2배속이면 c 구간 안내가 안 나옴. 안내 장면은 a·c 둘만
+  - 앱 위치 재생 모드(`DEMO_ROUTE` 브로드캐스트)는 아직 없음 → 지금 시연은 고정 위치 모드로
+- 확인: 가짜 콘솔(node)·가짜 adb로 세 모드의 값 순서 확인. 에뮬레이터 실행은 아직
+- 바꾼 파일: `tools/demo-drive.sh`, `tools/demo-charge.sh`, `tools/demo/make-route.py`, `tools/demo/gyeongbu-north.csv`, 이 문서
+
+### 2026-11-02 — 황준용 core v0.4.0 PR #14 머지
+- 한 일(Claude 에이전트와 함께, 장호연 지시): 차슐랭 #4(core 원본) 머지 직후 head가 리뷰한 `43ddd76`인지 확인하고 merge commit으로 머지(`bdc8f88`). 이어 차슐랭 #3 머지(차슐랭 `docs/handoff/jang-hoyeon.md`)
+- 확인: 머지된 main에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0). `core/`가 차슐랭과 같음. 11-01 "머지된 main 빌드 미검증"도 이걸로 해소
+- 결정: `tools/windows-*.ps1`·`app/build.gradle.kts` 한 줄·`docs/chachelin-pr-3-review.md` 모두 받아들임
+- 바꾼 파일: 이 문서
 
 ### 2026-11-01 저녁 — PR #3~#6 머지 후속: 이슈 등록, 판정 규칙 v2 문서 반영
 - 한 일(Claude 에이전트 호공이와 함께, 장호연 지시):

@@ -21,6 +21,10 @@ class SupabaseCruiseServer(
         backend.enqueue(pass.vehicleId, "pleos_upload_pass", "pass:${pass.segmentId}:${pass.heading8}:${pass.date}",
             JSONObject().put("p_segment_id", pass.segmentId).put("p_heading8", pass.heading8).put("p_date", pass.date))
     }
+    override suspend fun deleteMine(vehicleId: String) {
+        backend.withdraw(vehicleId)
+        backend.awaitWithdrawal(vehicleId)
+    }
     override suspend fun nearby(center: GeoPoint, radiusM: Double): List<SegmentRisk> {
         if (!consented()) return emptyList()
         val raw = backend.query(vehicleId(), "pleos_nearby_risk", JSONObject().put("p_lat", center.latitude)

@@ -41,7 +41,7 @@ app/src/main/java/com/hyundaiapp/cruisebreaker/
 │  ├─ driving/          S1 예시: 신호 → ViewModel → UiState → Screen
 │  └─ debug/            신호 모니터
 core/                   공통 차량·내비 신호 (황준용) — core/README.md
-tools/                  vconsole.sh(콘솔 조작), sync-core.sh, vtest.sh (장호연)
+tools/                  vconsole.sh(콘솔 조작), demo-charge.sh·demo-drive.sh(시연 시나리오), build-proposal-docx.py(기획서), sync-core.sh, vtest.sh (장호연)
 ```
 
 ## 담당별 첫 작업

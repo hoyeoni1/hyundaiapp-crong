@@ -126,8 +126,9 @@ internal class VehicleSdkSource(
         unregister += { battery.unregisterEvChargePortOpen(port) }
 
         battery.isEvChargePortOpen({ open -> ev.update { it.copy(chargePortOpen = open) } }, { fail("충전구 조회", it) })
-        // SDK는 Wh로 준다(에뮬레이터 77400)
-        battery.getEvBatteryCapacity({ wh -> ev.update { it.copy(capacityKwh = wh?.div(1000f)) } }, { fail("배터리 용량", it) })
+        // getEvBatteryCapacity requires CAR_INFO, which neither host app declares.
+        // Keep capacity unavailable so the app's selected vehicle preset remains the fallback.
+        ev.update { it.copy(capacityKwh = null) }
         pollChargeSwitch(v)
     }
 

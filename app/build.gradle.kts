@@ -46,6 +46,8 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    // RecordingService의 ServiceCompat.startForeground(4인자)는 1.12+. 다른 라이브러리를 통해 간접으로만 들어오지 않게 직접 둔다(이슈 #11)
+    implementation("androidx.core:core-ktx:1.13.1")
     // 안내 음성(RiskSpeaker). 기기 내(ON_DEVICE) 모드라 서버 등록 키가 필요 없다
     implementation("ai.pleos.playground:TextToSpeech:3.3.1")
 

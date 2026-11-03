@@ -142,7 +142,6 @@ private fun RiskDetail(row: RiskRowUi, modifier: Modifier) {
         Text("선택한 구간", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
         Text(row.roadName, style = MaterialTheme.typography.titleLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
         LabeledMeter("해제율", row.rate, if (row.rate >= RISK_RATE) CarColors.Warning else CarColors.Primary)
-        LabeledMeter("브레이크로 해제", row.brakeRatio, CarColors.Primary)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("크루즈 통과 차량", style = MaterialTheme.typography.bodyLarge)
             Text("${row.passVehicles}대", style = MaterialTheme.typography.labelLarge)

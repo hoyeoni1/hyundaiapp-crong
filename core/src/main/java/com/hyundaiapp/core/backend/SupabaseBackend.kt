@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -77,6 +78,11 @@ class SupabaseBackend(
             wake.trySend(Unit)
         }
         Unit
+    }
+
+    /** Legacy deletion queues may remove their receipt only after the server ACK removed this generation. */
+    suspend fun awaitWithdrawal(vehicle: String) {
+        revision.first { synchronized(guard) { find(vehicle) == null } }
     }
 
     suspend fun enqueue(vehicle: String, method: String, key: String, payload: JSONObject) = withContext(Dispatchers.IO) {

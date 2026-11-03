@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -72,12 +74,12 @@ private val CarTypography = Typography(
     displayLarge = TextStyle(fontSize = 96.sp, fontWeight = FontWeight.Bold, lineHeight = 100.sp),
     displayMedium = TextStyle(fontSize = 64.sp, fontWeight = FontWeight.Bold, lineHeight = 72.sp),
     displaySmall = TextStyle(fontSize = 44.sp, fontWeight = FontWeight.Bold, lineHeight = 52.sp),
-    headlineMedium = TextStyle(fontSize = 34.sp, fontWeight = FontWeight.Bold, lineHeight = 44.sp),
-    titleLarge = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Medium, lineHeight = 36.sp),
-    titleMedium = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Medium, lineHeight = 34.sp),
-    bodyLarge = TextStyle(fontSize = 22.sp, lineHeight = 32.sp),
-    bodyMedium = TextStyle(fontSize = 20.sp, lineHeight = 28.sp),
-    bodySmall = TextStyle(fontSize = 18.sp, lineHeight = 26.sp),
+    headlineMedium = TextStyle(fontSize = 34.sp, fontWeight = FontWeight.Bold, lineHeight = 44.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Heading),
+    titleLarge = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Medium, lineHeight = 36.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Heading),
+    titleMedium = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Medium, lineHeight = 34.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Heading),
+    bodyLarge = TextStyle(fontSize = 22.sp, lineHeight = 32.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Paragraph),
+    bodyMedium = TextStyle(fontSize = 20.sp, lineHeight = 28.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Paragraph),
+    bodySmall = TextStyle(fontSize = 18.sp, lineHeight = 26.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Paragraph),
     labelLarge = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, lineHeight = 30.sp),
     labelMedium = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Medium, lineHeight = 26.sp),
 )

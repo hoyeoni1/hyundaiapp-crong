@@ -1,6 +1,8 @@
 package com.hyundaiapp.core.backend
 
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.async
+import kotlinx.coroutines.CoroutineStart
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -119,6 +121,22 @@ class SupabaseBackendTest {
         restarted.syncOnce()
         assertTrue(server.calls.last().endsWith("pleos_withdraw_installation"))
         assertEquals(0, JSONObject(store.value!!).getJSONArray("generations").length())
+    }
+
+    @Test fun deletionReceiptWaitsForAckAndSurvivesTransientFailure() = runTest {
+        var now = 1_000_000L
+        val server = Server()
+        val backend = SupabaseBackend(config, Memory(), server, backgroundScope, { now }, false)
+        backend.activate(vehicle); backend.syncOnce(); backend.withdraw(vehicle)
+        val receipt = async(start = CoroutineStart.UNDISPATCHED) { backend.awaitWithdrawal(vehicle) }
+        assertFalse(receipt.isCompleted)
+        server.failMethod = "pleos_withdraw_installation"
+        assertFalse(backend.syncOnce()); assertFalse(receipt.isCompleted)
+        server.failMethod = ""; now += 5_000; backend.syncOnce()
+        receipt.await()
+        // Already acknowledged / never-registered legacy identities are also safe to retry.
+        backend.awaitWithdrawal(vehicle)
+        backend.awaitWithdrawal(nextVehicle)
     }
 
     @Test fun newConsentDoesNotEraseOfflineDeletionCredentials() = runTest {
