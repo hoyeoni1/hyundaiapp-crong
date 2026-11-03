@@ -2,7 +2,7 @@
 
 두 앱(차슐랭·크루즈브레이커)이 함께 쓰는 모듈입니다. **앱 코드는 Pleos SDK를 직접 부르지 않고 이 모듈만 씁니다.**
 
-2026-11-03 core v0.5.1: `com.hyundaiapp.core.backend`에 제품용 Supabase 익명 인증·Keystore 암호화 상태·영속 outbox·철회 재시도를 추가했다. 기존 VehicleSignals/NaviControl API는 유지한다. 서버 삭제 ACK를 기다리는 awaitWithdrawal로 앱 PendingDeletions와 연결한다. CAR_INFO가 없는 배터리 용량 getter는 제거하고 차종 프리셋을 유지한다. debug SDK probe와 별개로 backend는 release에도 포함되며 debug/live 및 앱/프로젝트별 상태를 분리한다. 선택적 경로 요청/취소는 NAVI_ROUTE_SEARCH의 실제 허용 여부를 검사한다. WorkManager 스케줄링은 후속이다.
+2026-11-03 core v0.5.1: `com.hyundaiapp.core.backend`에 제품용 Supabase 익명 인증·Keystore 암호화 상태·영속 outbox·철회 재시도를 추가했다. 기존 VehicleSignals/NaviControl API는 유지한다. 서버 삭제 ACK를 기다리는 awaitWithdrawal로 앱 PendingDeletions와 연결한다. CAR_INFO가 없는 배터리 용량 getter는 제거하고 차종 프리셋을 유지한다. debug SDK probe와 별개로 backend는 release에도 포함되며 debug/live 및 앱/프로젝트별 상태를 분리한다. 선택적 경로 요청/취소는 NAVI_ROUTE_SEARCH의 실제 허용 여부를 검사한다. WorkManager 스케줄링은 후속이다. 같은 v0.5.1 PR에서(11-03 장호연) `BackendConfig.consentVersion`을 추가해 설치 등록 때 앱이 정한 약관 판 번호를 보낸다(기본값 `development-v1`, 두 앱은 각 AppContainer의 `termsVersion`을 넘김).
 
 - 담당: 황준용 (수정은 황준용만, 다른 사람은 요청)
 - 원본: 차슐랭 저장소. 크루즈브레이커에는 `tools/sync-core.sh`로 복사

@@ -47,8 +47,11 @@ class AppContainer(context: Context) {
     /** S4 설정·S5 동의 */
     val prefs: AppPrefs = SharedPrefsAppPrefs(context)
 
+    /** 동의한 약관 판 번호(서버에 남김). 약관 문구를 바꾸면 함께 올린다. 지금은 승인 전 초안 docs/terms-draft.md의 번호 */
+    private val termsVersion = "cruisebreaker-terms-2026-11-v1"
+
     val backend: SupabaseBackend? = if (BuildConfig.SUPABASE_URL.isNotBlank()) {
-        val config = BackendConfig(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY, "CRUISEBREAKER", BuildConfig.SUPABASE_SIMULATED)
+        val config = BackendConfig(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY, "CRUISEBREAKER", BuildConfig.SUPABASE_SIMULATED, termsVersion)
         SupabaseBackend(config, EncryptedBackendStore(context, config.storageNamespace), HttpsBackendTransport(config), appScope)
     } else null
     private val fakeServer = FakeCruiseServer()

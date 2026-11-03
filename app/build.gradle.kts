@@ -10,6 +10,13 @@ val backendProperties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
 fun backendString(key: String): String = "\"" + backendProperties.getProperty(key, "").replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+// 제출 release는 시연 데이터 모드가 기본(PRD 7절, 11-03 장호연 결정). 실제 데이터로 빌드하려면 local.properties에 supabase.demo=false
+fun backendFlag(key: String, default: Boolean): Boolean = when (val v = backendProperties.getProperty(key)?.trim()) {
+    null, "" -> default
+    "true" -> true
+    "false" -> false
+    else -> throw GradleException("local.properties $key must be true or false, was '$v'")
+}
 
 android {
     namespace = "com.hyundaiapp.cruisebreaker"
@@ -32,7 +39,7 @@ android {
     }
     buildTypes {
         getByName("debug") { buildConfigField("boolean", "SUPABASE_SIMULATED", "true") }
-        getByName("release") { buildConfigField("boolean", "SUPABASE_SIMULATED", "false") }
+        getByName("release") { buildConfigField("boolean", "SUPABASE_SIMULATED", backendFlag("supabase.demo", true).toString()) }
     }
 
     compileOptions {

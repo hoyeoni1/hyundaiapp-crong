@@ -56,6 +56,14 @@ class SupabaseBackendTest {
         assertEquals(1, server.signupCount)
     }
 
+    @Test fun registrationSendsConfiguredConsentVersion() = runTest {
+        val server = Server()
+        val backend = SupabaseBackend(config.copy(consentVersion = "chachelin-terms-test"), Memory(), server, backgroundScope, startWorker = false)
+        backend.activate(vehicle); backend.query(vehicle, "pleos_my_charges", JSONObject())
+        val register = server.bodies[server.calls.indexOfFirst { it.endsWith("pleos_register_installation") }]
+        assertEquals("chachelin-terms-test", register.getString("p_consent_version"))
+    }
+
     @Test fun queuedWriteSurvivesRestartAndAccepts204() = runTest {
         val store = Memory(); val server = Server()
         val first = SupabaseBackend(config, store, server, backgroundScope, startWorker = false)

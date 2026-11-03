@@ -198,7 +198,7 @@ class SupabaseBackend(
     private fun ensureInstallation(vehicle: String) {
         if (copy(vehicle).optString("installation").isNotEmpty()) return
         val result = authenticated(vehicle, "pleos_register_installation", JSONObject()
-            .put("p_app", config.app).put("p_vehicle_id", vehicle).put("p_consent_version", "development-v1")
+            .put("p_app", config.app).put("p_vehicle_id", vehicle).put("p_consent_version", config.consentVersion)
             .put("p_simulated", config.simulated))
         val id = result.trim().trim('"')
         UUID.fromString(id)

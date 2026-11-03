@@ -4,7 +4,14 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.security.MessageDigest
 
-data class BackendConfig(val url: String, val publishableKey: String, val app: String, val simulated: Boolean) {
+/** [consentVersion]은 사용자가 동의한 약관 판 번호. 서버 `app_installations.consent_version`에 남는다(docs/terms-draft.md) */
+data class BackendConfig(
+    val url: String,
+    val publishableKey: String,
+    val app: String,
+    val simulated: Boolean,
+    val consentVersion: String = "development-v1",
+) {
     val storageNamespace: String get() {
         val digest = MessageDigest.getInstance("SHA-256").digest((url.trimEnd('/') + ":" + app).toByteArray())
             .take(8).joinToString("") { "%02x".format(it.toInt() and 255) }
@@ -15,6 +22,7 @@ data class BackendConfig(val url: String, val publishableKey: String, val app: S
         require(uri.scheme == "https" && uri.host != null && uri.rawQuery == null && uri.userInfo == null)
         require(publishableKey.startsWith("sb_publishable_"))
         require(app in setOf("CHACHELIN", "CRUISEBREAKER"))
+        require(consentVersion.length in 1..100)
     }
 }
 

@@ -34,7 +34,7 @@ adb shell run-as $appId --user $androidUser cat files/backend-check-result.json
 정상 결과는 `ok=true`와 네 가지 checks다. 실제 익명 테스트 사용자/기록을 만드는 검사이며 정상 완료 시 업무 기록과 로컬 인증을 정리한다. 제품 앱 동의와 별도 저장소를 쓰고, 최소 REVOKED/Auth 정리는 운영 문서를 따른다. 로그 확인은 `adb logcat -s SupabaseSync`이며 connected/retry/rejected 상태를 확인한다.
 
 - **Fake가 나온다면**: PR 코드 적용 여부, 두 설정 키 이름·빈 값, 루트 local.properties 위치, 재빌드/재설치를 확인한다. 설정이 비어 있으면 Fake로 동작한다.
-- **연결되지만 시드가 안 보인다면**: debug인지 확인한다. debug는 DEMO/SIMULATED, release는 LIVE이며 현재 시드는 시연용이다. SDK 판정까지 검증하려면 별도로 콘솔 주입/화면 리허설을 해야 한다.
+- **연결되지만 시드가 안 보인다면**: `supabase.demo=false`로 빌드한 release인지 확인한다. debug와 기본 release는 DEMO/SIMULATED이고, 시드는 시연용이다. SDK 판정까지 검증하려면 별도로 콘솔 주입/화면 리허설을 해야 한다.
 - **쓰기 직후 기록이 안 보인다면**: upload 반환은 로컬 영속 큐 등록 완료다. 서버 ACK와 이후 조회까지 기다리고 retry/rejected 로그를 확인한다. 상세 진단은 차슐랭 `server/android-connection.md`를 본다.
 - **DB/RPC를 수정하는 작업자만**: Supabase 프로젝트 권한과 자신의 CLI 인증을 별도로 준비한다. 차슐랭 `server/cli-setup.md`를 따르고 기존 migration/시드를 재실행하거나 DB를 reset하지 않는다.
 
@@ -114,7 +114,7 @@ Auth 사용자 자체는 Supabase `auth.users`에 있다. 사용자 이름·이�
 
 - 신규 충전소 밖 충전(NOT_AT_STATION 또는 충전소 ID 없음)은 **기기에만 저장**한다. 별도 암호화/noBackup 영속 저장소이며 서버 outbox에 넣지 않는다. 내 기록은 로컬+서버를 합쳐 보여 주고, 철회 시 기기 기록을 즉시 삭제한다. 기존 버전의 서버/outbox 데이터는 소급 이전하지 않는다.
 
-- 현재 점수는 평균 별점이며 후기 5개 미만은 null(평가 중)이다. 실패율 감점은 PRD 초안에만 있고 **구현하지 않았다**.
+- **차슐랭 점수 = 평균 별점 × (1 − 최근 30일 실패율)**(PRD 5.5, 11-03 장호연 결정, migration `20261103000100`). 실패율 = 최근 30일 FAILED ÷ (최근 30일 SUCCESS + FAILED). [실패 아님]으로 정정한 기록은 빠진다. 최근 30일 세션이 5건 미만이면 감점하지 않는다. 후기 5개 미만은 null(평가 중)이고 목록 뒤로 간다. 응답에 `recent_sessions_30d`, `recent_failures_30d`, `failure_rate_30d`도 함께 준다.
 - 유효 SUCCESS만 인증 수에 포함한다. 평균 kW는 null을 분모에서도 제외한다.
 - 최근 7일 FAILED 횟수와 상위 태그·별점 분포는 별도 제공한다. 타인 실패 시각은 원본 대신 시간대 단위로 축약한다.
 - FAILED는 충전구/SoC/시간으로 추정한 충전 미진행 기록이다. 충전기 고장을 확정하지 않는다. 잘못된 추정은 [실패 아님]으로 정정한다.
@@ -139,7 +139,14 @@ Auth 사용자 자체는 Supabase `auth.users`에 있다. 사용자 이름·이�
 
 ## 7. 설정·배포·검증
 
-각 저장소 local.properties의 `supabase.url`, `supabase.publishableKey`를 설정하면 실제 서버를 쓴다. 값이 없으면 Fake를 쓴다. debug는 SIMULATED/DEMO, release는 LIVE다. 현재 원격 충전소는 시드뿐이므로 실제 서비스용 LIVE 데이터는 환경부 캐시 연동 후 채워야 한다.
+각 저장소 local.properties의 `supabase.url`, `supabase.publishableKey`를 설정하면 실제 서버를 쓴다. 값이 없으면 Fake를 쓴다. debug는 늘 SIMULATED/DEMO다. **release도 기본은 SIMULATED/DEMO**(제출 빌드, PRD 7절 11-03 장호연 결정)이고, `supabase.demo=false`일 때만 LIVE다. 현재 원격 충전소는 시드뿐이므로 실제 서비스용 LIVE 데이터는 환경부 캐시 연동 후 채워야 한다.
+
+### 제출 release 빌드 (두 앱 같음)
+
+1. 빌드 PC의 `local.properties`에 `supabase.url`, `supabase.publishableKey`가 있는지 확인한다. **없으면 오류 없이 Fake로 빌드된다**(서버에 연결되지 않음).
+2. `supabase.demo`는 비우거나 `true`로 둔다(`true`/`false` 말고 다른 값이면 빌드가 실패한다).
+3. 시연 전에 시드 날짜를 갱신한다(`server/demo-maintenance.md`).
+4. `./gradlew assembleRelease` → 생성된 `app/build/generated/source/buildConfig/release/.../BuildConfig.java`에서 `SUPABASE_SIMULATED = true`와 URL이 비어 있지 않은지 확인한다. 서명은 release 키로 한다(키 파일은 저장소에 넣지 않음).
 
 서버 원본 폴더에서 작업한다.
 
@@ -152,9 +159,11 @@ $supabaseCli = Join-Path $env:LOCALAPPDATA 'hyundai-dev\supabase\supabase.exe'
 ```
 
 - initial schema와 demo data 두 migration은 이미 원격에 적용됐고 CLI 표준 이력도 맞췄다. 다시 초기화하거나 db reset하지 않는다. 새 변경은 새 migration으로 추가한다.
+- 11-03 추가 migration 2개(`20261103000100` 점수 공식, `20261103000200` 실패 잦은 시연 충전소)는 **원격 적용 전**이다. 적용 순서는 `server/deploy.md` "11-03 추가 migration".
+- 앱은 설치 등록 때 약관 판 번호를 `consent_version`으로 보낸다(`BackendConfig.consentVersion`, 각 AppContainer의 `termsVersion`). 지금 값은 승인 전 초안 `docs/terms-draft.md`의 판 번호다.
 - `verify.sql`은 버전·시드 건수·RLS·RPC 권한·함수 fingerprint를 하나의 JSON으로 반환한다.
 - 시드 날짜 갱신은 차슐랭 `server/demo-maintenance.md`를 따른다. `supabase/refresh-demo-dates.sql`은 고정 시드 소유자와 건수를 검증한 뒤 한국 날짜에 맞춘다. 실제 앱 데이터는 유지하며 migration 재실행/DB reset은 하지 않는다.
-- 시드는 충전소 10곳, 충전 세션 300건, 해제 400건, 통과 2,000건이다. 모두 실제 관측을 대체한 가상 시연 데이터로 구분한다.
+- 시드는 충전소 10곳, 충전 세션 325건(기본 300 + st-004 실패 잦은 충전소 25, migration `20261103000200`), 해제 400건, 통과 2,000건이다. 모두 실제 관측을 대체한 가상 시연 데이터로 구분한다.
 - 로컬 PostgreSQL 검증은 `server/`에서 의존성 설치 후 `node --test tests/database.test.mjs`. 소유권·중복·날짜 경계·정정·철회·시드를 실행 검증한다.
 - 명시적 원격 검사는 `node tests/remote-smoke.mjs`. 별도 임시 익명 계정과 기록을 만들고 해당 run 표식으로 한정해 정리한다.
 - Android 확인은 두 앱의 shell 전용 debug BackendConnectionCheckActivity에서 실제 제품 backend·HTTPS·Keystore·outbox·철회를 검사한다. release에는 이 Activity가 없다.
@@ -165,7 +174,7 @@ $supabaseCli = Join-Path $env:LOCALAPPDATA 'hyundai-dev\supabase\supabase.exe'
 
 - WorkManager에 의한 앱 프로세스 종료 후 독립 재시도. 현재는 실행 중/다음 앱 실행에서 이어 보낸다.
 - 철회 대기 UI, 전체 과거 기록의 영속 오프라인 읽기 캐시, 콜백→저장소 전의 앱 메모리 채널 상한/재시도 정책(#19).
-- 환경부 API 캐시, 점수 감점 공식, 실제 보관 기간/Auth·차단 정보/백업 정리, 약관 전문. 28일은 집계 기간이며 삭제 기간이 아니다.
+- 환경부 API 캐시, 실제 보관 기간/Auth·차단 정보/백업 정리, 약관 전문. 28일은 집계 기간이며 삭제 기간이 아니다.
 - 원격 다중 연결의 철회-업로드 스트레스 검사, 최신 전체 제품 UI의 SDK 시연 리허설, 실차 검증.
 - CAR_INFO가 없는 배터리 용량 getter는 core v0.5.1에서 제거했다. 새 권한은 추가하지 않고 차종 프리셋을 사용한다. 선택적 경로 요청/취소도 NAVI_ROUTE_SEARCH가 실제로 허용된 경우에만 SDK를 호출한다.
 
