@@ -4,6 +4,40 @@
 
 차슐랭·크루즈브레이커는 **하나의 Supabase 프로젝트**를 공유한다. 서버 코드·SQL·시드·테스트 원본은 [차슐랭 저장소](https://github.com/hoyeoni1/hyundaiapp-chachelin)의 `server/`다. 크루즈 저장소는 공통 Android core와 크루즈용 저장소 구현을 포함한다. DB migration을 두 저장소에서 따로 실행하지 않는다.
 
+## 팀원 빠른 연결 (앱 개발·테스트)
+
+앱을 서버에 붙이는 것만으로는 Supabase 관리자 초대, CLI login/link, DB 비밀번호나 별도 서버 설치가 필요 없다. 팀 공용 프로젝트의 URL과 Publishable key 두 값만 받으면 된다. 개인 PC마다 새 프로젝트/DB를 만들지 않는다.
+
+1. 서버 연결 코드가 있는 버전을 받는다. 현재 차슐랭 PR #10 / 크루즈 PR #22의 `codex/supabase-foundation-20261102` 브랜치이며, 머지 후에는 해당 변경이 반영된 main을 사용한다. Android/Pleos 환경은 [Windows 테스트 환경](windows-local-testing.md)을 따른다.
+2. 팀 관리자에게 **현재 Publishable key**(`sb_publishable_...`)를 전달받는다. URL은 `https://qbdikckaqroxbpacvtqo.supabase.co`다. 다른 작업자의 local.properties는 Git에서 받지 못한다. Secret key/service_role/DB 비밀번호는 앱 연결에 사용하지 않는다.
+3. 작업하는 앱 저장소 **루트**의 Git 제외 `local.properties`에 아래 두 줄을 추가한다. 기존 `sdk.dir` 등은 유지한다. 두 앱을 모두 빌드하면 각 저장소에 따로 설정한다. `server/.env.local`은 Android 빌드에 사용되지 않는다.
+
+```properties
+supabase.url=https://qbdikckaqroxbpacvtqo.supabase.co
+supabase.publishableKey=sb_publishable_REPLACE_WITH_CURRENT_TEAM_KEY
+```
+
+4. Android Studio Gradle Sync 후 **debug**로 다시 빌드·설치한다. 명령줄 빌드는 저장소 루트에서 ` .\gradlew.bat assembleDebug`다. 값은 빌드 시 APK에 들어가므로 파일만 바꿔서는 설치된 앱이 바뀌지 않는다.
+5. 앱에서 수집 동의를 마친 뒤 목록·상세를 조회하고 기록을 시작한다. 제품 저장소가 익명 인증·설치 등록·토큰 갱신을 처리하므로 개발자가 JWT를 직접 만들지 않는다. UI/도메인은 기존 저장소 인터페이스를 계속 사용한다.
+6. 서버 연결을 독립 확인하려면 설치한 debug APK에서 아래 검사를 실행한다. adb가 PATH에 없으면 Windows 환경 문서의 platform-tools 경로를 사용한다. 여러 기기가 연결됐으면 각 adb 명령에 `-s <serial>`을 붙인다.
+
+```powershell
+# 현재 에뮬레이터 사용자 확인: Pleos의 10을 하드코딩하지 않는다.
+$androidUser = (adb shell am get-current-user).Trim()
+# 차슐랭. 크루즈는 com.hyundaiapp.cruisebreaker로 바꾼다.
+$appId = 'com.hyundaiapp.chachelin'
+adb shell am start --user $androidUser -n "$appId/.BackendConnectionCheckActivity"
+# 검사가 끝난 뒤 조회. running이면 잠시 후 다시 읽는다.
+adb shell run-as $appId --user $androidUser cat files/backend-check-result.json
+```
+
+정상 결과는 `ok=true`와 네 가지 checks다. 실제 익명 테스트 사용자/기록을 만드는 검사이며 정상 완료 시 업무 기록과 로컬 인증을 정리한다. 제품 앱 동의와 별도 저장소를 쓰고, 최소 REVOKED/Auth 정리는 운영 문서를 따른다. 로그 확인은 `adb logcat -s SupabaseSync`이며 connected/retry/rejected 상태를 확인한다.
+
+- **Fake가 나온다면**: PR 코드 적용 여부, 두 설정 키 이름·빈 값, 루트 local.properties 위치, 재빌드/재설치를 확인한다. 설정이 비어 있으면 Fake로 동작한다.
+- **연결되지만 시드가 안 보인다면**: debug인지 확인한다. debug는 DEMO/SIMULATED, release는 LIVE이며 현재 시드는 시연용이다. SDK 판정까지 검증하려면 별도로 콘솔 주입/화면 리허설을 해야 한다.
+- **쓰기 직후 기록이 안 보인다면**: upload 반환은 로컬 영속 큐 등록 완료다. 서버 ACK와 이후 조회까지 기다리고 retry/rejected 로그를 확인한다. 상세 진단은 차슐랭 `server/android-connection.md`를 본다.
+- **DB/RPC를 수정하는 작업자만**: Supabase 프로젝트 권한과 자신의 CLI 인증을 별도로 준비한다. 차슐랭 `server/cli-setup.md`를 따르고 기존 migration/시드를 재실행하거나 DB를 reset하지 않는다.
+
 ## 1. 서버의 역할과 경계
 
 - 차량 신호 해석·충전 판정·크루즈 해제 판정·배너·TTS는 기존 Android 앱 담당 로직이다.
