@@ -5,15 +5,36 @@
 ## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
 - 한 일 요약: 한 줄 경고의 폭별 동등 문구(최소56sp), 위험 목록 단일 열·선택 상세·집계 기준, 최근 주행 요약·단일 목록 복귀, 설정 동의 재열람 Back·시작 콜백 미호출, 차속 ON_RESUME 재조회, STOP 중 D→P 복귀 요약, 설정 그룹·동의 반응형 정리.
-- 진행 중 브랜치: `fix/ui-audit-followups` (최신 origin/main 기반, 새 PR로 검토. 머지는 장호연). 기존 알림 PR은 머지 완료.
+- 진행 중 브랜치·PR: `fix/ui-audit-followups`, [PR #24](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/24). 2026-11-03 리뷰는 머지 가능이며 선택 제안 후속 반영. 머지는 장호연. 기존 알림 PR은 머지 완료.
 - 다음 할 일: PR 검토 후 x86 Pleos에서 실제 차속 권한·시스템 Back/Home·내비 왕복·주행 제한 및 화면 배치를 확인.
 - 담당 계약/내용 대기: 이민하: S2 오류/빈 결과·위치 기준 UiState(F05), Nav 완전 재생성에도 남는 완료 주행/요약 확인 상태(F09 잔여). 장호연/이민하: 동의 저장과 최종 시작 단계(D01), 설정 맥락 복원 정책(NAV-06). 장호연: 약관 전문(B01).
 - 검증: 두 앱 일반 `assembleDebug test :app:lintDebug`, 별도 임시 Robolectric UI 28검사(차슐랭 debug10/release3, 크루즈 debug15). 수정 전 main과 동일 조건 6쌍 캡처. 임시 QA 의존성·코드는 제품에 추가하지 않음.
-- 자료: `/Users/gilminjong/Dev/output/hyundai-ui-fixes-2026-11-03/`의 CHECKLIST·OWNER-CONTRACTS·REPORT·before/after·qa. 기존 dirty handoff는 before 백업과 이전 작업 기록으로 보존.
+- 팀 공유 근거: 아래 "공유 검증 요약"과 PR 본문의 같은 표를 사용. 길민종 PC 전용 원본·캡처는 `/Users/gilminjong/Dev/output/hyundai-ui-fixes-2026-11-03/`에 있으며 팀 공용 링크가 아니다. 기존 handoff 원문과 작업 기록 보존.
 - 경계: Screen/Nav/공통 UI만 수정. core·ViewModel·data/domain·집계·서비스·서버 PR은 수정/머지하지 않음. STOP 복귀 개선을 프로세스 종료/재부팅 복원으로 주장하지 않음.
 - 실제 인계 이슈: [F05 #25](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/25)·[F09잔여 #26](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/26) 이민하, [정책/약관 차슐랭 #14](https://github.com/hoyeoni1/hyundaiapp-chachelin/issues/14) 장호연. 오류·조회 기준·재시도 Screen 표현은 준비하지만 VM/Nav 연결 전이므로 F05는 미완료.
 
+## 공유 검증 요약
+
+|재현 조건|확인 결과|
+|---|---|
+|600×1024dp/fontScale1.5,1024×600dp/fontScale1.5,1280×720dp/fontScale1|표준 경고 거리·해제 의미 표시, 한 줄·56sp 이상·터치0|
+|600dp/fontScale1.5 목록|설정 글자 표시, 선택 구간 상세·140 차량·일 표시|
+|720dp/fontScale1.5 요약|보조 설명의 마지막 줄 전체 표시, 목록 복귀 행동 하나|
+|설정→동의 재열람→명시적 복귀|설정 복귀, 서비스 시작 콜백0회|
+|외부 차속 허용/회수 후 ON_RESUME|권한 표시 갱신2조건 PASS|
+|자동 주행 요약 Android Back|Activity 종료 없이 목록 복귀|
+|Activity STOP 중 D→P 후 RESUME|자동 요약 표시; Nav 완전 재생성은 #26 미해결|
+|600dp/fontScale1.5, 제공된 오류/조회 기준/캐시 실패 입력|표시 전용3검사 PASS; 실제 VM/Nav 공급은 #25 미해결|
+
+일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+표시 전용3 PASS이며 앱 일반 테스트에 포함되지 않는다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
+
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 — PR 선택 리뷰 후속
+- 두 UI PR 모두 필수 수정 없는 머지 가능 리뷰. 팀원이 열 수 없는 로컬 경로를 공유 근거로 요구하지 않도록 본문·PR에 검증 조건/결과 표를 추가. 원본 경로는 PC 전용으로 명시.
+- 차량 연결됨은 현재 state가 소스 READY를 나타내는 사실에 맞춘 문구라 유지하며 PRD 정합성은 장호연 #14에 요청. 거리만 남기는 최종 배너 후보는 경고 의미가 사라져 채택하지 않음.600dp 이상 검증 범위와 그 미만 미검증을 구분.
+- S2 표시 인수3개는 #25 UiState 계약 후 제거/이관할 후속이며 답변 전 임의 변경하지 않음.
+
 
 ### 2026-11-03 — 감사 잔여의 실제 담당 인계·수용 기준 연결
 - F05 표시 준비: errorMessage/locationNotice/onRetry 선택 입력으로 오류·기준 안내·캐시 실패/재시도 표현. 기존15 UI+새3검사 PASS, 제목/설정 유지 추가 확인, 일반 assembleDebug/test/app lint PASS. VM/Nav 연결은 아직 하지 않아 F05는 미완료.
