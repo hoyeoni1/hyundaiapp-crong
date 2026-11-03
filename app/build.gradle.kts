@@ -33,13 +33,27 @@ android {
         buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", backendString("supabase.publishableKey"))
     }
 
+    // 제출 release 서명. 키 파일·비밀번호는 저장소 밖(local.properties의 release.*)에 둔다. 값이 없으면 서명 없는 release
+    val releaseStore = backendProperties.getProperty("release.storeFile")?.takeIf { it.isNotBlank() }
+    signingConfigs {
+        if (releaseStore != null) create("release") {
+            storeFile = file(releaseStore)
+            storePassword = backendProperties.getProperty("release.storePassword")
+            keyAlias = backendProperties.getProperty("release.keyAlias")
+            keyPassword = backendProperties.getProperty("release.keyPassword")
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
     buildTypes {
         getByName("debug") { buildConfigField("boolean", "SUPABASE_SIMULATED", "true") }
-        getByName("release") { buildConfigField("boolean", "SUPABASE_SIMULATED", backendFlag("supabase.demo", true).toString()) }
+        getByName("release") {
+            buildConfigField("boolean", "SUPABASE_SIMULATED", backendFlag("supabase.demo", true).toString())
+            if (releaseStore != null) signingConfig = signingConfigs.getByName("release")
+        }
     }
 
     compileOptions {

@@ -243,10 +243,11 @@ private fun WithdrawDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
         "철회", onConfirm, onDismiss, dismissLabel = "취소", destructive = true)
 }
 
-/** 약관 전문 자리. 문구는 장호연이 정리하면 바꾼다. 닫기는 동의가 아니다 */
+/** 약관 전문(TermsText, 원본 docs/terms-draft.md). 닫기는 동의가 아니다 */
 @Composable
 private fun TermsDialog(terms: Terms, onDismiss: () -> Unit) {
-    CarAlertDialog(if (terms == Terms.LOCATION) "위치정보 이용" else "개인정보 수집·이용", "[약관 전문 준비 중]", "닫기", onDismiss, onDismiss)
+    val location = terms == Terms.LOCATION
+    CarAlertDialog(if (location) "위치정보 이용" else "개인정보 수집·이용", if (location) TermsText.LOCATION else TermsText.PRIVACY, "닫기", onDismiss, onDismiss)
 }
 
 @Composable

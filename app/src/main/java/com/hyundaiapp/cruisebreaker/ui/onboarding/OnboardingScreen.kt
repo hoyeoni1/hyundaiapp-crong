@@ -51,7 +51,7 @@ fun OnboardingScreen(
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Text("크루즈브레이커", style = MaterialTheme.typography.bodyLarge, color = CarColors.Primary)
                 Text("다른 차들이 크루즈를 끈 곳을 미리 알려 드려요", style = MaterialTheme.typography.headlineMedium)
-                Text("정확한 좌표 대신 약 150m 구간 번호를 보내고, 시각은 시간 단위로 저장해요.", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
+                Text("기록에는 좌표 대신 약 150m 구간 번호만 저장하고, 시각은 시간 단위로 저장해요.", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
                 Text("시동을 걸면 앱을 열지 않아도 주행을 자동으로 기록합니다. 설정에서 끌 수 있어요.", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
             }
         }
