@@ -23,7 +23,6 @@ data class RiskRowUi(
     val roadName: String,
     val distanceM: Double?,
     val rate: Double,
-    val brakeRatio: Double,
     val passVehicles: Int,
 )
 
@@ -42,7 +41,6 @@ data class TripSummaryUiState(
 /** S4 설정 */
 data class SettingsUiState(
     val voiceEnabled: Boolean = true,
-    val announceDistanceM: Int = 1_000,
     /** 시동 때 자동 기록. S5 동의 후 기본 켜짐(PRD 5.4). 토글 화면은 길민종 */
     val autoRecordEnabled: Boolean = true,
 )
