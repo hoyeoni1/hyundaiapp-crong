@@ -4,7 +4,7 @@
 
 ## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
-- UI PR #24는 main 머지 완료. 최신 main 기반 `fix/disengagement-ui-terms`에서 [#29](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/29)의 화면 용어를 위험 구간→해제 다발 구간으로 교체.
+- UI PR #24는 main 머지 완료. 최신 main 기반 `fix/disengagement-ui-terms` / [PR #30](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/30)에서 [#29](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/issues/29)의 화면 용어를 위험 구간→해제 다발 구간으로 교체.
 - 범위: S2 목록/로딩/오류/빈 결과/미리보기, S3 목록 복귀, S4 안내 설명, 개발 메뉴 화면 이름. 코드/API 식별자·주석·주행 배너·TTS·판정/집계 규칙은 유지.
 - 검증: 기존 임시 UI18검사 PASS(좁은 폭/큰 글자·오류/빈 결과·복귀·배너/터치0 포함). 일반 assembleDebug/test/app lint PASS. 실제 Pleos 시연은 팀 x86 환경에서 확인 필요.
 - 병행 문서 제안: PR #27은 별도 docs/observation-based-prd worktree에서 main 결정 본문을 유지하고 검토 제안(미구현)을9절에만 모음. 판정 원본 변경 없음. 제안의 최종 채택은 장호연·로직 담당 결정.
