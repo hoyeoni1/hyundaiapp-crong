@@ -55,7 +55,7 @@ fun SettingsScreen(
             "음성 안내", "끄면 주행 화면 배너만 보여요",
             state.voiceEnabled, onVoiceEnabledChange,
         )
-        Text("크루즈 작동 중 500m 앞 위험 구간을 안내해요", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
+        Text("크루즈 작동 중 500m 앞 해제 다발 구간을 안내해요", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
         Text("기록", style = MaterialTheme.typography.titleMedium, color = CarColors.Primary)
         ToggleSetting(
             "자동 기록", "시동을 걸면 자동으로 기록해요. 꺼도 앱을 열면 기록해요",

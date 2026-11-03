@@ -69,7 +69,7 @@ fun RiskListScreen(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 1000.dp
         Column(Modifier.fillMaxSize().padding(horizontal = if (wide) 48.dp else 32.dp, vertical = 32.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            ScreenHeader("근처 위험 구간") {
+            ScreenHeader("근처 해제 다발 구간") {
                 SecondaryButton("최근 주행 요약", onSummaryClick, height = CarDimens.TouchTargetSmall)
                 SecondaryButton("설정", onSettingsClick, height = CarDimens.TouchTargetSmall)
             }
@@ -82,10 +82,10 @@ fun RiskListScreen(
                 }
             }
             when {
-                state.loading && selected == null -> EmptyState("위험 구간을 불러오는 중이에요", loading = true, modifier = Modifier.weight(1f))
-                errorMessage != null && selected == null -> EmptyState("위험 구간을 불러오지 못했어요", errorMessage, onRetry = onRetry,
+                state.loading && selected == null -> EmptyState("해제 다발 구간을 불러오는 중이에요", loading = true, modifier = Modifier.weight(1f))
+                errorMessage != null && selected == null -> EmptyState("해제 다발 구간을 불러오지 못했어요", errorMessage, onRetry = onRetry,
                     modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()))
-                selected == null -> EmptyState("근처에 위험 구간이 없어요", onRetry = onRetry, modifier = Modifier.weight(1f))
+                selected == null -> EmptyState("근처에 해제 다발 구간이 없어요", onRetry = onRetry, modifier = Modifier.weight(1f))
                 wide -> Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                     LazyColumn(Modifier.weight(3f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(state.items, key = { it.id }) { row -> RiskRow(row, row.id == selected.id) { selectedId = row.id } }
@@ -160,7 +160,7 @@ private fun LabeledMeter(label: String, ratio: Double, color: Color) {
     }
 }
 
-@Preview(name = "S2 위험 구간", widthDp = 1280, heightDp = 720)
+@Preview(name = "S2 해제 다발 구간", widthDp = 1280, heightDp = 720)
 @Composable
 private fun RiskListPreview() {
     CruiseBreakerTheme { Surface { RiskListScreen(PreviewData.riskList, {}, {}) } }
