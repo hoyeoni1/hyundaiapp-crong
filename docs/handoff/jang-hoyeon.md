@@ -2,7 +2,7 @@
 
 담당 경로: `tools/`(원본은 차슐랭), `apk/`, `README.md`, `PRD.md`, `docs/`, 릴리스. 이 저장소 앱 뼈대도 만들었음
 
-## 현재 상태 (2026-11-02 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
@@ -18,15 +18,16 @@
   - 장호연 `feat/demo-scripts`(두 저장소) — 11-02 main merge(인수인계 충돌은 main 쪽으로 해결) + 판정 규칙 v2·현재 앱에 맞게 고쳐 PR. `demo-drive.sh` 기본은 고정 위치 시연(위치 재생 없이 지금 앱으로 동작, 이민하 확인 순서와 같음), `route`는 앱 위치 재생 모드가 생긴 뒤. 가짜 콘솔·가짜 adb로 값 순서만 확인했고 **에뮬레이터 실행은 아직**(이상준이 `demo-charge.sh`는 에뮬레이터에서 확인함)
   - 기타: 문서(`PRD.md`, `README.md`, `docs/`)는 PR 없이 `main`에 바로 push(10-30 결정)
 - 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). 11-02 PR #14·차슐랭 #3·#4에 코멘트가 달려 정상 동작 확인
-- 다음 할 일(우선순위 순, 11-03 정리):
-  1. 황준용 Supabase PR(차슐랭 #10, 크루즈브레이커 #22, 11-03 올라옴) — Claude 리뷰 "수정 필요"(NOT_AT_STATION 업로드, 시드 날짜 고정으로 11-28쯤 시연 데이터 만료). 제출 release는 **시연 데이터 모드로 결정(11-03, PRD 7절)** → 황준용에게 빌드 설정 요청. 차슐랭 점수는 **별점 × (1 − 최근 30일 실패율)로 확정(11-03, 차슐랭 PRD 5.5)** → 황준용에게 서버 점수 함수 변경 + 실패 잦은 시연 충전소 시드 요청. 고쳐지면 머지 → 두 앱 Fake 저장소 교체 확인. 서버 삭제 함수(가명 차량 ID, 두 앱 공통)로 크루즈브레이커 이슈 #12 닫기. 서버 연결 뒤 두 시연 스크립트 다시 리허설
-  2. 이슈 진행 확인(제출 11-14 전): 차슐랭 #9(황준용, core가 선언 안 된 `CAR_INFO`로 `getEvBatteryCapacity` 호출 → 앱 심사 위험·core lint 실패), 차슐랭 #8(이상준, 철회 삭제 재시도 — 크루즈브레이커 PR #17 방식), 크루즈브레이커 #20(철회 직전 업로드가 삭제 뒤 도착). #19·#21은 PR #23 머지로 닫힘(11-03)
-  2-1. 약관 확정(B01): 초안 `docs/terms-draft.md`(두 앱) 【확정 필요】 값 채우기 → 길민종에게 전달해 `TermsDialog` 연결, 황준용에게 판 번호를 `consent_version`으로 보내게 요청(지금 `development-v1` 고정). 주최 측 문의 메일에 위치기반서비스 신고 필요 여부 문항 추가 권장. 11-03 확인: Supabase PR #10·#22는 06:20 뒤 새 커밋 없음, #10은 main과 README 충돌
-  3. 주최 측 문의 메일 발송 — 초안 `docs/organizer-inquiry-email.md` 11문항(10번 Vehicle Control 공개 시점, 11번 `TTS_SERVICE` 승인). 11-03 공식 문서 확인: 새로 열린 SDK 없음
-  4. 기획서 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 시연 영상) 채우고 DOCX 재생성(11-03 최신 md로 한 번 재생성함, 이 PC는 `py -3` 사용)
-  5. 01 참가신청서·04 서명 칸 채우고 5명 서명 수집
-  6. Pleos Playground 프로젝트 생성·팀원 추가(콘솔에서 프로젝트별 SDK 상태 확인 가능)
-  7. release 서명 키 생성(키 파일은 저장소에 넣지 않음), 시연 영상 촬영(두 시연 스크립트는 11-03 에뮬레이터 리허설 통과)
+- 다음 할 일(우선순위 순, 11-03 밤 최종 점검):
+  1. Supabase 원격 적용(대시보드 SQL Editor): `20261103000100` → `20261103000200` → `refresh-demo-dates.sql` → `verify.sql`(charge_sessions 325). 순서·기대값은 차슐랭 `server/deploy.md` "11-03 추가 migration"
+  2. 두 저장소 `local.properties`에 `supabase.url`·`supabase.publishableKey` 넣기(지금 이 PC엔 없음 → 빌드가 조용히 Fake). 그다음 서버 연결 상태로 두 시연 스크립트 리허설
+  3. 약관 확정(B01): `docs/terms-draft.md`(두 앱) 【확정 필요】 채우기 → 길민종 `TermsDialog` 연결. 판 번호를 바꾸면 각 AppContainer `termsVersion`도. 확정 뒤 크루즈 #25 닫기
+  4. 남은 팀원 이슈: 차슐랭 #17(이상준 태그 VM, 시연 전 필수), #12·#13(이상준·황준용 UI 감사 계약). #8(차슐랭)·#20(크루즈)은 #10·#22 머지로 해결됨 → 근거 확인 뒤 닫기
+  5. 주최 측 문의 메일 발송 — `docs/organizer-inquiry-email.md`에 위치기반서비스 신고 여부 문항 추가 권장. 심사용 GitHub 계정명(4번) 답을 받아야 아래 7번 가능
+  6. release 서명 키 생성(저장소 밖 보관) + `signingConfig` 설정 → `apk/SamgakGorae_Chachelin_release.apk`·`apk/SamgakGorae_CruiseBreaker_release.apk` 커밋(지금 `apk/` 폴더 없음)
+  7. 저장소 접근: 두 저장소가 **PRIVATE** → 심사용 계정 초대(또는 공개 전환) + 접근 확인. 새로 clone해서 빌드되는지 확인
+  8. 시연 영상 촬영 → 기획서 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 영상) 채우고 DOCX 재생성
+  9. 01 참가신청서·04 서명 칸, 5명 서명(11-13) → 11-14 메일 2통 발송(전원 CC). 11-05 중간 점검, Pleos Playground 프로젝트 생성
 - 막힌 점·질문:
   - GitHub 아이디 확인(11-02 PR로): 이상준 `wklee316`, 황준용 `Aodlf123` → `docs/handoff/README.md`에도 적을 것
   - Organization은 만들지 않음(10-30). 심사용 계정 권한·저장소 주소의 계정명 노출은 주최 측 답변 대기(팀 문서 4절 1번, 9절 4번)
@@ -40,6 +41,13 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-03 — Supabase PR #10·#22 머지, 최종 점검
+- 한 일(Claude 에이전트와 함께, 장호연 "Yes, merge both", "전체 프로젝트 확인해서 최종보고"): #10(`fc9b2e7`)·#22(`eb06822`) 머지(GitHub 502 한 번 뒤 head 재확인 후 머지). 차슐랭 #9·크루즈 #12 자동 종료
+- 확인: 두 main `assembleDebug assembleRelease test lint` 통과(차슐랭 208, 크루즈 192), core·tools 두 저장소 동일. 열린 PR 0건
+- 확인: #8(철회 삭제 재시도)·#20(철회 뒤 늦은 업로드)은 머지된 core·서버로 해결(근거 테스트 통과). 닫기는 자동 승인에서 막혀 장호연이 닫을 것
+- 발견: 두 저장소 PRIVATE, `apk/` 폴더·release 서명 설정 없음, 이 PC `local.properties`에 Supabase 키 없음 → "다음 할 일"에 반영
+- 바꾼 파일: 이 문서
 
 ### 2026-11-03 — Supabase PR #10·#22 남은 수정 직접 반영(황준용 브랜치)
 - 장호연 결정("다 진행해줘", 브랜치는 황준용 PR에 바로, DB 적용은 장호연이 대시보드에서). Claude 에이전트가 작업
