@@ -5,7 +5,7 @@
 ## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
 - 한 일 요약: #37의 안내/구간/해제 카운터가 모두0인 요약을 별도 빈 상태(“이번 주행에는 안내와 기록이 없어요”)로 표시. 하나라도 기록이 있으면 기존3개 숫자와 하단 목록 복귀 버튼을 유지한다.
-- 진행 중 브랜치·PR: `fix/demo-ui-review` / #37 앱 측 수정 PR. 장호연이 #37에서 길민종에게 지시한 Fake 시드 표시명과 관련 테스트도 “판교IC 진입로”로 변경. 좌표·구간ID·방향·해제/통과 수·임계값·시드 고지 유지. 서버는 황준용 담당이라 수정/적용하지 않음.
+- 진행 중 브랜치·PR: `fix/demo-ui-review` / [PR #38](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/38), #37 앱 측 수정 PR. 장호연이 #37에서 길민종에게 지시한 Fake 시드 표시명과 관련 테스트도 “판교IC 진입로”로 변경. 좌표·구간ID·방향·해제/통과 수·임계값·시드 고지 유지. 서버는 황준용 담당이라 수정/적용하지 않음.
 - 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 임시 Robolectric3검사 PASS:1682×1210dp/mdpi,1280×720,600×1024/Android150%. all-zero만 빈 상태, 각 카운터 단독1은 일반 상태, 하단 버튼 표시/콜백, 실제 Fake+RiskListViewModel의 새 이름·시드 고지 확인. 기존 RiskAnnouncerTest/ScreenViewModelsTest 새 이름 검사도 일반 테스트에서 PASS.
 - 남은 #37: 황준용이 적용된 migration을 고치지 않고 새 migration으로 서버 표시명을 맞춰야 한다. 장호연은 공통 tools/demo-drive.sh14행 설명의 시드 이름을 원본 차슐랭에서 바꾼 뒤 동기화. 이 PR은 #37을 자동으로 닫지 않음. Supabase 실제 서버 목록 이름은 migration 전에는 이전 값일 수 있음.
 - 인계 자료: 작성자 PC output/hyundai-demo-ui-fixes-2026-11-04/server-seed-name-proposal.sql은 새 migration 검토용 SQL이며 원격 적용하지 않음. 같은 폴더 owner-follow-up.txt에 tools 이름/공통 동기화 대상 기록. PR 본문에도 서버/도구 후속을 명시해 로컬 파일 접근을 요구하지 않음.
