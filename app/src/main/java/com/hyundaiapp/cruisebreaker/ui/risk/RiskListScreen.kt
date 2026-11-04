@@ -35,13 +35,12 @@ import com.hyundaiapp.cruisebreaker.ui.RiskRowUi
 import com.hyundaiapp.cruisebreaker.ui.components.CarCard
 import com.hyundaiapp.cruisebreaker.ui.components.CarIcons
 import com.hyundaiapp.cruisebreaker.ui.components.EmptyState
+import com.hyundaiapp.cruisebreaker.ui.components.HeaderIconButton
 import com.hyundaiapp.cruisebreaker.ui.components.MeterBar
 import com.hyundaiapp.cruisebreaker.ui.components.ScreenHeader
-import com.hyundaiapp.cruisebreaker.ui.components.SecondaryButton
 import com.hyundaiapp.cruisebreaker.ui.components.formatKm
 import com.hyundaiapp.cruisebreaker.ui.components.formatPercent
 import com.hyundaiapp.cruisebreaker.ui.theme.CarColors
-import com.hyundaiapp.cruisebreaker.ui.theme.CarDimens
 import com.hyundaiapp.cruisebreaker.ui.theme.CruiseBreakerTheme
 
 /** PRD 5.3 위험 구간 기준(해제율 ≥ 30%). 화면에서는 주황 표시에만 쓴다 */
@@ -65,9 +64,9 @@ fun RiskListScreen(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 1000.dp
         Column(Modifier.fillMaxSize().padding(horizontal = if (wide) 48.dp else 32.dp, vertical = 32.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            ScreenHeader("근처 해제 다발 구간", onBack = onBack) {
-                SecondaryButton("최근 주행 요약", onSummaryClick, height = CarDimens.TouchTargetSmall)
-                SecondaryButton("설정", onSettingsClick, height = CarDimens.TouchTargetSmall)
+            ScreenHeader("근처 해제 다발 구간", onBack = onBack, inlineActions = true) {
+                HeaderIconButton(CarIcons.Chart, "최근 주행 요약", onSummaryClick)
+                HeaderIconButton(CarIcons.Settings, "설정", onSettingsClick)
             }
             when {
                 state.loading && selected == null -> EmptyState("해제 다발 구간을 불러오는 중이에요", loading = true, modifier = Modifier.weight(1f))
@@ -97,7 +96,8 @@ private fun RiskRow(row: RiskRowUi, selected: Boolean, onClick: () -> Unit) {
         color = if (selected) CarColors.SurfaceVariant else CarColors.Surface,
         contentColor = CarColors.OnSurface,
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(2.dp, if (selected) CarColors.Primary else CarColors.Surface),
+        // 선택은 흰 테두리. 앰버(대표색)는 위험 구간 주황과 거의 같아서 선택에는 쓰지 않는다
+        border = BorderStroke(2.dp, if (selected) CarColors.OnSurface else CarColors.Surface),
         modifier = Modifier.fillMaxWidth().semantics { this.selected = selected }.clickable(onClick = onClick),
     ) {
         Row(
@@ -114,7 +114,7 @@ private fun RiskRow(row: RiskRowUi, selected: Boolean, onClick: () -> Unit) {
                 Text("해제율", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
                 Text(formatPercent(row.rate), style = MaterialTheme.typography.titleLarge, color = rateColor(row.rate))
             }
-            Icon(if (selected) CarIcons.Check else CarIcons.ChevronRight, contentDescription = if (selected) "선택됨" else "구간 상세 선택", tint = CarColors.Primary, modifier = Modifier.size(28.dp))
+            Icon(if (selected) CarIcons.Check else CarIcons.ChevronRight, contentDescription = if (selected) "선택됨" else "구간 상세 선택", tint = if (selected) CarColors.OnSurface else CarColors.OnSurfaceVariant, modifier = Modifier.size(28.dp))
 
         }
     }
@@ -127,7 +127,7 @@ private fun RiskDetail(row: RiskRowUi, modifier: Modifier) {
             Text("선택한 구간", style = MaterialTheme.typography.labelMedium, color = CarColors.OnSurfaceVariant)
             Text(row.roadName, style = MaterialTheme.typography.titleLarge, maxLines = Int.MAX_VALUE)
         }
-        LabeledMeter("해제율", row.rate, if (row.rate >= RISK_RATE) CarColors.Warning else CarColors.Primary)
+        LabeledMeter("해제율", row.rate, if (row.rate >= RISK_RATE) CarColors.Warning else CarColors.OnSurfaceVariant)
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("크루즈 통과", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
             Row {
