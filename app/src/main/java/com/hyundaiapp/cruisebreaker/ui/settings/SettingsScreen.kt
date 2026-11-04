@@ -47,39 +47,41 @@ fun SettingsScreen(
     onWithdrawConsent: () -> Unit,
 ) {
     Column(
-        Modifier.fillMaxSize().padding(horizontal = CarDimens.ScreenPadding, vertical = 32.dp).verticalScroll(rememberScrollState()),
+        Modifier.fillMaxSize().padding(horizontal = CarDimens.ScreenPadding, vertical = 32.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         ScreenHeader("설정", onBack = onBack)
-        SectionLabel("안내")
-        ToggleSetting("음성 안내", state.voiceEnabled, onVoiceEnabledChange)
-        SectionLabel("기록")
-        ToggleSetting("자동 기록", state.autoRecordEnabled, onAutoRecordEnabledChange)
-        SectionLabel("동의")
-        Surface(
-            color = CarColors.Surface,
-            contentColor = CarColors.OnSurface,
-            shape = RoundedCornerShape(CarDimens.CardRadius),
-            modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).clickable(onClick = onConsentClick),
-        ) {
-            Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("위치정보·개인정보 동의 내용", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            SectionLabel("안내")
+            ToggleSetting("음성 안내", state.voiceEnabled, onVoiceEnabledChange)
+            SectionLabel("기록")
+            ToggleSetting("자동 기록", state.autoRecordEnabled, onAutoRecordEnabledChange)
+            SectionLabel("동의")
+            Surface(
+                color = CarColors.Surface,
+                contentColor = CarColors.OnSurface,
+                shape = RoundedCornerShape(CarDimens.CardRadius),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).clickable(onClick = onConsentClick),
+            ) {
+                Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("위치정보·개인정보 동의 내용", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
+                }
             }
-        }
-        // 철회는 확인 창에서 한 번 더 확인한다(CruiseBreakerNav).
-        Surface(
-            color = CarColors.Surface,
-            contentColor = CarColors.OnSurface,
-            shape = RoundedCornerShape(CarDimens.CardRadius),
-            modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).clickable(onClick = onWithdrawConsent),
-        ) {
-            Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("동의 철회", style = MaterialTheme.typography.titleMedium, color = CarColors.Warning, modifier = Modifier.weight(1f))
-                Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
+            // 철회는 확인 창에서 한 번 더 확인한다(CruiseBreakerNav).
+            Surface(
+                color = CarColors.Surface,
+                contentColor = CarColors.OnSurface,
+                shape = RoundedCornerShape(CarDimens.CardRadius),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).clickable(onClick = onWithdrawConsent),
+            ) {
+                Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("동의 철회", style = MaterialTheme.typography.titleMedium, color = CarColors.Warning, modifier = Modifier.weight(1f))
+                    Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
+                }
             }
+            Spacer(Modifier.height(24.dp))
         }
-        Spacer(Modifier.height(24.dp))
     }
 }
 

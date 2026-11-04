@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -40,6 +41,7 @@ import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
 import com.hyundaiapp.cruisebreaker.domain.RiskAnnouncer
 import com.hyundaiapp.cruisebreaker.domain.TripStats
 import com.hyundaiapp.cruisebreaker.ui.components.CarAlertDialog
+import com.hyundaiapp.cruisebreaker.ui.components.ScreenHeader
 import com.hyundaiapp.cruisebreaker.ui.components.rememberNotificationPermission
 import com.hyundaiapp.cruisebreaker.ui.debug.SignalMonitorScreen
 import com.hyundaiapp.cruisebreaker.ui.driving.DrivingScreen
@@ -67,7 +69,7 @@ enum class Screen(val title: String) {
 
 /** 간단한 화면 스택. 화면이 늘면 navigation-compose로 바꿔도 된다(길민종) */
 @Composable
-fun CruiseBreakerNav(container: AppContainer) {
+fun CruiseBreakerNav(container: AppContainer, onExit: () -> Unit) {
     val context = LocalContext.current
     val dependencies = remember(container, context) {
         CruiseNavigationDependencies(
@@ -80,7 +82,7 @@ fun CruiseBreakerNav(container: AppContainer) {
             onWithdraw = container::withdrawConsent,
         )
     }
-    CruiseBreakerNavigation(dependencies, BuildConfig.DEBUG, rememberCarUxRestricted(), context)
+    CruiseBreakerNavigation(dependencies, BuildConfig.DEBUG, rememberCarUxRestricted(), context, onExit)
 }
 
 /** UI가 쓰는 기존 상태·콜백만 전달해 SDK 없이 화면 전환도 확인할 수 있게 한다. */
@@ -100,13 +102,14 @@ internal fun CruiseBreakerNavigation(
     debug: Boolean,
     uxRestricted: Boolean?,
     context: Context = LocalContext.current,
+    onExit: () -> Unit,
 ) {
     val stack = remember { mutableStateListOf(initialScreen(debug, dependencies.prefs.onboarded)) }
     var sessionStarted by remember { mutableStateOf(dependencies.prefs.onboarded) }
     val drive by dependencies.signals.drive.collectAsState()
     val currentScreen = visibleScreen(stack.last(), drive, uxRestricted)
     val go: (Screen) -> Unit = { stack.add(it) }
-    val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
+    val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) else onExit() }
     val resetTo: (Screen) -> Unit = {
         stack.clear()
         if (debug && it != Screen.DEV_MENU) stack.add(Screen.DEV_MENU)
@@ -156,7 +159,7 @@ internal fun CruiseBreakerNavigation(
 
     Surface(Modifier.fillMaxSize()) {
         when (currentScreen) {
-            Screen.DEV_MENU -> DevMenu(go)
+            Screen.DEV_MENU -> DevMenu(go, onBack = back)
             Screen.DRIVING -> {
                 val vm = viewModel { DrivingViewModel(dependencies.signals, dependencies.announcer) }
                 val state by vm.state.collectAsState()
@@ -168,7 +171,7 @@ internal fun CruiseBreakerNavigation(
                     dependencies.signals.start()
                     onDispose { if (!dependencies.prefs.onboarded) dependencies.signals.stop() }
                 }
-                SignalMonitorScreen(dependencies.signals)
+                SignalMonitorScreen(dependencies.signals, onBack = back)
             }
             Screen.RISK_LIST -> {
                 val vm = viewModel { RiskListViewModel(dependencies.signals, dependencies.risks) }
@@ -179,6 +182,7 @@ internal fun CruiseBreakerNavigation(
                     state,
                     onSummaryClick = { go(Screen.TRIP_SUMMARY) },
                     onSettingsClick = { go(Screen.SETTINGS) },
+                    onBack = back,
                 )
             }
             Screen.TRIP_SUMMARY -> {
@@ -221,7 +225,8 @@ internal fun CruiseBreakerNavigation(
                     notificationsGranted = notifications.granted,
                     onRequestNotifications = notifications.request,
                     notificationsNeedSettings = notifications.openSettings,
-                    onBack = if (stack.size > 1 && stack[stack.lastIndex - 1] == Screen.SETTINGS) back else null,
+                    onBack = back,
+                    reviewingConsent = stack.size > 1 && stack[stack.lastIndex - 1] == Screen.SETTINGS,
                     onStart = {
                         if (onboardingVm.start()) {
                             sessionStarted = true
@@ -251,14 +256,16 @@ private fun TermsDialog(terms: Terms, onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun DevMenu(go: (Screen) -> Unit) {
+private fun DevMenu(go: (Screen) -> Unit, onBack: () -> Unit) {
     Column(
-        Modifier.fillMaxSize().padding(24.dp).verticalScroll(rememberScrollState()),
+        Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("크루즈브레이커 개발 메뉴 (디버그 빌드에만 보임)", style = MaterialTheme.typography.headlineMedium)
-        Screen.entries.filter { it != Screen.DEV_MENU }.forEach { s ->
-            Button(onClick = { go(s) }) { Text(s.title) }
+        ScreenHeader("크루즈브레이커 개발 메뉴", subtitle = "디버그 빌드", onBack = onBack)
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Screen.entries.filter { it != Screen.DEV_MENU }.forEach { s ->
+                Button(onClick = { go(s) }) { Text(s.title) }
+            }
         }
     }
 }

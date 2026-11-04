@@ -244,25 +244,23 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(text, style = MaterialTheme.typography.labelMedium, color = CarColors.OnSurfaceVariant, modifier = modifier.padding(top = 8.dp))
 }
 
-/** 화면 제목줄. onBack이 있으면 왼쪽에 뒤로 버튼 */
+/** 정차 화면 제목줄. 차량에서 시스템 버튼 없이 돌아갈 수 있도록 뒤로 동작을 필수로 받는다. */
 @Composable
 fun ScreenHeader(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
-    onBack: (() -> Unit)? = null,
+    onBack: () -> Unit,
     actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
     BoxWithConstraints(modifier.fillMaxWidth()) {
         val compact = maxWidth < 840.dp
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                if (onBack != null) {
-                    IconButton(onClick = onBack, modifier = Modifier.size(CarDimens.TouchTargetSmall)) {
-                        Icon(CarIcons.ChevronLeft, contentDescription = "뒤로", modifier = Modifier.size(32.dp))
-                    }
-                    Box(Modifier.size(8.dp))
+                IconButton(onClick = onBack, modifier = Modifier.align(Alignment.Top).size(CarDimens.TouchTargetSmall)) {
+                    Icon(CarIcons.ChevronLeft, contentDescription = "뒤로", tint = CarColors.OnSurface, modifier = Modifier.size(32.dp))
                 }
+                Box(Modifier.size(8.dp))
                 Column(Modifier.weight(1f)) {
                     Text(title, style = MaterialTheme.typography.headlineMedium)
                     if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)

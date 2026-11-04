@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                 // Pleos 에뮬레이터에서 아래 시스템 바(140px)가 앱 창 아래를 덮는데, 창은 바까지 그리고 inset도 주지 않는다.
                 // 설정의 화면 높이(screenHeightDp)만 바를 뺀 값이라 그 높이로 맞춰 아래 고정 버튼이 바에 가리지 않게 한다(11-04 확인)
                 Box(Modifier.fillMaxWidth().heightIn(max = LocalConfiguration.current.screenHeightDp.dp)) {
-                    CruiseBreakerNav((application as CruiseBreakerApp).container)
+                    CruiseBreakerNav((application as CruiseBreakerApp).container, onExit = { finish() })
                 }
             }
         }
