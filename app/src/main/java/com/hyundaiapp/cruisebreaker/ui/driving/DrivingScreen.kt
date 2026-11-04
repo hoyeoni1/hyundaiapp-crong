@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,20 +47,27 @@ fun DrivingScreen(state: DrivingUiState) {
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             RecordingChip(state.recording)
-            Text(
-                "크루즈 ${if (state.cruiseEngaged) "작동" else "꺼짐"} · ${formatWhole(state.speedKph?.toDouble())} km/h",
-                style = MaterialTheme.typography.bodyLarge,
-                color = CarColors.OnSurfaceVariant,
-                maxLines = 1,
-            )
+            // 크루즈 상태는 작동일 때만 파랑, 속도는 굵은 숫자 + 작은 단위
+            Row {
+                Text(
+                    "크루즈 ${if (state.cruiseEngaged) "작동" else "꺼짐"}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (state.cruiseEngaged) CarColors.Primary else CarColors.OnSurfaceVariant,
+                    maxLines = 1,
+                    modifier = Modifier.padding(end = 24.dp).alignByBaseline(),
+                )
+                Text(formatWhole(state.speedKph?.toDouble()), style = MaterialTheme.typography.displaySmall, maxLines = 1, modifier = Modifier.alignByBaseline())
+                Text("km/h", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant, maxLines = 1,
+                    modifier = Modifier.padding(start = 8.dp).alignByBaseline())
+            }
         }
         val banner = state.banner
         if (banner != null) {
             Banner(banner)
-        } else {
+        } else if (!state.recording) {
             Text(
-                if (state.recording) "안내가 있으면 여기에 표시해요" else "차량 신호를 기다리는 중이에요",
-                style = MaterialTheme.typography.titleLarge,
+                "차량 신호를 기다리는 중이에요",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
                 color = CarColors.OnSurfaceVariant,
                 maxLines = 1,
                 modifier = Modifier.align(Alignment.CenterHorizontally),

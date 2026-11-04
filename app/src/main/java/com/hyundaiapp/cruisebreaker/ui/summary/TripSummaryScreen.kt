@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,20 +37,11 @@ fun TripSummaryScreen(
         val wide = maxWidth >= 1000.dp
         Column(Modifier.fillMaxSize().padding(horizontal = if (wide) 48.dp else 32.dp, vertical = 32.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
             ScreenHeader("최근 주행 요약", onBack = onDone)
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                Text("최근 주행에서 생성한 안내와 기록이에요", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
-                val metrics: @Composable (Modifier) -> Unit = { modifier ->
-                    StatTile("안내 횟수", state.announcements.toString(), modifier, unit = "회", valueStyle = MaterialTheme.typography.displayLarge, caption = "배너 안내 기준이에요")
-                }
-                if (wide) Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    metrics(Modifier.weight(1f))
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                        SummaryDetails(state)
-                    }
-                } else {
-                    metrics(Modifier.fillMaxWidth())
-                    SummaryDetails(state)
-                }
+            // 세 숫자는 같은 크기·같은 흰색으로 나란히 둔다
+            if (wide) Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                SummaryTiles(state) { Modifier.weight(1f).fillMaxHeight() }
+            } else Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                SummaryTiles(state) { Modifier.fillMaxWidth() }
             }
             PrimaryButton("해제 다발 구간 목록으로", onShowRisks, Modifier.fillMaxWidth())
         }
@@ -56,11 +49,15 @@ fun TripSummaryScreen(
 }
 
 @Composable
-private fun SummaryDetails(state: TripSummaryUiState) {
-    StatTile("안내한 구간", state.riskSegmentsPassed.toString(), Modifier.fillMaxWidth(), unit = "곳", valueColor = CarColors.Warning,
-        valueStyle = MaterialTheme.typography.displaySmall, caption = "같은 구간은 한 번씩 세요")
-    StatTile("내가 보탠 기록", state.myContributions.toString(), Modifier.fillMaxWidth(), unit = "건", valueColor = CarColors.Primary,
-        valueStyle = MaterialTheme.typography.displaySmall, caption = "이번 주행에서 생성한 기록이에요")
+private fun SummaryTiles(state: TripSummaryUiState, tileModifier: () -> Modifier) {
+    val big = MaterialTheme.typography.displayLarge
+    val centered = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+    StatTile("안내 횟수", state.announcements.toString(), tileModifier(), unit = "회", valueStyle = big,
+        verticalArrangement = centered)
+    StatTile("안내한 구간", state.riskSegmentsPassed.toString(), tileModifier(), unit = "곳", valueStyle = big,
+        verticalArrangement = centered)
+    StatTile("내가 보탠 기록", state.myContributions.toString(), tileModifier(), unit = "건", valueStyle = big,
+        verticalArrangement = centered)
 }
 
 @Preview(name = "S3 주행 요약", widthDp = 1280, heightDp = 720)
