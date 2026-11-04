@@ -4,12 +4,12 @@
 
 ## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
-- 한 일 요약: 머지된 PR23/35의 공통 Text 리뷰 후속을 처리. 변환 결과 remember 재사용, WORD JOINER 이스케이프 표기, 완성형 한글 음절 사이만 코드포인트 단위로 묶고 URL/이메일·이모지·결합 문자·NFD는 원문을 유지한다.
-- 진행 중 브랜치·PR: `fix/text-emoji-followups-20261104`, [PR40](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/40) — 최신 main에서 분리한 텍스트 리뷰 후속. 이전 UI PR26/38은 그사이 main 머지 완료. 기존 별점/빈 요약/앱 Fake 이름 변경을 다시 구현하지 않음.
-- 전체 점검: 초기 이슈20개·PR44개와 댓글72개, 리뷰·인라인을 페이지 끝까지 조회했고 미해결 인라인0개. 이후 새 도구 PR27/39의 본문·파일/코멘트도 대조(기존PR46개까지). 이번 추가 후속 PR은 이 수에 포함하지 않음.
-- 검증: 두 앱 assembleDebug test :app:lintDebug PASS. 제품 TextWrappingTest6개/앱 추가 PASS. 임시 Text3/앱+기존 화면4(차슐랭)/3(크루즈), 합계13검사 PASS. 원문 semantics, 긴 주소·이메일/한글의 실제 줄폭/끝, single-line과 이모지 원문을 확인. 차슐랭1682×1210·1280×1210의 카드 중앙 배치도 검사. 기본1280×720와600×1024/Android150% 포함.
-- 남은 담당 항목: 차슐랭 #12 위치/최신 요청 계약(이상준), #13 내비 요청별 결과 계약(황준용·이상준), 크루즈 #37 서버 이름 새 migration(황준용). 도구 설명은 장호연 PR27/39에서 머지 완료. 설정 자동 기록 설명 복원은 PR35의 장호연 선택 검토이며 새 기능 오류로 분류하지 않음.
-- 경계·증거: 본인 UI와 단위 테스트/handoff만 변경, core·VM·서버·도구는 변경하지 않음. 현재 Compose 샘플/합성 상태 기준이며 실제 Pleos/실차 재검증은 별도. 조회 원본·audit.json·단위/XML/UI 소스/로그·캡처는 output/hyundai-text-review-followups-2026-11-04/에 보존. 임시 UI QA 의존성은 제품에 추가하지 않음.
+- 한 일 요약: [PR43](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/43)의 새 리뷰(12:12 UTC)는 머지 가능·필수 수정 없음. 선택 제안에 따라 WORD JOINER 조건식을 "한쪽이 한글이고 양쪽 모두 글자·숫자"로 정리. 기존 혼합 단어 줄바꿈 동작과 코드포인트 순회/remember/원문 접근성은 그대로.
+- 진행 중 브랜치·PR: `fix/mixed-word-wrapping-20261104`, 위 PR에 선택 리뷰 후속을 추가. 직접 머지하지 않음.
+- 전체 점검: 이슈20개·PR54개(닫힘/머지 포함), 본문·댓글·리뷰·인라인을 다시 대조. 모든 연결 hasNextPage=false. 직전 최종 보고 후 새 이슈/PR0개, 본인 PR31/43에 리뷰 댓글1개씩 추가. 둘 다 머지 가능이며 하이픈/소수점 사례는 실제 화면 문제가 생길 때 검토하자는 의견. UI 소스에서 예시 문자열 `판교-IC`, `3.5km`는 발견되지 않음.
+- 검증: 두 앱 assembleDebug test PASS. TextWrappingTest7개/앱 PASS. 이번 변경은 동등한 조건식 정리이며 이전 혼합 단어 Compose4검사/앱 증거는 output/hyundai-mixed-word-review-2026-11-04/에 보존. 새 UI 동작/하이픈 규칙은 추가하지 않음.
+- 남은 담당 항목: 차슐랭12 위치/최신 요청 계약(이상준),13 내비 요청별 결과 계약(황준용·이상준), 크루즈37 서버 이름 새 migration(황준용). 장호연 시작 크래시 PR30/42는 조회 시 OPEN이며 직접 변경/머지하지 않음. 설정 자동 기록 설명 복원은 장호연 선택 검토.
+- 경계·증거: 본인 Text UI/handoff만 변경. core·VM·서버·도구 변경 없음. 이번 조회 원본·빌드 로그·단위 XML은 output/hyundai-condition-review-2026-11-04/. 실제 Pleos/실차 재검증은 아님.
 
 ## 공유 검증 요약
 
@@ -28,6 +28,17 @@
 일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 현재 UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+S5 신규4 PASS이며 앱 일반 테스트에 포함되지 않는다. 이전 S2 표시 전용3검사는 #25 결정으로 폐기한 제안의 과거 검증이다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — PR43 조건식 선택 리뷰 반영
+- 한 일: 두 앱 최신 리뷰 확인(머지 가능, 필수0) 후 조건식을 `(한쪽 한글) && (양쪽 글자/숫자)`로 정리. 표시 동작은 동일.
+- 검증: assembleDebug test PASS, 기존 TextWrappingTest7개 PASS. 새 테스트나 UI 규칙 확대는 없음.
+- 바꾼 파일: ui/components/Text.kt, 본인 handoff. 기존 PR에 추가 push하며 머지는 장호연 담당.
+
+### 2026-11-04 — PR40 혼합 단어 줄바꿈 선택 리뷰 후속
+- 한 일: 전체 이슈/PR 재조회 후 한글과 영문·숫자가 붙은 경계까지 WORD JOINER 조건을 넓힘. 양쪽 모두 비한글인 영문 주소·숫자·이모지는 기존 처리를 유지.
+- 바꾼 파일: ui/components/Text.kt, ui/components/TextWrappingTest.kt, 본인 handoff.
+- 검증: assembleDebug test :app:lintDebug PASS, 제품 Text7검사·임시 Compose Text4검사 PASS. 200dp/Android150%의 실제 줄 결과에서 혼합5단어 분리 없음.
+- 다음: 이 후속을 별도 PR로 리뷰 요청. core/서버/타 담당 시작 크래시 PR은 변경하지 않음.
 
 ### 2026-11-04 — 전체 이슈/PR 재점검 및 공통 텍스트 리뷰 후속
 - 차슐랭 이슈7/PR19, 크루즈 이슈13/PR25를 댓글·리뷰·인라인 스레드와 함께 전부 조회(페이지 누락 없음). 미해결 인라인0개. 머지된 PR23/35의 선택 리뷰에서 문자 변환 비용·가독성·긴 주소/이모지·테스트 보강이 남아 있어 처리.
