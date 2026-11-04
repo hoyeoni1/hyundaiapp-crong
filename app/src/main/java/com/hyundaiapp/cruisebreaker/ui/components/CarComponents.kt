@@ -24,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -358,7 +359,7 @@ fun formatOneDecimal(value: Double): String = String.format(Locale.KOREA, "%.1f"
 
 fun formatWhole(value: Double?): String = value?.let { String.format(Locale.KOREA, "%.0f", it) } ?: "-"
 
-/** 모달 제목은 별도 패널로 구분하고 행동은 64dp 이상. 닫기·취소는 동의가 아니다. */
+/** 모달 제목 아래에 구분선을 두고 행동은 64dp 이상. 닫기·취소는 동의가 아니다. */
 @Composable
 fun CarAlertDialog(title: String, message: String, confirmLabel: String, onConfirm: () -> Unit,
     onDismiss: () -> Unit, dismissLabel: String? = null, destructive: Boolean = false) {
@@ -368,17 +369,9 @@ fun CarAlertDialog(title: String, message: String, confirmLabel: String, onConfi
         titleContentColor = CarColors.OnSurface,
         textContentColor = CarColors.OnSurface,
         title = {
-            Surface(
-                color = CarColors.Track,
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(2.dp, CarColors.Outline),
-            ) {
-                Text(
-                    title,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                )
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(title, style = MaterialTheme.typography.titleLarge)
+                HorizontalDivider(thickness = 1.dp, color = CarColors.Outline)
             }
         },
         text = { Text(message, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.verticalScroll(rememberScrollState())) },
