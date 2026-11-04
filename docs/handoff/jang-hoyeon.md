@@ -42,6 +42,10 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-04 — demo-drive.sh 시드 이름 PR 머지(차슐랭 #27 → 68460a1, 크루즈 #39 → 8f02c88)
+- 장호연 지시로 머지. GitHub 502·"merge already in progress"로 한 번 걸려 REST로 다시 머지함. 두 저장소 `tools/` 동일
+- 확인(11-04): Supabase 키는 이 PC `local.properties`에 아직 없음(release 서명 값만). 황준용 새 서버 코드·커밋 없음(마지막 활동 11-03). 열린 PR 없음
+
 ### 2026-11-04 — demo-drive.sh 시드 이름 맞춤(브랜치 `fix/demo-drive-seed-name`)
 - `tools/demo-drive.sh` 14행 설명의 시드 이름을 "시연 지점" → "판교IC 진입로"로(크루즈 #38과 맞춤). 주석 한 줄만, 동작 변경 없음. 두 저장소 `tools/` 동일 확인, `bash -n` 통과
 - 남은 것: 서버 시드 이름 새 migration(황준용) 뒤 크루즈 #37 닫기
