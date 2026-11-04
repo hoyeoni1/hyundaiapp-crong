@@ -4,12 +4,12 @@
 
 ## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
-- 한 일 요약: 머지된 차슐랭 PR28·크루즈 PR40의 새 선택 리뷰 처리. 한글에 붙은 글자·숫자 경계도 묶어 `ID만`, `32분`, `3회`, `판교IC`, `B급3`가 단어 안에서 갈라지는 것을 막는다. 코드포인트 순회·remember·원문 semantics는 유지.
-- 진행 중 브랜치·PR: `fix/mixed-word-wrapping-20261104`, 최신 main 기반 혼합 단어 줄바꿈 후속. 이전 PR28/40은 머지 완료.
-- 전체 점검: 이슈20개·기존PR52개를 본문/댓글/리뷰/인라인까지 재조회. 모든 연결 hasNextPage=false. 새 이슈0, 직전 전달 이후 새 PR4(차슐랭29/30·크루즈41/42). 공개 설정29/41은 머지됐고 시작 크래시 방어30/42는 조회 시 OPEN. UI 추가 후속은28/40 혼합 단어 선택 리뷰.
-- 검증: 두 앱 assembleDebug test :app:lintDebug PASS. TextWrappingTest7검사/앱 PASS(혼합 단어1검사 추가). 임시 Compose Text4검사/앱 PASS: 실제200dp 폭·Android150%에서 위5단어의 시작/끝이 같은 줄임을 확인, 긴 영문 URL/이메일·긴 한글의 줄폭/전체 글자·원문 접근성·단일 줄/이모지도 재확인.
-- 남은 담당 항목: 차슐랭12 위치/최신 요청 계약(이상준),13 내비 요청별 결과 계약(황준용·이상준), 크루즈37 서버 이름 새 migration(황준용). 시작 크래시 PR30/42는 장호연 진행 및 담당자 확인 영역, 직접 수정/머지하지 않음. 설정 자동 기록 설명 복원은 장호연 선택 검토.
-- 경계·증거: 본인 Text UI/단위검사/handoff만 변경. core·VM·서버·도구 변경 없음. 임시 Compose QA는 Robolectric이며 실차/Pleos 재검증은 아님. 조회원본·테스트 소스/XML·로그는 output/hyundai-mixed-word-review-2026-11-04/. QA 의존성은 제품에 추가하지 않음.
+- 한 일 요약: [PR43](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/43)의 새 리뷰(12:12 UTC)는 머지 가능·필수 수정 없음. 선택 제안에 따라 WORD JOINER 조건식을 "한쪽이 한글이고 양쪽 모두 글자·숫자"로 정리. 기존 혼합 단어 줄바꿈 동작과 코드포인트 순회/remember/원문 접근성은 그대로.
+- 진행 중 브랜치·PR: `fix/mixed-word-wrapping-20261104`, 위 PR에 선택 리뷰 후속을 추가. 직접 머지하지 않음.
+- 전체 점검: 이슈20개·PR54개(닫힘/머지 포함), 본문·댓글·리뷰·인라인을 다시 대조. 모든 연결 hasNextPage=false. 직전 최종 보고 후 새 이슈/PR0개, 본인 PR31/43에 리뷰 댓글1개씩 추가. 둘 다 머지 가능이며 하이픈/소수점 사례는 실제 화면 문제가 생길 때 검토하자는 의견. UI 소스에서 예시 문자열 `판교-IC`, `3.5km`는 발견되지 않음.
+- 검증: 두 앱 assembleDebug test PASS. TextWrappingTest7개/앱 PASS. 이번 변경은 동등한 조건식 정리이며 이전 혼합 단어 Compose4검사/앱 증거는 output/hyundai-mixed-word-review-2026-11-04/에 보존. 새 UI 동작/하이픈 규칙은 추가하지 않음.
+- 남은 담당 항목: 차슐랭12 위치/최신 요청 계약(이상준),13 내비 요청별 결과 계약(황준용·이상준), 크루즈37 서버 이름 새 migration(황준용). 장호연 시작 크래시 PR30/42는 조회 시 OPEN이며 직접 변경/머지하지 않음. 설정 자동 기록 설명 복원은 장호연 선택 검토.
+- 경계·증거: 본인 Text UI/handoff만 변경. core·VM·서버·도구 변경 없음. 이번 조회 원본·빌드 로그·단위 XML은 output/hyundai-condition-review-2026-11-04/. 실제 Pleos/실차 재검증은 아님.
 
 ## 공유 검증 요약
 
@@ -28,6 +28,11 @@
 일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 현재 UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+S5 신규4 PASS이며 앱 일반 테스트에 포함되지 않는다. 이전 S2 표시 전용3검사는 #25 결정으로 폐기한 제안의 과거 검증이다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — PR43 조건식 선택 리뷰 반영
+- 한 일: 두 앱 최신 리뷰 확인(머지 가능, 필수0) 후 조건식을 `(한쪽 한글) && (양쪽 글자/숫자)`로 정리. 표시 동작은 동일.
+- 검증: assembleDebug test PASS, 기존 TextWrappingTest7개 PASS. 새 테스트나 UI 규칙 확대는 없음.
+- 바꾼 파일: ui/components/Text.kt, 본인 handoff. 기존 PR에 추가 push하며 머지는 장호연 담당.
 
 ### 2026-11-04 — PR40 혼합 단어 줄바꿈 선택 리뷰 후속
 - 한 일: 전체 이슈/PR 재조회 후 한글과 영문·숫자가 붙은 경계까지 WORD JOINER 조건을 넓힘. 양쪽 모두 비한글인 영문 주소·숫자·이모지는 기존 처리를 유지.

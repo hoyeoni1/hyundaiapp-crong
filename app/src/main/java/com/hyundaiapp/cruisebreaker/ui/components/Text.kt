@@ -68,8 +68,8 @@ internal fun keepWordsTogether(text: String): String {
             val codePoint = text.codePointAt(index)
             val previousIsHangul = previous in 0xAC00..0xD7A3
             val currentIsHangul = codePoint in 0xAC00..0xD7A3
-            if ((previousIsHangul && Character.isLetterOrDigit(codePoint)) ||
-                (currentIsHangul && Character.isLetterOrDigit(previous))
+            if ((previousIsHangul || currentIsHangul) &&
+                Character.isLetterOrDigit(previous) && Character.isLetterOrDigit(codePoint)
             ) append(WordJoiner)
             appendCodePoint(codePoint)
             previous = codePoint
