@@ -28,12 +28,14 @@ class SupabaseBackend(
 ) {
     private val guard = Any()
     private val network = Mutex()
-    private val state = JSONObject(store.read() ?: "{\"generations\":[]}")
+    /** 상태 파일을 읽지 못했거나 내용이 깨져 빈 상태로 시작했는지. [status]의 첫 값이 "local-storage-reset"이 된다 */
+    private var storageReset = false
+    private val state = loadState()
     private val generations get() = state.getJSONArray("generations")
     private val wake = Channel<Unit>(Channel.CONFLATED)
     private val mutableRevision = MutableStateFlow(0L)
     val revision = mutableRevision.asStateFlow()
-    private val mutableStatus = MutableStateFlow("idle")
+    private val mutableStatus = MutableStateFlow(if (storageReset) "local-storage-reset" else "idle")
     val status = mutableStatus.asStateFlow()
 
     init {
@@ -45,6 +47,17 @@ class SupabaseBackend(
                 withTimeoutOrNull(5_000) { wake.receive() }
             }
         }
+    }
+
+    /**
+     * 저장된 상태를 읽는다. 읽기 예외(복호화 실패)나 JSON 오류면 빈 상태로 시작한다 — 복구할 수 없는 상태 때문에
+     * 앱이 켜질 때마다 죽는 것을 막는다. 보내지 못한 작업·철회 대기는 그 경우 사라지므로 [status]로 알린다.
+     */
+    private fun loadState(): JSONObject = try {
+        JSONObject(store.read() ?: EMPTY_STATE).also { it.getJSONArray("generations") }
+    } catch (e: Exception) {
+        storageReset = true
+        JSONObject(EMPTY_STATE)
     }
 
     private fun find(vehicle: String): JSONObject? = (0 until generations.length())
@@ -240,6 +253,7 @@ class SupabaseBackend(
     }
 
     companion object {
+        private const val EMPTY_STATE = "{\"generations\":[]}"
         private val RETRY = longArrayOf(5_000, 15_000, 60_000, 300_000)
         private val WRITES = setOf("pleos_upload_charge", "pleos_submit_review", "pleos_retract_failure", "pleos_upload_pass", "pleos_upload_disengage")
         private val READS = setOf("pleos_my_charges", "pleos_nearby_stations", "pleos_station_detail", "pleos_nearby_risk")

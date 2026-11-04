@@ -18,11 +18,43 @@ data class BackendConfig(
         return "supabase-${if (simulated) "demo" else "live"}-$digest"
     }
     init {
-        val uri = URI(url)
-        require(uri.scheme == "https" && uri.host != null && uri.rawQuery == null && uri.userInfo == null)
-        require(publishableKey.startsWith("sb_publishable_"))
-        require(app in setOf("CHACHELIN", "CRUISEBREAKER"))
-        require(consentVersion.length in 1..100)
+        // 메시지에 키 값은 넣지 않는다(로그에 남음)
+        val uri = runCatching { URI(url) }.getOrElse { throw IllegalArgumentException("url is not a valid URI") }
+        require(uri.scheme == "https" && uri.host != null && uri.rawQuery == null && uri.userInfo == null) {
+            "url must be https://<host>[/path] without query or user info"
+        }
+        require(publishableKey.startsWith("sb_publishable_")) {
+            "publishableKey must start with sb_publishable_ (legacy anon JWT keys are not supported; check for quotes/whitespace)"
+        }
+        require(app in setOf("CHACHELIN", "CRUISEBREAKER")) { "unknown app $app" }
+        require(consentVersion.length in 1..100) { "consentVersion must be 1..100 chars" }
+    }
+
+    companion object {
+        /**
+         * 빌드 설정값(local.properties → BuildConfig)으로 설정을 만든다.
+         * - URL이 비어 있으면 서버 없이(Fake) 쓰는 뜻이므로 조용히 null
+         * - 값이 있는데 형식이 틀리면(http, 구형 anon JWT, 따옴표·공백 섞임) [onInvalid]에 이유를 알리고 null
+         *   → 앱이 켜지자마자 죽는 대신 서버 없이 뜬다. 제출 빌드는 tools/build-release.sh가 같은 형식을 먼저 검사한다
+         * 앞뒤 공백·줄바꿈은 지운다(local.properties 끝 공백 때문에 죽지 않게).
+         */
+        fun fromBuildConfigOrNull(
+            url: String,
+            publishableKey: String,
+            app: String,
+            simulated: Boolean,
+            consentVersion: String,
+            onInvalid: (reason: String) -> Unit = {},
+        ): BackendConfig? {
+            val trimmedUrl = url.trim()
+            if (trimmedUrl.isEmpty()) return null
+            return try {
+                BackendConfig(trimmedUrl, publishableKey.trim(), app, simulated, consentVersion)
+            } catch (e: Exception) {
+                onInvalid("backend config rejected, starting without server: ${e.message ?: e.javaClass.simpleName}")
+                null
+            }
+        }
     }
 }
 

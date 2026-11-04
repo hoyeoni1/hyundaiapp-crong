@@ -36,6 +36,17 @@
 - 검증: 두 앱 기본 debug/release와 색상 결합debug에서 임시 Nav9검사씩 PASS(합54회), 실제 화면 크기3종·64dp·클릭·복귀를 확인. 연결된adb기기가 없어 이번 검사는 Robolectric 기준.
 - 작업 보존: 별도 worktree에서 코드만 PR로 분리. 기존 feat/brand-color 변경을 백업하고 결합본 검증 후 원래 폴더에도 뒤로 수정 적용. 색상·아이콘은 덮어쓰지 않음.
 
+### 2026-11-04 — PR43 조건식 선택 리뷰 반영
+- 한 일: 두 앱 최신 리뷰 확인(머지 가능, 필수0) 후 조건식을 `(한쪽 한글) && (양쪽 글자/숫자)`로 정리. 표시 동작은 동일.
+- 검증: assembleDebug test PASS, 기존 TextWrappingTest7개 PASS. 새 테스트나 UI 규칙 확대는 없음.
+- 바꾼 파일: ui/components/Text.kt, 본인 handoff. 기존 PR에 추가 push하며 머지는 장호연 담당.
+
+### 2026-11-04 — PR40 혼합 단어 줄바꿈 선택 리뷰 후속
+- 한 일: 전체 이슈/PR 재조회 후 한글과 영문·숫자가 붙은 경계까지 WORD JOINER 조건을 넓힘. 양쪽 모두 비한글인 영문 주소·숫자·이모지는 기존 처리를 유지.
+- 바꾼 파일: ui/components/Text.kt, ui/components/TextWrappingTest.kt, 본인 handoff.
+- 검증: assembleDebug test :app:lintDebug PASS, 제품 Text7검사·임시 Compose Text4검사 PASS. 200dp/Android150%의 실제 줄 결과에서 혼합5단어 분리 없음.
+- 다음: 이 후속을 별도 PR로 리뷰 요청. core/서버/타 담당 시작 크래시 PR은 변경하지 않음.
+
 ### 2026-11-04 — 전체 이슈/PR 재점검 및 공통 텍스트 리뷰 후속
 - 차슐랭 이슈7/PR19, 크루즈 이슈13/PR25를 댓글·리뷰·인라인 스레드와 함께 전부 조회(페이지 누락 없음). 미해결 인라인0개. 머지된 PR23/35의 선택 리뷰에서 문자 변환 비용·가독성·긴 주소/이모지·테스트 보강이 남아 있어 처리.
 - Text는 한글 음절만 묶고 변환 결과를 remember로 재사용. 코드포인트 단위 처리로 서로게이트/이모지 결합과 NFD를 보존하고 URL/이메일은 플랫폼 줄바꿈에 맡김. 보이지 않는 상수 표기는 이스케이프로 바꿈.

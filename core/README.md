@@ -2,6 +2,8 @@
 
 두 앱(차슐랭·크루즈브레이커)이 함께 쓰는 모듈입니다. **앱 코드는 Pleos SDK를 직접 부르지 않고 이 모듈만 씁니다.**
 
+2026-11-04 core v0.5.2(장호연, 제출 전 검토 후속): 앱이 켜지자마자 죽는 경로 두 곳을 막았다. ① `BackendConfig.fromBuildConfigOrNull`을 추가 — local.properties 값이 비어 있으면 조용히 null(Fake), 형식이 틀리면(http, 구형 anon JWT 키, 앞뒤 공백·따옴표) 이유를 `onInvalid`로 알리고 null을 돌려준다(키 값은 메시지에 넣지 않음). 두 앱 `AppContainer`는 이 팩토리를 쓴다. ② `EncryptedBackendStore.read()`와 `SupabaseBackend` 상태 로드가 복호화 실패(Keystore 키 유실·파일 손상)·JSON 오류를 예외로 올리지 않고 빈 상태로 시작한다(`status` 첫 값 `local-storage-reset`). 보내지 못한 작업·철회 대기는 그 경우 사라지므로 로그로 알린다. `tools/build-release.sh`도 같은 형식(https, `sb_publishable_`)을 빌드 전에 검사한다. 기존 API·동작은 그대로.
+
 2026-11-03 core v0.5.1: `com.hyundaiapp.core.backend`에 제품용 Supabase 익명 인증·Keystore 암호화 상태·영속 outbox·철회 재시도를 추가했다. 기존 VehicleSignals/NaviControl API는 유지한다. 서버 삭제 ACK를 기다리는 awaitWithdrawal로 앱 PendingDeletions와 연결한다. CAR_INFO가 없는 배터리 용량 getter는 제거하고 차종 프리셋을 유지한다. debug SDK probe와 별개로 backend는 release에도 포함되며 debug/live 및 앱/프로젝트별 상태를 분리한다. 선택적 경로 요청/취소는 NAVI_ROUTE_SEARCH의 실제 허용 여부를 검사한다. WorkManager 스케줄링은 후속이다. 같은 v0.5.1 PR에서(11-03 장호연) `BackendConfig.consentVersion`을 추가해 설치 등록 때 앱이 정한 약관 판 번호를 보낸다(기본값 `development-v1`, 두 앱은 각 AppContainer의 `termsVersion`을 넘김).
 
 - 담당: 황준용 (수정은 황준용만, 다른 사람은 요청)

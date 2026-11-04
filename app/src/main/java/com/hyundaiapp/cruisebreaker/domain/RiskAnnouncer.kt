@@ -28,7 +28,8 @@ data class Announcement(val bannerText: String, val speechText: String, val risk
  * 진입 전 음성 안내(F4). 담당: 이민하. 규칙: docs/disengage-rules.md "안내".
  * - 크루즈 작동 중일 때만
  * - 진행 방향 ±30° 안, 앞 300~500m에 위험 구간 중심이 들어오면 1회. 위험 구간의 방향도 내 진행 방향과 45° 안
- * - 같은 구간은 한 주행([TripTracker])에 1회, 안내 사이 최소 3분. 붙어 있는 위험 칸들은 이 3분 간격으로 한 번만 안내된다
+ * - 같은 구간은 한 주행([TripTracker])에 1회, 안내 사이 최소 3분. 붙어 있는 위험 칸들은 이 3분 간격으로 한 번만 안내된다.
+ *   3분 간격은 한 주행 안에서만 센다 — 정차(P) 뒤 새 주행이 시작되면 바로 다시 안내할 수 있다(리허설 직후 시연이 묵음이 되지 않게)
  * - 문구는 원인 구분 없이 한 가지. 음성은 [announcements]를 [RiskSpeaker]가 받아 읽는다
  */
 class RiskAnnouncer(
@@ -59,7 +60,12 @@ class RiskAnnouncer(
     /** 기록을 시작할 때마다 부른다(동의 철회 뒤 재시작 포함). 이전 상태는 [reset]으로 지운다 */
     fun start(scope: CoroutineScope, signals: VehicleSignals, risks: SegmentRiskRepository, trips: TripTracker) {
         reset()
-        scope.launch { trips.tripNumber.collect { announcedThisTrip.clear() } }
+        scope.launch {
+            trips.tripNumber.collect {
+                announcedThisTrip.clear()
+                lastAnnounceMs = null // 새 주행에서는 3분 간격도 처음부터
+            }
+        }
         scope.launch {
             signals.location.filterNotNull().collect { location ->
                 if (CruiseStateInterpreter.isEngaged(signals.cruise.value.mode)) {
