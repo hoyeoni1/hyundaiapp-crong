@@ -43,6 +43,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-04 — core v0.5.2 시작 크래시 방어 PR 검토(차슐랭 #30, 크루즈 #42)
+- 검토 중 22:35에 장호연 계정으로 두 PR이 머지됨(0aa4032, 9ff1318). 머지된 main의 코드는 Claude가 검토·시험한 것과 같음(문서만 다름)
+- 확인: main에 합쳐 `assembleDebug assembleRelease test lint` 통과(246개·210개, 실패 0), core·tools 두 저장소 동일. 에뮬레이터: 구형 형식 키로 빌드 → 앱이 죽지 않고 `SupabaseConfig` 로그(키 값 없음), 정상 키로 되돌리면 정상. 크루즈 `demo-drive.sh` 40초 간격 두 번 → 두 번 다 안내 음성
+- 참고 의견(PR 코멘트): 복호화 실패는 `read()`가 null을 돌려 `status`가 `local-storage-reset`이 아니라 `idle`로 시작(경고 로그로만 보임). 상태 파일 손상 시 동의 철회 삭제 대기도 사라질 수 있음 → 황준용·이상준 인지 필요
+- 이 PC `local.properties`는 정상 키로 되돌려 둠(바꿨다 되돌린 것 확인)
+
 ### 2026-11-04 — 시작 크래시 방어(core v0.5.2) + 안내 쿨다운 수정, 브랜치 `fix/core-startup-resilience`
 - 배경: 11-04 두 작품 전체 검토(`hyundai-app/project-review-2026-11-04.md`)에서 ① 공통 core "켜자마자 죽는" 경로 2개, ② `RiskAnnouncer`의 3분 간격이 주행 사이에도 유지돼 **리허설 직후 본 시연에서 배너·음성이 안 나오는** 문제 확인 → 장호연 "수정 시작" 지시
 - 한 일:
