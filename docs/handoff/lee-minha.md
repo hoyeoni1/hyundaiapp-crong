@@ -2,42 +2,45 @@
 
 담당 경로: 크루즈브레이커 로직 — `app/src/main/java/com/hyundaiapp/cruisebreaker/` 아래 `ui/` 화면을 뺀 전부(`domain/`, `data/`, ViewModel, `AppContainer`·`CruiseBreakerApp`·`RecordingService`). 화면(`ui/` Screen·테마)은 길민종
 
-## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
-- 한 일 요약:
-  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). PRD·기획서·README 반영됨(장호연)
-  - **main에서 에뮬레이터 흐름 동작**(PR #3~#6, #10, #17): S5 동의 → 기록 서비스 → 크루즈 작동 중 통과·해제 기록 → 500m 앞 안내(배너 + Pleos TTS) → S2·S3. 뒤로 보내도·재부팅 후에도 동작. S4 동의 철회 → 서버 삭제를 성공할 때까지 재시도(`PendingDeletions`)
-  - **`fix/upload-queue-and-tts-release`**(이슈 #19, #21):
-    - `UploadQueue`: 업로드를 한 줄로 보내고, 일시 실패는 5초·15초·1분·5분 간격 재시도, 영구 거절(`PermanentFailureException`·`IllegalArgumentException`)은 그 기록만 버리고 다음으로, 500건을 넘으면 가장 오래된 것부터 버림. 버린 수는 기록 중지 때 로그
-    - 서버 삭제(`PendingDeletions`)는 영구 거절이어도 계속 재시도(규정상 반드시 끝나야 하고, 포기하면 지울 ID가 사라짐)
-    - `RiskSpeaker`: `released` 표시를 `ready`와 한 락으로 묶어 해제 뒤에는 SDK를 아예 부르지 않음
-  - 이슈 #20(철회 직전 업로드가 삭제 뒤 도착)은 황준용 PR #22에서 서버가 철회된 차량 ID의 업로드를 거절하는 방식으로 해결 → 앱 변경 없음
-- 진행 중 브랜치·PR: `fix/upload-queue-and-tts-release` (리뷰·머지 대기). 황준용 PR #22(Supabase)와 충돌 없음(`git merge-tree` 확인, 합친 상태에서 앱 73·core 29 테스트 통과)
+- 한 일 요약: **크루즈브레이커 로직은 모두 main에 들어감. 열린 이슈·PR 없음**
+  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). PRD·기획서·README 반영됨(장호연, 11-03 용어 결정 "해제 다발 구간" 포함)
+  - 동작 흐름(에뮬레이터 확인): S5 동의 → 기록 서비스(포그라운드, 재부팅 후 자동 시작) → 크루즈 작동 중 통과·해제 기록 → 500m 앞 해제 다발 구간 안내(S1 배너 10초 + Pleos TTS) → S2 목록·S3 요약. S4 동의 철회 → 기록 즉시 중지·기기 데이터 삭제·서버 삭제를 성공할 때까지 재시도
+  - 머지된 PR: #3(해제·통과 감지, geohash 구간), #4(안내기·TTS), #5(S2~S5 ViewModel), #6(기록 서비스), #10(동의 철회), #17(철회 시 서버 삭제·업로드 재시도), #23(업로드 대기열 상한·영구 거절 건너뛰기, TTS 해제 가드)
+  - 실제 서버: 황준용 PR #22로 Supabase 연결(`SupabaseCruiseServer`, core outbox). 이 PC의 `local.properties`에 팀 공개 키가 없어 **실제 서버로는 아직 확인 안 함**(키가 없으면 앱 안 Fake로 동작)
+  - 닫힌 이슈 정리(11-03~04): #19·#21(PR #23), #20(PR #22 서버가 철회된 ID 업로드 거절), #25(오류 알림 대신 S5 보조 안내 + 약관 책임 제한, PR #31·#32), #26(필요 없음 — 요약은 다음 D까지 남고 S2 [최근 주행 요약]으로 다시 볼 수 있음)
+- 진행 중 브랜치·PR: 없음
 - 다음 할 일(우선순위 순):
-  1. PR #22 머지 후 실제 Supabase(DEMO)로 시연 흐름·철회 삭제 확인
-  2. 11-05 중간 점검 리허설: `bash tools/demo-drive.sh`(PR #15 머지됨)
-  3. 이상준 차슐랭 충전 로직 교차 읽기(PT 대비)
-- 막힌 점·질문(누구에게):
-  - 황준용: `SupabaseCruiseServer`에서 서버가 영영 받지 않을 응답(408·429를 뺀 4xx, 직렬화 오류)은 `PermanentFailureException`으로 던져 주기 — 지금은 업로드가 core outbox에 넣기만 해서 영향은 적지만 계약을 맞춰 둠. `deleteMine`은 지울 것이 없어도 성공(앱이 계속 다시 보냄)
-  - 황준용 PR #22가 `AppContainer.kt`(이민하 담당)를 고침 — 검토함: `PendingDeletions` 흐름을 지키고 backend 철회를 먼저 저장하는 방식이라 그대로 받아도 됨. 단 `withdrawConsent`의 `prefs.vehicleId()`는 ID가 없으면 새로 만들어 삭제 대기에 넣음(해는 없음, 빈 삭제 1건)
-  - 장호연: 최소 SDK를 34로 올릴지(지금은 28 유지, 코드로 분기)
+  1. 11-05 중간 점검: `bash tools/demo-drive.sh`로 시연 흐름 한 번 확인(장호연이 11-04에 재확인함)
+  2. (선택) 팀 공개 키를 받아 `local.properties`에 `supabase.url`·`supabase.publishableKey`를 넣고 실제 서버로 기록·안내·철회 삭제 확인(`docs/server-overview.md` "팀원 빠른 연결")
+  3. PT 대비: 판정·안내·기록·철회 구조를 직접 설명할 수 있게 정리. 교차 읽기 — 이상준 차슐랭 로직, 황준용 서버 구조(`docs/server-overview.md`)
+- 막힌 점·질문(누구에게): 없음
+  - 참고: 길민종 PR #38이 `FakeCruiseServer` 시드 이름을 "판교IC 진입로"로 바꿈(이슈 #37). 서버 시드 이름 변경은 황준용(#37 남은 부분)
+  - 장호연: 최소 SDK를 34로 올릴지(지금은 28 유지, 코드로 분기) — 급하지 않음
 - 주의(함정·직접 겪은 이상한 동작):
-  - **Pleos TTS SDK 해제 동작(11-03 실측, 이슈 #21)**: 초기화 전에 `release()`하면 `onSuccess`가 오지 않음. 해제된 객체에 `setLocale`·`setAudioAttributes`·`speak`·`release`를 다시 불러도 예외 없음. **해제 뒤 `speak`도 실제로 읽음**(`tts start`→`tts done`) → 해제 뒤에는 이쪽에서 SDK를 부르지 말 것
-  - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기(PR #16 뒤 S5 [시작하기]는 화면 아래 고정)
-  - 철회 뒤 기기에 남는 값은 `pending_server_deletions`뿐. 삭제가 성공하면 빈 목록
-  - 업로드 대기열은 메모리뿐(최대 500건) → 앱이 죽으면 못 보낸 기록은 사라짐(삭제 요청은 기기에 저장돼 남음). PR #22 뒤에는 core outbox가 기기에 저장함
-  - TTS: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 실패. Pleos TTS SDK는 `Locale.KOREA`(ko_KR)여야 함
-  - 시드 "시연 지점(에뮬레이터 위치 앞 400m)"은 실제 데이터 아님(PT에서 밝힐 것)
+  - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기([시작하기]는 화면 아래 고정)
+  - **Pleos TTS SDK**: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 실패. SDK는 `Locale.KOREA`(ko_KR)여야 함("ko"면 엔진 오류). 해제된 객체에 `speak`를 불러도 예외 없이 **실제로 읽음** → 해제 뒤에는 SDK를 부르지 않음(`RiskSpeaker`의 `released` 가드)
+  - 공개 키가 없으면 빌드가 오류 없이 Fake로 됨. 제출 빌드는 `tools/build-release.sh`가 키 없으면 멈춤(장호연 PC에서 빌드). 공개 키(`sb_publishable_...`)는 APK에 들어가도 되는 키, 관리자 키는 절대 넣지 않음
+  - 철회 뒤 기기에 남는 값은 `pending_server_deletions`(서버 삭제를 못 끝낸 차량 ID)뿐. 삭제가 성공하면 빈 목록
+  - 시드 "판교IC 진입로"(에뮬레이터 고정 위치 북쪽 400m)는 실제 데이터 아님 — PT에서 시드임을 밝힐 것
+  - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 실차 해제 값(USER_OVERRIDE 등)은 재현 불가, 해석은 `CruiseStateInterpreter`에만
   - lint `ImplicitSamInstance`(`stopService`) 경고는 오탐
-  - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 해제 값(USER_OVERRIDE 등)은 재현 불가
   - Git Bash에서 `adb shell run-as ... cat /data/...`는 `MSYS_NO_PATHCONV=1`을 붙인다
 - 확인 방법:
-  - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17, 앱 73개 — 길민종 화면 테스트 포함)
-  - 시연 순서: `bash tools/demo-drive.sh` 또는 수동 — 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'controls?speed=0' 'gear?gear=Park'` → S3·S2. 로그 `adb logcat -s CruiseRecord`
-  - 철회: S4 [동의 철회] → [철회] → 로그 `consent withdrawn, server deletions pending=N`. 철회 반복 확인: S5 동의 → 시작 → 1초 안에 S4 철회를 5번 반복해도 같은 pid, 크래시 없음
+  - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17)
+  - 시연: `bash tools/demo-drive.sh` 또는 수동 — 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'controls?speed=0' 'gear?gear=Park'` → S3·S2. 로그 `adb logcat -s CruiseRecord`
+  - 철회: S4 [동의 철회] → [철회] → 로그 `consent withdrawn, server deletions pending=N`
   - PR 올리기: `gh`(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 (이민하, Claude 에이전트와 작업 — 상태 정리)
+- 한 일: 두 저장소 최신화 후 "현재 상태"를 머지 결과에 맞춰 다시 씀(PR #22·#23·#32 머지, #20·#25 닫힘)
+- 결정한 것과 이유(11-03, 이민하):
+  - 이슈 #25: S2 조회 실패 알림은 넣지 않음 — 운전자가 해결할 수 없는 문제라 알려도 할 일이 없음. 대신 S5 보조 안내(길민종 PR #31)와 약관 책임 제한(장호연 PR #32)
+  - 이슈 #26: 구현 안 함(not planned) — 마지막 주행 요약은 `TripStats`에 다음 D까지 남고 S2 [최근 주행 요약]으로 다시 볼 수 있어 "한 번 보이면 충분"
+- 바꾼 파일: `docs/handoff/lee-minha.md`
 
 ### 2026-11-03 오후 (이민하, Claude 에이전트와 작업 — 이슈 #19·#21)
 - 한 일: `fix/upload-queue-and-tts-release` — `data/UploadQueue.kt`(새 파일), `PermanentFailureException`·`isPermanentFailure`, `retrying(isPermanent)`, `RiskSpeaker` 해제 락. 테스트 `UploadQueueTest`(새 파일, 5개)
