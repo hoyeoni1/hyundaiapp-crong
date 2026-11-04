@@ -152,6 +152,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 - [ ] 접수양식: 부문·팀명·앱명, 구성원 5명 정보, 02 파트에 실명·개인정보 없음
 - [ ] 5명 전원 동의 체크 + 본인 서명 + 날짜
 - [ ] GitHub: `apk/SamgakGorae_<영문 앱이름>_release.apk`(release, 서명) — `SamgakGorae_Chachelin_release.apk` / `SamgakGorae_CruiseBreaker_release.apk`. 사이트 규칙 `팀명_앱이름_release.apk`에 맞춰 영문 팀명을 넣는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
+  - 만들기: 저장소 루트에서 `bash tools/build-release.sh`(서버 키·시연 데이터 모드·서명을 확인한 뒤 위 이름으로 복사). 서명 키는 저장소 밖 장호연 PC `C:/Users/H/.samgakgorae/`(11-03 생성, 백업 필수), 경로·비밀번호는 각 저장소 `local.properties`의 `release.*`
 - [ ] 두 저장소 `core` 일치 확인(`tools/sync-core.sh ../CruiseBreaker --check`), 저장소를 새로 clone해서 빌드되는지 확인
 - [ ] 심사용 계정 초대 + 접근 확인
 - [ ] 시연 영상 링크
