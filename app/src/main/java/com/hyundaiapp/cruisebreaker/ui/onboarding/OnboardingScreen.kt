@@ -42,7 +42,8 @@ fun OnboardingScreen(
     notificationsGranted: Boolean = false,
     onRequestNotifications: () -> Unit = {},
     notificationsNeedSettings: Boolean = false,
-    onBack: (() -> Unit)? = null,
+    onBack: () -> Unit,
+    reviewingConsent: Boolean = false,
 ) {
     val canStart = state.locationAgreed && state.privacyAgreed
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -81,7 +82,7 @@ fun OnboardingScreen(
             }
         }
         Column(Modifier.fillMaxSize().padding(horizontal = if (wide) 48.dp else 32.dp, vertical = 32.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            if (onBack != null) ScreenHeader("동의 내용", onBack = onBack)
+            ScreenHeader(if (reviewingConsent) "동의 내용" else "첫 실행 동의", onBack = onBack)
             if (wide) Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                 Column(Modifier.weight(2f).verticalScroll(rememberScrollState())) { intro() }
                 Column(Modifier.weight(3f).verticalScroll(rememberScrollState())) { consents() }
@@ -92,7 +93,7 @@ fun OnboardingScreen(
                 color = CarColors.OnSurface,
                 modifier = Modifier.fillMaxWidth(),
             )
-            if (onBack != null) SecondaryButton("설정으로 돌아가기", onBack, Modifier.fillMaxWidth())
+            if (reviewingConsent) SecondaryButton("설정으로 돌아가기", onBack, Modifier.fillMaxWidth())
             else OnboardingStartAction(canStart, "필수 항목에 동의해 주세요", onStart)
         }
     }
@@ -101,5 +102,5 @@ fun OnboardingScreen(
 @Preview(name = "S5 첫 실행", widthDp = 1280, heightDp = 720)
 @Composable
 private fun OnboardingPreview() {
-    CruiseBreakerTheme { Surface { OnboardingScreen(OnboardingUiState(locationAgreed = true), {}, {}, {}, {}, {}) } }
+    CruiseBreakerTheme { Surface { OnboardingScreen(OnboardingUiState(locationAgreed = true), {}, {}, {}, {}, {}, onBack = {}) } }
 }

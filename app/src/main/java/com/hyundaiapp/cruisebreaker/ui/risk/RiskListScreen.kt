@@ -57,6 +57,7 @@ fun RiskListScreen(
     state: RiskListUiState,
     onSummaryClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onBack: () -> Unit,
 ) {
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     val selected = state.items.firstOrNull { it.id == selectedId } ?: state.items.firstOrNull()
@@ -64,7 +65,7 @@ fun RiskListScreen(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 1000.dp
         Column(Modifier.fillMaxSize().padding(horizontal = if (wide) 48.dp else 32.dp, vertical = 32.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            ScreenHeader("근처 해제 다발 구간") {
+            ScreenHeader("근처 해제 다발 구간", onBack = onBack) {
                 SecondaryButton("최근 주행 요약", onSummaryClick, height = CarDimens.TouchTargetSmall)
                 SecondaryButton("설정", onSettingsClick, height = CarDimens.TouchTargetSmall)
             }
@@ -155,11 +156,11 @@ private fun LabeledMeter(label: String, ratio: Double, color: Color) {
 @Preview(name = "S2 해제 다발 구간", widthDp = 1280, heightDp = 720)
 @Composable
 private fun RiskListPreview() {
-    CruiseBreakerTheme { Surface { RiskListScreen(PreviewData.riskList, {}, {}) } }
+    CruiseBreakerTheme { Surface { RiskListScreen(PreviewData.riskList, {}, {}, onBack = {}) } }
 }
 
 @Preview(name = "S2 비어 있음", widthDp = 1280, heightDp = 720)
 @Composable
 private fun RiskListEmptyPreview() {
-    CruiseBreakerTheme { Surface { RiskListScreen(RiskListUiState(loading = false), {}, {}) } }
+    CruiseBreakerTheme { Surface { RiskListScreen(RiskListUiState(loading = false), {}, {}, onBack = {}) } }
 }
