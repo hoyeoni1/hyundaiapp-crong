@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyundaiapp.cruisebreaker.ui.PreviewData
 import com.hyundaiapp.cruisebreaker.ui.TripSummaryUiState
+import com.hyundaiapp.cruisebreaker.ui.components.EmptyState
 import com.hyundaiapp.cruisebreaker.ui.components.PrimaryButton
 import com.hyundaiapp.cruisebreaker.ui.components.ScreenHeader
 import com.hyundaiapp.cruisebreaker.ui.components.StatTile
@@ -35,8 +36,10 @@ fun TripSummaryScreen(
         val wide = maxWidth >= 1000.dp
         Column(Modifier.fillMaxSize().padding(horizontal = if (wide) 48.dp else 32.dp, vertical = 32.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
             ScreenHeader("최근 주행 요약", onBack = onDone)
-            // 세 숫자는 같은 크기·같은 흰색으로 나란히 둔다. 칸은 내용 높이만큼만(화면을 채우려 늘리지 않는다)
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            val empty = state.announcements == 0 && state.riskSegmentsPassed == 0 && state.myContributions == 0
+            if (empty) {
+                EmptyState("이번 주행에는 안내와 기록이 없어요", modifier = Modifier.weight(1f))
+            } else Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 if (wide) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                     SummaryTiles(state) { Modifier.weight(1f) }
                 } else SummaryTiles(state) { Modifier.fillMaxWidth() }

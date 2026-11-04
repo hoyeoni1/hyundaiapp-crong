@@ -49,10 +49,10 @@ class ScreenViewModelsTest {
 
         val items = vm.state.value.items
         assertFalse(vm.state.value.loading)
-        assertTrue(items.first().roadName.startsWith("시연 지점"))
+        assertEquals("판교IC 진입로", items.first().roadName)
         assertEquals(items.sortedBy { it.distanceM }, items)
 
-        val demo = server.nearby(fake.location.value!!.point, 1_000.0).first { it.roadName.startsWith("시연 지점") }
+        val demo = server.nearby(fake.location.value!!.point, 1_000.0).first { it.roadName == "판교IC 진입로" }
         server.upload(DisengageEvent(0L, demo.key, 100f, demo.center).toUpload("v1"))
         vm.refresh()
         assertEquals(demo.disengages + 1, server.nearby(demo.center, 10.0).single().disengages)

@@ -4,12 +4,12 @@
 
 ## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
-- 한 일 요약: S5 보조 안내 #31, 약관 전문·S5 좌표 설명 #32, 서버 #22 모두 main 머지 완료. S2 조회 실패 알림 없음·#26 추가 요약 복원 불필요 결정 유지. #25에 필요한 S5 안내와 약관 책임 제한이 함께 반영됐으나 종료 확인은 이민하 담당으로 남김.
-- 진행 중 브랜치·PR: `feat/ui-polish` — 두 앱 글자 단계·강조 통일과 보조 설명 문구 정리(리뷰·머지 대기). 그 전 `docs/terms-ui-verification` 기록은 그대로 유효.
-- 약관 검수: 실제 CruiseBreakerNavigation(debug=false)에서 LOCATION/PRIVACY 전문을 확인. 1280×720dp, 600×1024dp/fontScale1.5, 1024×600dp/fontScale1.5 임시 Robolectric 3검사 PASS. 각 전문 끝까지 스크롤, 닫기64dp 이상, 닫기·Dialog Back 뒤 동의false/시작 비활성/서비스 시작0회, 재열람 스크롤 초기화, 명시적 동의 버튼 후에만 시작 활성 확인. 실제 Pleos 시스템 Back과 별도임.
-- 다음 할 일: 실제 Pleos S5·정차 동의 재열람·권한·Back/Home·운행 제한은 x86 팀 환경에서 확인. 황준용의 Supabase 리전·요청 로그 확인 뒤 장호연이 약관 내용/판 번호를 정하면 UI 전문 정합성을 다시 확인.
-- 막힌 점·질문: B01 앱 연결은 #32로 완료돼 확정본 전체를 기다리는 상태가 아님. 문서의 남은 확인2건은 담당자 답 대기. #20 늦은 업로드는 황준용·이민하 담당이며 길민종 UI 작업이 아님.
-- 확인 방법: JDK17 `bash ./gradlew -I /tmp/hyundai-terms-qa/init.gradle :app:testDebugUnitTest --tests com.hyundaiapp.cruisebreaker.ui.TermsUiAcceptanceTest` PASS(3/3). debug 빌드지만 실제 Navigation의 debug=false 경로와 Fake 의존성으로 검수. 두 앱 합계6검사. 검사·의존성은 제품에 추가하지 않음. 로컬 소스·XML·로그·화면은 `output/hyundai-terms-ui-2026-11-04/`에 보존. 일반 빌드/전체 테스트/lint 재실행으로 주장하지 않음.
+- 한 일 요약: #37의 안내/구간/해제 카운터가 모두0인 요약을 별도 빈 상태(“이번 주행에는 안내와 기록이 없어요”)로 표시. 하나라도 기록이 있으면 기존3개 숫자와 하단 목록 복귀 버튼을 유지한다.
+- 진행 중 브랜치·PR: `fix/demo-ui-review` / #37 앱 측 수정 PR. 장호연이 #37에서 길민종에게 지시한 Fake 시드 표시명과 관련 테스트도 “판교IC 진입로”로 변경. 좌표·구간ID·방향·해제/통과 수·임계값·시드 고지 유지. 서버는 황준용 담당이라 수정/적용하지 않음.
+- 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 임시 Robolectric3검사 PASS:1682×1210dp/mdpi,1280×720,600×1024/Android150%. all-zero만 빈 상태, 각 카운터 단독1은 일반 상태, 하단 버튼 표시/콜백, 실제 Fake+RiskListViewModel의 새 이름·시드 고지 확인. 기존 RiskAnnouncerTest/ScreenViewModelsTest 새 이름 검사도 일반 테스트에서 PASS.
+- 남은 #37: 황준용이 적용된 migration을 고치지 않고 새 migration으로 서버 표시명을 맞춰야 한다. 장호연은 공통 tools/demo-drive.sh14행 설명의 시드 이름을 원본 차슐랭에서 바꾼 뒤 동기화. 이 PR은 #37을 자동으로 닫지 않음. Supabase 실제 서버 목록 이름은 migration 전에는 이전 값일 수 있음.
+- 인계 자료: 작성자 PC output/hyundai-demo-ui-fixes-2026-11-04/server-seed-name-proposal.sql은 새 migration 검토용 SQL이며 원격 적용하지 않음. 같은 폴더 owner-follow-up.txt에 tools 이름/공통 동기화 대상 기록. PR 본문에도 서버/도구 후속을 명시해 로컬 파일 접근을 요구하지 않음.
+- 경계·증거: 실제 Pleos/서버 적용 재검증은 별도. output/hyundai-demo-ui-fixes-2026-11-04/cruisebreaker/에 PNG·UI 검사 소스/XML·로그 보존. QA 의존성은 제품에 추가하지 않음. ViewModel·서비스·core·서버·tools는 변경하지 않음. Fake/test의 표시 문자열 변경은 #37 팀장 지시 범위.
 
 ## 공유 검증 요약
 
@@ -28,6 +28,13 @@
 일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 현재 UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+S5 신규4 PASS이며 앱 일반 테스트에 포함되지 않는다. 이전 S2 표시 전용3검사는 #25 결정으로 폐기한 제안의 과거 검증이다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — #37 빈 주행 요약·앱 Fake 시드 이름
+- 세 카운터가 모두0이면 실제 카운터를 설명하는 한 줄 빈 상태를 표시. 안내할 구간이 실제로 없었다고 추정하지 않음. 정상/일부 기록이 있는 요약과 하단 복귀 동작은 유지.
+- #37 장호연 지시 범위에서 Fake 표시 이름을 판교IC 진입로로 바꾸고, RiskAnnouncerTest/ScreenViewModelsTest의 기존 이름 검사를 갱신. 좌표/집계/시드 고지 불변.
+- 일반 빌드·테스트·app lint와 UI3검사 PASS. all-zero/각 단독 카운터1/일반 요약·하단 행동·실제 VM 새 이름/시드 고지를 검사.
+- 서버 새 migration은 황준용, 공통 도구 설명은 장호연 담당 후속으로 남김. 검토용 SQL과 후속 내용을 준비하고 #37 자동 종료 문구를 넣지 않음.
+
 
 ### 2026-11-04 — 글자 단계·강조 통일, 보조 설명 정리
 - 한 일: 브랜치 `feat/ui-polish`. `Theme.kt` 글자 단계를 다시 잡음(화면 제목 36, 카드 제목 30 굵게, 목록 이름 26 SemiBold, 본문 22, 보조 20, 주인공 숫자 112). 공통 부품: 보조·위험 버튼 글자를 주 버튼과 같은 labelLarge, `StatTile` 기본 숫자 44 + 단위는 글자선 맞춤 회색, 동의 카드 설명 20 회색, 태그 버튼 글자 가운데 정렬, 구역 이름 `SectionLabel` 추가. 화면: S1 상단 크루즈 상태·속도 강조, 안내가 없을 때 가운데에 상태 한 줄("안내할 구간 없음"/"크루즈를 켜면 안내해요"/"차량 신호를 기다리는 중"), S2 해제율을 목록 오른쪽 큰 숫자로, S3 세 숫자 같은 크기 칸(내용 높이만큼, 화면을 채우려 늘리지 않음), S4 구역 이름 회색 라벨. 사용자 요청으로 화면의 보조 설명 문구를 뺐다(정책상 필요한 동의·권한 설명, 안전 고지, 자동 기록 안내, 시연 데이터 표시는 남김). Robolectric 렌더로 두 앱 전 화면(차슐랭은 세로 포함) 확인, `assembleDebug test` 통과.
