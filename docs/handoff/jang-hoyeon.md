@@ -42,6 +42,13 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-04 — 최신 pull 뒤 재검토
+- 장호연 지시("최신 pull 받아서 한번 더 검토"). Claude 에이전트가 작업
+- 두 저장소 main은 머지 뒤 새 커밋 없음(차슐랭 `64a6327`, 크루즈 `82f2f09`). 새 것은 이상준 차슐랭 PR #20(충전소 조회 실패 재조회 + 결과 알림)뿐
+- PR #20: 지금 main과 합쳐도 충돌 없음, `assembleDebug assembleRelease test lint` 통과(테스트 184, 실패 0) → ✅ 머지 가능 재확인 코멘트(https://github.com/hoyeoni1/hyundaiapp-chachelin/pull/20#issuecomment-6622771682). 후속: 위치를 끝내 못 받는 세션의 재시도 끝 정하기, 서버 키 생기면 오프라인 충전 리허설
+- **남은 것(장호연)**: PR #20 머지 결정. 이슈 닫기(크루즈 #25·#20, 차슐랭 #14·#8)
+- 바꾼 파일: 이 문서
+
 ### 2026-11-04 — PR 차슐랭 #19·크루즈 #32 머지
 - 장호연 "Yes, merge both" 지시. Claude 에이전트가 리뷰한 head(`f0f8b2e`, `2a60341`) 고정으로 merge commit: 차슐랭 `f876a69`, 크루즈 `547fdc2`. 차슐랭 #17 자동으로 닫힘
 - 확인: 머지된 main에서 두 앱 `assembleDebug assembleRelease test lint` 통과, `tools/` 두 저장소 같음
