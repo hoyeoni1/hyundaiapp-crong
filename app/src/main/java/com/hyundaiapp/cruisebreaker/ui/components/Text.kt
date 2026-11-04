@@ -2,6 +2,7 @@ package com.hyundaiapp.cruisebreaker.ui.components
 
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
@@ -20,8 +21,8 @@ import androidx.compose.ui.unit.TextUnit
 /*
  * 두 앱 공통(차슐랭 Text.kt와 같은 내용). 화면 파일은 material3 Text 대신 이 Text를 import 한다.
  * 안드로이드는 한글을 글자 단위로 줄바꿈해서 "기록/합니다"처럼 단어 중간에서 끊는다.
- * LineBreak.WordBreak.Phrase도 한글에는 듣지 않아서, 줄이 바뀔 수 있는 글자에만
- * 단어 안 글자 사이에 WORD JOINER(U+2060, 보이지 않음)를 넣어 띄어쓰기에서만 줄이 바뀌게 한다.
+ * 일반 한글 단어 안에 WORD JOINER를 넣되, URL·이모지·분해형 문자는 원문을 유지한다.
+ * URL·이메일은 강제로 묶지 않고 기본 줄바꿈에 맡긴다.
  * 접근성·테스트가 읽는 글자는 원래 문자열 그대로 둔다.
  */
 @Composable
@@ -44,7 +45,9 @@ fun Text(
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current,
 ) {
-    val shown = if (softWrap && maxLines > 1) keepWordsTogether(text) else text
+    val shown = remember(text, softWrap, maxLines) {
+        if (softWrap && maxLines > 1) keepWordsTogether(text) else text
+    }
     androidx.compose.material3.Text(
         shown,
         if (shown == text) modifier else modifier.semantics { this.text = AnnotatedString(text) },
@@ -53,15 +56,20 @@ fun Text(
     )
 }
 
-private const val WordJoiner = '⁠'
+private const val WordJoiner = '\u2060'
 
-/** 띄어쓰기·줄바꿈이 아닌 두 글자 사이에 WORD JOINER를 넣는다 */
+/** 완성형 한글 음절 사이만 묶는다. 다른 문자와 UTF-16/이모지 결합은 그대로 둔다. */
 internal fun keepWordsTogether(text: String): String {
     if (text.length < 2) return text
     return buildString(text.length * 2) {
-        text.forEachIndexed { i, c ->
-            if (i > 0 && !c.isWhitespace() && !text[i - 1].isWhitespace()) append(WordJoiner)
-            append(c)
+        var index = 0
+        var previous = -1
+        while (index < text.length) {
+            val codePoint = text.codePointAt(index)
+            if (previous in 0xAC00..0xD7A3 && codePoint in 0xAC00..0xD7A3) append(WordJoiner)
+            appendCodePoint(codePoint)
+            previous = codePoint
+            index += Character.charCount(codePoint)
         }
     }
 }

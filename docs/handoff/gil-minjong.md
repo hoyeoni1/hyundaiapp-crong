@@ -4,12 +4,12 @@
 
 ## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
-- 한 일 요약: #37의 안내/구간/해제 카운터가 모두0인 요약을 별도 빈 상태(“이번 주행에는 안내와 기록이 없어요”)로 표시. 하나라도 기록이 있으면 기존3개 숫자와 하단 목록 복귀 버튼을 유지한다.
-- 진행 중 브랜치·PR: `fix/demo-ui-review` / [PR #38](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/38), #37 앱 측 수정 PR. 장호연이 #37에서 길민종에게 지시한 Fake 시드 표시명과 관련 테스트도 “판교IC 진입로”로 변경. 좌표·구간ID·방향·해제/통과 수·임계값·시드 고지 유지. 서버는 황준용 담당이라 수정/적용하지 않음.
-- 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 임시 Robolectric3검사 PASS:1682×1210dp/mdpi,1280×720,600×1024/Android150%. all-zero만 빈 상태, 각 카운터 단독1은 일반 상태, 하단 버튼 표시/콜백, 실제 Fake+RiskListViewModel의 새 이름·시드 고지 확인. 기존 RiskAnnouncerTest/ScreenViewModelsTest 새 이름 검사도 일반 테스트에서 PASS.
-- 남은 #37: 황준용이 적용된 migration을 고치지 않고 새 migration으로 서버 표시명을 맞춰야 한다. 장호연은 공통 tools/demo-drive.sh14행 설명의 시드 이름을 원본 차슐랭에서 바꾼 뒤 동기화. 이 PR은 #37을 자동으로 닫지 않음. Supabase 실제 서버 목록 이름은 migration 전에는 이전 값일 수 있음.
-- 인계 자료: 작성자 PC output/hyundai-demo-ui-fixes-2026-11-04/server-seed-name-proposal.sql은 새 migration 검토용 SQL이며 원격 적용하지 않음. 같은 폴더 owner-follow-up.txt에 tools 이름/공통 동기화 대상 기록. PR 본문에도 서버/도구 후속을 명시해 로컬 파일 접근을 요구하지 않음.
-- 경계·증거: 실제 Pleos/서버 적용 재검증은 별도. output/hyundai-demo-ui-fixes-2026-11-04/cruisebreaker/에 PNG·UI 검사 소스/XML·로그 보존. QA 의존성은 제품에 추가하지 않음. ViewModel·서비스·core·서버·tools는 변경하지 않음. Fake/test의 표시 문자열 변경은 #37 팀장 지시 범위.
+- 한 일 요약: 머지된 PR23/35의 공통 Text 리뷰 후속을 처리. 변환 결과 remember 재사용, WORD JOINER 이스케이프 표기, 완성형 한글 음절 사이만 코드포인트 단위로 묶고 URL/이메일·이모지·결합 문자·NFD는 원문을 유지한다.
+- 진행 중 브랜치·PR: `fix/text-emoji-followups-20261104`, 최신 main에서 분리한 텍스트 리뷰 후속. 이전 UI PR26/38은 그사이 main 머지 완료. 기존 별점/빈 요약/앱 Fake 이름 변경을 다시 구현하지 않음.
+- 전체 점검: 초기 이슈20개·PR44개와 댓글72개, 리뷰·인라인을 페이지 끝까지 조회했고 미해결 인라인0개. 이후 새 도구 PR27/39의 본문·파일/코멘트도 대조(기존PR46개까지). 이번 추가 후속 PR은 이 수에 포함하지 않음.
+- 검증: 두 앱 assembleDebug test :app:lintDebug PASS. 제품 TextWrappingTest6개/앱 추가 PASS. 임시 Text3/앱+기존 화면4(차슐랭)/3(크루즈), 합계13검사 PASS. 원문 semantics, 긴 주소·이메일/한글의 실제 줄폭/끝, single-line과 이모지 원문을 확인. 차슐랭1682×1210·1280×1210의 카드 중앙 배치도 검사. 기본1280×720와600×1024/Android150% 포함.
+- 남은 담당 항목: 차슐랭 #12 위치/최신 요청 계약(이상준), #13 내비 요청별 결과 계약(황준용·이상준), 크루즈 #37 서버 이름 새 migration(황준용). 도구 설명은 장호연 PR27/39에서 진행 중. 설정 자동 기록 설명 복원은 PR35의 장호연 선택 검토이며 새 기능 오류로 분류하지 않음.
+- 경계·증거: 본인 UI와 단위 테스트/handoff만 변경, core·VM·서버·도구는 변경하지 않음. 현재 Compose 샘플/합성 상태 기준이며 실제 Pleos/실차 재검증은 별도. 조회 원본·audit.json·단위/XML/UI 소스/로그·캡처는 output/hyundai-text-review-followups-2026-11-04/에 보존. 임시 UI QA 의존성은 제품에 추가하지 않음.
 
 ## 공유 검증 요약
 
@@ -28,6 +28,14 @@
 일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 현재 UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+S5 신규4 PASS이며 앱 일반 테스트에 포함되지 않는다. 이전 S2 표시 전용3검사는 #25 결정으로 폐기한 제안의 과거 검증이다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — 전체 이슈/PR 재점검 및 공통 텍스트 리뷰 후속
+- 차슐랭 이슈7/PR19, 크루즈 이슈13/PR25를 댓글·리뷰·인라인 스레드와 함께 전부 조회(페이지 누락 없음). 미해결 인라인0개. 머지된 PR23/35의 선택 리뷰에서 문자 변환 비용·가독성·긴 주소/이모지·테스트 보강이 남아 있어 처리.
+- Text는 한글 음절만 묶고 변환 결과를 remember로 재사용. 코드포인트 단위 처리로 서로게이트/이모지 결합과 NFD를 보존하고 URL/이메일은 플랫폼 줄바꿈에 맡김. 보이지 않는 상수 표기는 이스케이프로 바꿈.
+- TextWrappingTest6개/앱을 제품에 추가: 한글/공백·NBSP/빈 문자열·한 글자/주소/이모지/결합 문자. 임시 Compose Text3검사/앱으로 원문 semantics·긴 토큰 실제 줄폭/끝·single-line 원문을 확인. 기존 UI7검사도 재실행해 최신 UI13검사 PASS. 일반 빌드·테스트·lint PASS.
+- #12/#13의 타 담당 계약과 #37 서버 migration/tools 설명은 여전히 후속. PR35의 설정 자동 기록 설명 복원은 장호연 선택 검토로 분류. 일반 텍스트/주행 화면의 스타일·콜백·VM·core는 변경하지 않음.
+- 원본 조회/감사 분류·소스/XML/로그·캡처는 output/hyundai-text-review-followups-2026-11-04/에 보존. 초기 UI 검사의 렌더용 WORD JOINER 문자열을 원문과 같다고 비교한 가정은 원문 semantics와 실제 전체 글자/줄폭 비교로 바로잡았으며 제품 실패 재현으로 주장하지 않음.
+
 
 ### 2026-11-04 — #37 빈 주행 요약·앱 Fake 시드 이름
 - 세 카운터가 모두0이면 실제 카운터를 설명하는 한 줄 빈 상태를 표시. 안내할 구간이 실제로 없었다고 추정하지 않음. 정상/일부 기록이 있는 요약과 하단 복귀 동작은 유지.
