@@ -2,7 +2,7 @@
 
 담당 경로: `tools/`(원본은 차슐랭), `apk/`, `README.md`, `PRD.md`, `docs/`, 릴리스. 이 저장소 앱 뼈대도 만들었음
 
-## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
@@ -18,13 +18,13 @@
   - 장호연 `feat/demo-scripts`(두 저장소) — 11-02 main merge(인수인계 충돌은 main 쪽으로 해결) + 판정 규칙 v2·현재 앱에 맞게 고쳐 PR. `demo-drive.sh` 기본은 고정 위치 시연(위치 재생 없이 지금 앱으로 동작, 이민하 확인 순서와 같음), `route`는 앱 위치 재생 모드가 생긴 뒤. 가짜 콘솔·가짜 adb로 값 순서만 확인했고 **에뮬레이터 실행은 아직**(이상준이 `demo-charge.sh`는 에뮬레이터에서 확인함)
   - 기타: 문서(`PRD.md`, `README.md`, `docs/`)는 PR 없이 `main`에 바로 push(10-30 결정)
 - 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). 11-02 PR #14·차슐랭 #3·#4에 코멘트가 달려 정상 동작 확인
-- 다음 할 일(우선순위 순, 11-03 밤 최종 점검):
+- 다음 할 일(우선순위 순, 11-04 PR 차슐랭 #19·크루즈 #32 머지 뒤):
   1. Supabase 원격 적용(대시보드 SQL Editor): `20261103000100` → `20261103000200` → `refresh-demo-dates.sql` → `verify.sql`(charge_sessions 325). 순서·기대값은 차슐랭 `server/deploy.md` "11-03 추가 migration"
   2. 두 저장소 `local.properties`에 `supabase.url`·`supabase.publishableKey` 넣기(지금 이 PC엔 없음 → 빌드가 조용히 Fake). 그다음 서버 연결 상태로 두 시연 스크립트 리허설
-  3. 약관(B01): 11-03 값 확정 완료 → 길민종 `TermsDialog` 연결 대기(#14). 황준용 답(Supabase 리전·요청 로그)이 오면 【확인 필요】 2곳 고치기. 판 번호를 바꾸면 각 AppContainer `termsVersion`도. 확정 뒤 크루즈 #25 닫기
-  4. 남은 팀원 이슈: 차슐랭 #17(이상준 태그 VM, 시연 전 필수), #12·#13(이상준·황준용 UI 감사 계약). #8(차슐랭)·#20(크루즈)은 #10·#22 머지로 해결됨 → 근거 확인 뒤 닫기
+  3. 약관(B01): 확정 전문이 앱 [내용 보기]에 들어감(`ui/TermsText.kt`, 11-04 머지). 황준용 답(Supabase 리전·요청 로그)이 오면 `docs/terms-draft.md`와 `TermsText.kt`의 해당 2곳 고치기. 판 번호를 바꾸면 각 AppContainer `termsVersion`도. 크루즈 #25·차슐랭 #14는 장호연이 닫기(에이전트 닫기는 권한 확인에서 막힘)
+  4. 남은 팀원 이슈: #12·#13(이상준·황준용 UI 감사 계약, 제출 필수 아님). #17은 #19로 닫힘. #8(차슐랭)·#20(크루즈)은 #10·#22 머지로 해결됨(근거: core 테스트 `deletionReceiptWaitsForAckAndSurvivesTransientFailure`·`inFlightWriteCannotEraseDurableWithdrawalIntent`, 서버 테스트 "withdraw cascades… rejects late writes") → 장호연이 닫기
   5. 주최 측 문의 메일 발송 — `docs/organizer-inquiry-email.md`에 위치기반서비스 신고 여부 문항 추가 권장. 심사용 GitHub 계정명(4번) 답을 받아야 아래 7번 가능
-  6. release 서명 키 생성(저장소 밖 보관) + `signingConfig` 설정 → `apk/SamgakGorae_Chachelin_release.apk`·`apk/SamgakGorae_CruiseBreaker_release.apk` 커밋(지금 `apk/` 폴더 없음)
+  6. 서명 키·`signingConfig`·`tools/build-release.sh`는 완료(키 `C:/Users/H/.samgakgorae/`, **백업할 것**). 2번 키가 들어오면 두 저장소에서 `bash tools/build-release.sh` → `apk/` 커밋. release는 실제 충전 기준(인증 3분·실패 2분)이라 시연 영상은 debug 빌드로 찍기
   7. 저장소 접근: 두 저장소가 **PRIVATE** → 심사용 계정 초대(또는 공개 전환) + 접근 확인. 새로 clone해서 빌드되는지 확인
   8. 시연 영상 촬영 → 기획서 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 영상) 채우고 DOCX 재생성
   9. 01 참가신청서·04 서명 칸, 5명 서명(11-13) → 11-14 메일 2통 발송(전원 CC). 11-05 중간 점검, Pleos Playground 프로젝트 생성
@@ -41,6 +41,12 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — PR 차슐랭 #19·크루즈 #32 머지
+- 장호연 "Yes, merge both" 지시. Claude 에이전트가 리뷰한 head(`f0f8b2e`, `2a60341`) 고정으로 merge commit: 차슐랭 `f876a69`, 크루즈 `547fdc2`. 차슐랭 #17 자동으로 닫힘
+- 확인: 머지된 main에서 두 앱 `assembleDebug assembleRelease test lint` 통과, `tools/` 두 저장소 같음
+- 못 한 것: 크루즈 #25 닫기(에이전트 동작이 권한 확인에서 막힘) → 장호연이 닫기
+- 바꾼 파일: 이 문서
 
 ### 2026-11-03 — 시연 가능 상태 마무리(PR 차슐랭 #19, 크루즈 #32)
 - 장호연 지시("할 수 있는 거 다 해 줘, 두 앱이 구동·운영·시연 가능한 상태"). Claude 에이전트가 작업
