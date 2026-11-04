@@ -46,6 +46,42 @@ class SupabaseBackendTest {
         }
     }
 
+    @Test fun unreadableOrCorruptStoreStartsEmptyInsteadOfCrashing() = runTest {
+        val throwing = object : BackendStore {
+            override fun read(): String = throw IllegalStateException("decrypt failed")
+            override fun write(value: String) {}
+        }
+        val backend = SupabaseBackend(config, throwing, Server(), backgroundScope, startWorker = false)
+        assertEquals("local-storage-reset", backend.status.value)
+        backend.activate(vehicle)
+
+        val corrupt = Memory().apply { value = "not json" }
+        val restarted = SupabaseBackend(config, corrupt, Server(), backgroundScope, startWorker = false)
+        assertEquals("local-storage-reset", restarted.status.value)
+        restarted.activate(vehicle)
+        assertTrue(corrupt.value!!.contains(vehicle))
+
+        val healthy = SupabaseBackend(config, Memory(), Server(), backgroundScope, startWorker = false)
+        assertEquals("idle", healthy.status.value)
+    }
+
+    @Test fun invalidBuildConfigBecomesNullWithoutLeakingTheKey() {
+        val reasons = mutableListOf<String>()
+        val log: (String) -> Unit = { reasons += it }
+        assertNull(BackendConfig.fromBuildConfigOrNull("", "", "CHACHELIN", true, "v1", log))
+        assertTrue(reasons.isEmpty()) // URL 없음 = 서버 없이 쓰는 빌드, 오류 아님
+        assertNull(BackendConfig.fromBuildConfigOrNull("http://example.supabase.co", "sb_publishable_x", "CHACHELIN", true, "v1", log))
+        assertNull(BackendConfig.fromBuildConfigOrNull("https://example.supabase.co", "eyJhbGciOi.legacy.jwt", "CHACHELIN", true, "v1", log))
+        assertNull(BackendConfig.fromBuildConfigOrNull("not a url", "sb_publishable_x", "CHACHELIN", true, "v1", log))
+        assertEquals(3, reasons.size)
+        assertFalse(reasons.any { it.contains("eyJhbGciOi") })
+
+        val ok = BackendConfig.fromBuildConfigOrNull(" https://example.supabase.co ", "sb_publishable_x\n", "CHACHELIN", true, "v1", log)
+        assertEquals("https://example.supabase.co", ok?.url)
+        assertEquals("sb_publishable_x", ok?.publishableKey)
+        assertEquals(3, reasons.size)
+    }
+
     @Test fun noSignupBeforeConsentAndNoSignupAgainOnRestart() = runTest {
         val store = Memory(); val server = Server()
         val backend = SupabaseBackend(config, store, server, backgroundScope, startWorker = false)

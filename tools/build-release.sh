@@ -29,6 +29,11 @@ if [ -z "$(prop supabase.url)" ] || [ -z "$(prop supabase.publishableKey)" ]; th
   [ "${ALLOW_FAKE:-0}" = 1 ] || fail "supabase.url / supabase.publishableKey 없음 → 서버 없이 Fake로 빌드됨. 키를 넣거나 ALLOW_FAKE=1"
   echo "! 서버 키 없음: Fake 데이터 빌드(제출용 아님)"
 fi
+if [ -n "$(prop supabase.url)" ]; then
+  # 형식이 틀리면 앱이 서버 없이(Fake) 뜬다(core 0.5.2). 제출 전에 여기서 잡는다
+  case "$(prop supabase.url)" in https://*) ;; *) fail "supabase.url은 https://로 시작해야 함(앞 공백·따옴표 확인)" ;; esac
+  case "$(prop supabase.publishableKey)" in sb_publishable_*) ;; *) fail "supabase.publishableKey는 sb_publishable_로 시작해야 함(구형 anon 키 아님, 앞 공백·따옴표 확인)" ;; esac
+fi
 [ -n "$(prop release.storeFile)" ] || fail "release.storeFile 없음 → 서명되지 않은 APK가 나옴"
 
 ./gradlew -q assembleRelease

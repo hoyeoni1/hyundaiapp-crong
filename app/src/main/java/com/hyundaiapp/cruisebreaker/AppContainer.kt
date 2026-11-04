@@ -49,10 +49,12 @@ class AppContainer(context: Context) {
     /** 동의한 약관 판 번호(서버에 남김). 약관 문구를 바꾸면 함께 올린다. 지금은 승인 전 초안 docs/terms-draft.md의 번호 */
     private val termsVersion = "cruisebreaker-terms-2026-11-v1"
 
-    val backend: SupabaseBackend? = if (BuildConfig.SUPABASE_URL.isNotBlank()) {
-        val config = BackendConfig(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY, "CRUISEBREAKER", BuildConfig.SUPABASE_SIMULATED, termsVersion)
+    // 서버 설정이 없으면 Fake, 있는데 형식이 틀리면(구형 키·http·공백) 죽지 않고 로그만 남기고 Fake(core 0.5.2)
+    val backend: SupabaseBackend? = BackendConfig.fromBuildConfigOrNull(
+        BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY, "CRUISEBREAKER", BuildConfig.SUPABASE_SIMULATED, termsVersion,
+    ) { Log.e("SupabaseConfig", it) }?.let { config ->
         SupabaseBackend(config, EncryptedBackendStore(context, config.storageNamespace), HttpsBackendTransport(config), appScope)
-    } else null
+    }
     private val fakeServer = FakeCruiseServer()
     private val remoteServer = backend?.let { SupabaseCruiseServer(it, prefs::vehicleId) { prefs.onboarded } }
     val risks: SegmentRiskRepository = remoteServer ?: fakeServer
