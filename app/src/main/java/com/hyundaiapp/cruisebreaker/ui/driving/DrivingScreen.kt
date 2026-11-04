@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,16 +63,24 @@ fun DrivingScreen(state: DrivingUiState) {
         val banner = state.banner
         if (banner != null) {
             Banner(banner)
-        } else if (!state.recording) {
-            Text(
-                "차량 신호를 기다리는 중이에요",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
-                color = CarColors.OnSurfaceVariant,
-                maxLines = 1,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-            )
+        } else {
+            IdleStatus(state, Modifier.align(Alignment.CenterHorizontally))
         }
         Text("크루즈브레이커", style = MaterialTheme.typography.bodyMedium, color = CarColors.Disabled)
+    }
+}
+
+/** 안내가 없을 때도 지금 상태를 한 줄로 크게 보여 준다. 안내는 크루즈 작동 중에만 나온다 */
+@Composable
+private fun IdleStatus(state: DrivingUiState, modifier: Modifier) {
+    val (icon, text, tint) = when {
+        !state.recording -> Triple(CarIcons.Dot, "차량 신호를 기다리는 중", CarColors.Disabled)
+        !state.cruiseEngaged -> Triple(CarIcons.Dot, "크루즈를 켜면 안내해요", CarColors.Disabled)
+        else -> Triple(CarIcons.ShieldCheck, "안내할 구간 없음", CarColors.Primary)
+    }
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(if (icon == CarIcons.Dot) 28.dp else 64.dp))
+        Text(text, style = MaterialTheme.typography.displaySmall, color = if (icon == CarIcons.Dot) CarColors.OnSurfaceVariant else CarColors.OnSurface, maxLines = 1, softWrap = false)
     }
 }
 
