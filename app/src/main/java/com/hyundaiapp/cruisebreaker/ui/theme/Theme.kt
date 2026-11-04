@@ -69,19 +69,28 @@ private val Colors = darkColorScheme(
     scrim = CarColors.Scrim,
 )
 
-/** 글자 크기(sp). 본문 22 이상, 주행 중 배너 56 이상 */
+/**
+ * 글자 단계(sp). 두 단계가 한눈에 구분되게 크기 차이를 4sp 이상, 제목은 굵게 둔다.
+ * - displayLarge 112: 화면마다 하나뿐인 주인공 숫자(충전 SoC, 차슐랭 점수, 주행 요약 횟수)
+ * - displayMedium 64: 주행 중 배너, 큰 숫자 칸 / displaySmall 44: 카드 안 핵심 숫자
+ * - headlineMedium 36: 화면 제목 / titleLarge 30: 카드·팝업 제목 / titleMedium 26: 목록 항목 이름
+ * - bodyLarge 22: 본문 / bodyMedium 20: 회색 보조 설명·숫자 라벨 / bodySmall 18: 출처 같은 작은 주석만
+ * - labelLarge 24: 버튼 / labelMedium 20: 상태 표시·구역 이름
+ * 강조 규칙: 숫자는 굵게 + 흰색, 단위는 숫자보다 작은 회색. 파랑·주황은 의미(인증·위험)가 있을 때만.
+ */
+private val Korean = LocaleList("ko-KR")
 private val CarTypography = Typography(
-    displayLarge = TextStyle(fontSize = 96.sp, fontWeight = FontWeight.Bold, lineHeight = 100.sp),
+    displayLarge = TextStyle(fontSize = 112.sp, fontWeight = FontWeight.Bold, lineHeight = 120.sp),
     displayMedium = TextStyle(fontSize = 64.sp, fontWeight = FontWeight.Bold, lineHeight = 72.sp),
     displaySmall = TextStyle(fontSize = 44.sp, fontWeight = FontWeight.Bold, lineHeight = 52.sp),
-    headlineMedium = TextStyle(fontSize = 34.sp, fontWeight = FontWeight.Bold, lineHeight = 44.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Heading),
-    titleLarge = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Medium, lineHeight = 36.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Heading),
-    titleMedium = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Medium, lineHeight = 34.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Heading),
-    bodyLarge = TextStyle(fontSize = 22.sp, lineHeight = 32.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Paragraph),
-    bodyMedium = TextStyle(fontSize = 20.sp, lineHeight = 28.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Paragraph),
-    bodySmall = TextStyle(fontSize = 18.sp, lineHeight = 26.sp, localeList = LocaleList("ko-KR"), lineBreak = LineBreak.Paragraph),
-    labelLarge = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, lineHeight = 30.sp),
-    labelMedium = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Medium, lineHeight = 26.sp),
+    headlineMedium = TextStyle(fontSize = 36.sp, fontWeight = FontWeight.Bold, lineHeight = 46.sp, localeList = Korean, lineBreak = LineBreak.Heading),
+    titleLarge = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold, lineHeight = 40.sp, localeList = Korean, lineBreak = LineBreak.Heading),
+    titleMedium = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.SemiBold, lineHeight = 34.sp, localeList = Korean, lineBreak = LineBreak.Heading),
+    bodyLarge = TextStyle(fontSize = 22.sp, lineHeight = 32.sp, localeList = Korean, lineBreak = LineBreak.Paragraph),
+    bodyMedium = TextStyle(fontSize = 20.sp, lineHeight = 28.sp, localeList = Korean, lineBreak = LineBreak.Paragraph),
+    bodySmall = TextStyle(fontSize = 18.sp, lineHeight = 26.sp, localeList = Korean, lineBreak = LineBreak.Paragraph),
+    labelLarge = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold, lineHeight = 30.sp, localeList = Korean),
+    labelMedium = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.SemiBold, lineHeight = 26.sp, localeList = Korean),
 )
 
 @Composable

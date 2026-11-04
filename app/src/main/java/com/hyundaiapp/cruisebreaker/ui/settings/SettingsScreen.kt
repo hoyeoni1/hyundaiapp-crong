@@ -20,7 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
+import com.hyundaiapp.cruisebreaker.ui.components.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.hyundaiapp.cruisebreaker.ui.SettingsUiState
 import com.hyundaiapp.cruisebreaker.ui.components.CarIcons
 import com.hyundaiapp.cruisebreaker.ui.components.ScreenHeader
+import com.hyundaiapp.cruisebreaker.ui.components.SectionLabel
 import com.hyundaiapp.cruisebreaker.ui.theme.CarColors
 import com.hyundaiapp.cruisebreaker.ui.theme.CarDimens
 import com.hyundaiapp.cruisebreaker.ui.theme.CruiseBreakerTheme
@@ -50,18 +51,11 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         ScreenHeader("설정", onBack = onBack)
-        Text("안내", style = MaterialTheme.typography.titleMedium, color = CarColors.Primary)
-        ToggleSetting(
-            "음성 안내", "끄면 주행 화면 배너만 보여요",
-            state.voiceEnabled, onVoiceEnabledChange,
-        )
-        Text("크루즈 작동 중 500m 앞 해제 다발 구간을 안내해요", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
-        Text("기록", style = MaterialTheme.typography.titleMedium, color = CarColors.Primary)
-        ToggleSetting(
-            "자동 기록", "시동을 걸면 자동으로 기록해요. 꺼도 앱을 열면 기록해요",
-            state.autoRecordEnabled, onAutoRecordEnabledChange,
-        )
-        Text("동의", style = MaterialTheme.typography.titleMedium, color = CarColors.Primary)
+        SectionLabel("안내")
+        ToggleSetting("음성 안내", state.voiceEnabled, onVoiceEnabledChange)
+        SectionLabel("기록")
+        ToggleSetting("자동 기록", state.autoRecordEnabled, onAutoRecordEnabledChange)
+        SectionLabel("동의")
         Surface(
             color = CarColors.Surface,
             contentColor = CarColors.OnSurface,
@@ -69,7 +63,7 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).clickable(onClick = onConsentClick),
         ) {
             Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("위치정보·개인정보 동의 내용", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                Text("위치정보·개인정보 동의 내용", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                 Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
             }
         }
@@ -81,10 +75,7 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp).clickable(onClick = onWithdrawConsent),
         ) {
             Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("동의 철회", style = MaterialTheme.typography.bodyLarge, color = CarColors.Warning)
-                    Text("기록을 멈추고 이 차에 저장된 동의·기록 정보를 지워요", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
-                }
+                Text("동의 철회", style = MaterialTheme.typography.titleMedium, color = CarColors.Warning, modifier = Modifier.weight(1f))
                 Icon(CarIcons.ChevronRight, contentDescription = null, tint = CarColors.OnSurfaceVariant, modifier = Modifier.size(30.dp))
             }
         }
@@ -94,7 +85,7 @@ fun SettingsScreen(
 
 /** 전체 줄을 하나의 Switch로 읽고 누른다. */
 @Composable
-private fun ToggleSetting(title: String, description: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun ToggleSetting(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     Surface(
         color = CarColors.Surface,
         contentColor = CarColors.OnSurface,
@@ -104,10 +95,7 @@ private fun ToggleSetting(title: String, description: String, checked: Boolean, 
         ),
     ) {
         Row(Modifier.padding(horizontal = 32.dp, vertical = 24.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(title, style = MaterialTheme.typography.titleLarge)
-                Text(description, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
-            }
+            Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             Switch(
                 checked = checked,
                 onCheckedChange = null,

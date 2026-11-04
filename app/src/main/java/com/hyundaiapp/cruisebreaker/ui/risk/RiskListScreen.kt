@@ -16,7 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import com.hyundaiapp.cruisebreaker.ui.components.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -106,11 +106,12 @@ private fun RiskRow(row: RiskRowUi, selected: Boolean, onClick: () -> Unit) {
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(row.roadName, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "${formatKm(row.distanceM)} · 해제율 ${formatPercent(row.rate)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = CarColors.OnSurfaceVariant,
-                )
+                Text(formatKm(row.distanceM), style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
+            }
+            // 목록에서 비교할 값은 해제율 하나라 오른쪽에 크게 둔다. 기준 이상만 주황
+            Column(horizontalAlignment = Alignment.End) {
+                Text("해제율", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
+                Text(formatPercent(row.rate), style = MaterialTheme.typography.titleLarge, color = rateColor(row.rate))
             }
             Icon(if (selected) CarIcons.Check else CarIcons.ChevronRight, contentDescription = if (selected) "선택됨" else "구간 상세 선택", tint = CarColors.Primary, modifier = Modifier.size(28.dp))
 
@@ -121,25 +122,31 @@ private fun RiskRow(row: RiskRowUi, selected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun RiskDetail(row: RiskRowUi, modifier: Modifier) {
     CarCard(modifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        Text("선택한 구간", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
-        Text(row.roadName, style = MaterialTheme.typography.titleLarge, maxLines = Int.MAX_VALUE)
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("선택한 구간", style = MaterialTheme.typography.labelMedium, color = CarColors.OnSurfaceVariant)
+            Text(row.roadName, style = MaterialTheme.typography.titleLarge, maxLines = Int.MAX_VALUE)
+        }
         LabeledMeter("해제율", row.rate, if (row.rate >= RISK_RATE) CarColors.Warning else CarColors.Primary)
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("크루즈 통과", style = MaterialTheme.typography.bodyLarge)
-            Text("${row.passVehicles} 차량·일", style = MaterialTheme.typography.labelLarge)
+            Text("크루즈 통과", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
+            Row {
+                Text("${row.passVehicles}", style = MaterialTheme.typography.displaySmall, modifier = Modifier.alignByBaseline())
+                Text("차량·일", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp).alignByBaseline())
+            }
         }
-        Text("최근 28일 · 같은 방향 · 통과 20 차량·일 이상에서 해제율 30% 이상", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
-        Text("차량·일: 같은 차가 하루에 여러 번 지나도 1회로 집계해요", style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
         Text("시연용 시드 데이터 포함", style = MaterialTheme.typography.bodySmall, color = CarColors.OnSurfaceVariant)
     }
 }
+
+private fun rateColor(rate: Double) = if (rate >= RISK_RATE) CarColors.Warning else CarColors.OnSurface
 
 @Composable
 private fun LabeledMeter(label: String, ratio: Double, color: Color) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Text(formatPercent(ratio), style = MaterialTheme.typography.labelLarge)
+            Text(label, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant, modifier = Modifier.alignByBaseline())
+            Text(formatPercent(ratio), style = MaterialTheme.typography.displaySmall, color = rateColor(ratio), modifier = Modifier.alignByBaseline())
         }
         MeterBar(ratio.toFloat(), color)
     }

@@ -13,7 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import com.hyundaiapp.cruisebreaker.ui.components.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,26 +46,41 @@ fun DrivingScreen(state: DrivingUiState) {
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             RecordingChip(state.recording)
-            Text(
-                "크루즈 ${if (state.cruiseEngaged) "작동" else "꺼짐"} · ${formatWhole(state.speedKph?.toDouble())} km/h",
-                style = MaterialTheme.typography.bodyLarge,
-                color = CarColors.OnSurfaceVariant,
-                maxLines = 1,
-            )
+            // 크루즈 상태는 작동일 때만 파랑, 속도는 굵은 숫자 + 작은 단위
+            Row {
+                Text(
+                    "크루즈 ${if (state.cruiseEngaged) "작동" else "꺼짐"}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (state.cruiseEngaged) CarColors.Primary else CarColors.OnSurfaceVariant,
+                    maxLines = 1,
+                    modifier = Modifier.padding(end = 24.dp).alignByBaseline(),
+                )
+                Text(formatWhole(state.speedKph?.toDouble()), style = MaterialTheme.typography.displaySmall, maxLines = 1, modifier = Modifier.alignByBaseline())
+                Text("km/h", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant, maxLines = 1,
+                    modifier = Modifier.padding(start = 8.dp).alignByBaseline())
+            }
         }
         val banner = state.banner
         if (banner != null) {
             Banner(banner)
         } else {
-            Text(
-                if (state.recording) "안내가 있으면 여기에 표시해요" else "차량 신호를 기다리는 중이에요",
-                style = MaterialTheme.typography.titleLarge,
-                color = CarColors.OnSurfaceVariant,
-                maxLines = 1,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-            )
+            IdleStatus(state, Modifier.align(Alignment.CenterHorizontally))
         }
         Text("크루즈브레이커", style = MaterialTheme.typography.bodyMedium, color = CarColors.Disabled)
+    }
+}
+
+/** 안내가 없을 때도 지금 상태를 한 줄로 크게 보여 준다. 안내는 크루즈 작동 중에만 나온다 */
+@Composable
+private fun IdleStatus(state: DrivingUiState, modifier: Modifier) {
+    val (icon, text, tint) = when {
+        !state.recording -> Triple(CarIcons.Dot, "차량 신호를 기다리는 중", CarColors.Disabled)
+        !state.cruiseEngaged -> Triple(CarIcons.Dot, "크루즈를 켜면 안내해요", CarColors.Disabled)
+        else -> Triple(CarIcons.ShieldCheck, "안내할 구간 없음", CarColors.Primary)
+    }
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(if (icon == CarIcons.Dot) 28.dp else 64.dp))
+        Text(text, style = MaterialTheme.typography.displaySmall, color = if (icon == CarIcons.Dot) CarColors.OnSurfaceVariant else CarColors.OnSurface, maxLines = 1, softWrap = false)
     }
 }
 

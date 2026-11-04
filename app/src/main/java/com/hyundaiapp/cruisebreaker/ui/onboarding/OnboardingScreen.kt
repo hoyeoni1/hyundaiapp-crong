@@ -11,7 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import com.hyundaiapp.cruisebreaker.ui.components.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -50,9 +50,9 @@ fun OnboardingScreen(
         val intro: @Composable () -> Unit = {
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Text("크루즈브레이커", style = MaterialTheme.typography.bodyLarge, color = CarColors.Primary)
-                Text("다른 차들이 크루즈를 끈 곳을 미리 알려 드려요", style = MaterialTheme.typography.headlineMedium)
+                Text("다른 차들이 크루즈를 끈\u00A0곳을 미리 알려 드려요", style = MaterialTheme.typography.headlineMedium)
                 Text("기록에는 좌표 대신 약 150m 구간 번호만 저장하고, 시각은 시간 단위로 저장해요.", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
-                Text("시동을 걸면 앱을 열지 않아도 주행을 자동으로 기록합니다. 설정에서 끌 수 있어요.", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                Text("시동을 걸면 앱을 열지 않아도\n주행을 자동으로 기록합니다.\n설정에서 끌 수 있어요.", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
             }
         }
         val consents: @Composable () -> Unit = {
@@ -69,7 +69,7 @@ fun OnboardingScreen(
                     "차속 읽기 권한 (선택)",
                     state.speedPermissionGranted,
                     onRequestSpeedPermission,
-                    description = "다음 창에 '위치 정보'로 표시돼요.\n느린 속도의 해제를 거르려고 차속을 읽어요.\n거부해도 기록하지만 저속 해제를 걸러내지 못할 수 있어요.",
+                    description = "다음 창에 '위치 정보'로 표시돼요.\n느린 속도의 해제를 거르려고 차속을 읽어요.\n거부해도 기록하지만\n저속 해제를 걸러내지 못할 수 있어요.",
                     agreeLabel = "권한 요청",
                     agreedLabel = "허용됨",
                 )

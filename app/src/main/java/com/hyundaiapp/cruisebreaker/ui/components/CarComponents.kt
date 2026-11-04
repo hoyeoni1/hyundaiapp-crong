@@ -29,7 +29,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -51,7 +50,7 @@ import com.hyundaiapp.cruisebreaker.ui.theme.CarDimens
 import java.util.Locale
 
 /*
- * 두 앱 공통 화면 부품. 크루즈브레이커 CarComponents.kt와 같은 내용(패키지만 다름).
+ * 두 앱 공통 화면 부품. 차슐랭 CarComponents.kt와 같은 내용(패키지만 다름).
  * 부품은 상태를 갖지 않는다. 값과 콜백만 받는다.
  */
 
@@ -104,7 +103,7 @@ fun SecondaryButton(
         contentPadding = PaddingValues(horizontal = 28.dp),
         modifier = modifier.heightIn(min = height),
     ) {
-        Text(text, style = MaterialTheme.typography.bodyLarge)
+        Text(text, style = MaterialTheme.typography.labelLarge)
     }
 }
 
@@ -145,7 +144,9 @@ fun SelectableButton(
     SelectableButton(selected, onClick, modifier, role = role) {
         Icon(CarIcons.Check, contentDescription = null, tint = if (selected) CarColors.Primary else Color.Transparent, modifier = Modifier.size(24.dp))
         Box(Modifier.size(8.dp))
-        Text(text, style = MaterialTheme.typography.bodyLarge)
+        Text(text, style = MaterialTheme.typography.bodyLarge, fontWeight = if (selected) FontWeight.SemiBold else null)
+        // 왼쪽 체크 자리만큼 오른쪽도 비워 글자가 가운데 오게 한다
+        Box(Modifier.size(32.dp))
     }
 }
 
@@ -170,7 +171,7 @@ fun CarCard(
     }
 }
 
-/** 라벨 + 큰 숫자. unit은 숫자보다 작게 붙는다 */
+/** 회색 라벨 + 굵은 흰 숫자. unit은 숫자 글자선에 맞춰 작은 회색으로 붙는다 */
 @Composable
 fun StatTile(
     label: String,
@@ -179,20 +180,21 @@ fun StatTile(
     unit: String? = null,
     valueColor: Color = CarColors.OnSurface,
     valueMaxLines: Int = 1,
-    valueStyle: TextStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+    valueStyle: TextStyle = MaterialTheme.typography.displaySmall,
     caption: String? = null,
     color: Color = CarColors.Surface,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(4.dp),
 ) {
     CarCard(modifier, color = color, contentPadding = PaddingValues(20.dp), verticalArrangement = verticalArrangement) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(value, style = valueStyle, color = valueColor, maxLines = valueMaxLines)
+        Row {
+            Text(value, style = valueStyle, color = valueColor, maxLines = valueMaxLines, modifier = Modifier.alignByBaseline())
             if (unit != null) {
                 Text(
                     unit,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(start = 6.dp, bottom = 4.dp),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
+                    color = CarColors.OnSurfaceVariant,
+                    modifier = Modifier.padding(start = 8.dp).alignByBaseline(),
                 )
             }
         }
@@ -234,6 +236,12 @@ fun MeterBar(fraction: Float, color: Color, modifier: Modifier = Modifier, heigh
     Box(modifier.fillMaxWidth().height(height).clip(shape).background(CarColors.Track)) {
         Box(Modifier.fillMaxHeight().fillMaxWidth(fraction.coerceIn(0f, 1f)).clip(shape).background(color))
     }
+}
+
+/** 카드 위 구역 이름(설정의 "안내"·"기록" 등). 카드 제목보다 작은 회색 */
+@Composable
+fun SectionLabel(text: String, modifier: Modifier = Modifier) {
+    Text(text, style = MaterialTheme.typography.labelMedium, color = CarColors.OnSurfaceVariant, modifier = modifier.padding(top = 8.dp))
 }
 
 /** 화면 제목줄. onBack이 있으면 왼쪽에 뒤로 버튼 */
@@ -286,7 +294,7 @@ fun ConsentRow(
                 Column(textModifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(title, style = MaterialTheme.typography.titleMedium)
                     if (description != null) {
-                        Text(description, style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
+                        Text(description, style = MaterialTheme.typography.bodyMedium, color = CarColors.OnSurfaceVariant)
                     }
                     if (onShowTerms != null) {
                         TextButton(onClick = onShowTerms, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = CarDimens.TouchTargetSmall)) {
@@ -405,6 +413,6 @@ fun DestructiveButton(text: String, onClick: () -> Unit, modifier: Modifier = Mo
     OutlinedButton(onClick = onClick, shape = ButtonShape, border = BorderStroke(2.dp, CarColors.Warning),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = CarColors.Warning),
         contentPadding = PaddingValues(horizontal = 24.dp), modifier = modifier.heightIn(min = 64.dp)) {
-        Text(text, style = MaterialTheme.typography.bodyLarge)
+        Text(text, style = MaterialTheme.typography.labelLarge)
     }
 }

@@ -4,12 +4,12 @@
 
 ## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
-- 한 일 요약: 사용자 디자인 피드백에 따라 전체 팝업의 회색 제목 박스·전체 테두리·추가 가로 여백·굵은 글씨를 제거. 기존 titleLarge 제목과 아래1dp 구분선만 남김. 두 앱 공통 CarAlertDialog를 동일하게 반영.
-- 진행 중 브랜치·PR: `fix/terms-dialog-title` / [PR #34](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/34). 약관4종·철회2종·길안내1종 등 기존 모달7종에 같은 하단 구분선 적용. 본문/확인·취소 콜백 및 약관 문구·판 번호는 유지.
-- 검증: 두 앱 `assembleDebug test :app:lintDebug` PASS. 모달 새 캡처3+기존 약관3검사/앱, 합계12검사 PASS. 1280×720dp/100%, 600×1024dp·1024×600dp/Android 글자150%에서 제목/본문 구분, 스크롤 끝, 확인·취소 영역과 취소 시 상태 유지 확인.
-- 전체 UI 검수본: 비모달 화면은 코드 변경이 없어 기존 캡처를 유지하고 모든 팝업을 새로 캡처. 원본109장·PDF99쪽의 v2 생성. 최신 파일은 output/pdf/hyundai-ui-review-2026-11-04-v2.pdf 및 hyundai-ui-pngs-2026-11-04-v2.zip. 이전 박스형 PDF는 비교용 이력이며 최신 시안이 아님.
-- 다음 할 일: 사용자 PDF 페이지/화면 ID 검수 의견 후 UI 후속. 실제 Pleos 시스템 권한창·홈·내비·알림센터/실차 동작은 팀 환경 별도 검수.
-- 경계·증거: UI 부품과 본인 handoff만 변경. 현재 Compose 코드+샘플 데이터 렌더이며 QA 소스/의존성은 제품에 추가하지 않음. 소스·로그·카탈로그는 output/hyundai-full-ui-review-2026-11-04-v2/에 보존.
+- 한 일 요약: S5 보조 안내 #31, 약관 전문·S5 좌표 설명 #32, 서버 #22 모두 main 머지 완료. S2 조회 실패 알림 없음·#26 추가 요약 복원 불필요 결정 유지. #25에 필요한 S5 안내와 약관 책임 제한이 함께 반영됐으나 종료 확인은 이민하 담당으로 남김.
+- 진행 중 브랜치·PR: `feat/ui-polish` — 두 앱 글자 단계·강조 통일과 보조 설명 문구 정리(리뷰·머지 대기). 그 전 `docs/terms-ui-verification` 기록은 그대로 유효.
+- 약관 검수: 실제 CruiseBreakerNavigation(debug=false)에서 LOCATION/PRIVACY 전문을 확인. 1280×720dp, 600×1024dp/fontScale1.5, 1024×600dp/fontScale1.5 임시 Robolectric 3검사 PASS. 각 전문 끝까지 스크롤, 닫기64dp 이상, 닫기·Dialog Back 뒤 동의false/시작 비활성/서비스 시작0회, 재열람 스크롤 초기화, 명시적 동의 버튼 후에만 시작 활성 확인. 실제 Pleos 시스템 Back과 별도임.
+- 다음 할 일: 실제 Pleos S5·정차 동의 재열람·권한·Back/Home·운행 제한은 x86 팀 환경에서 확인. 황준용의 Supabase 리전·요청 로그 확인 뒤 장호연이 약관 내용/판 번호를 정하면 UI 전문 정합성을 다시 확인.
+- 막힌 점·질문: B01 앱 연결은 #32로 완료돼 확정본 전체를 기다리는 상태가 아님. 문서의 남은 확인2건은 담당자 답 대기. #20 늦은 업로드는 황준용·이민하 담당이며 길민종 UI 작업이 아님.
+- 확인 방법: JDK17 `bash ./gradlew -I /tmp/hyundai-terms-qa/init.gradle :app:testDebugUnitTest --tests com.hyundaiapp.cruisebreaker.ui.TermsUiAcceptanceTest` PASS(3/3). debug 빌드지만 실제 Navigation의 debug=false 경로와 Fake 의존성으로 검수. 두 앱 합계6검사. 검사·의존성은 제품에 추가하지 않음. 로컬 소스·XML·로그·화면은 `output/hyundai-terms-ui-2026-11-04/`에 보존. 일반 빌드/전체 테스트/lint 재실행으로 주장하지 않음.
 
 ## 공유 검증 요약
 
@@ -28,6 +28,11 @@
 일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 현재 UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+S5 신규4 PASS이며 앱 일반 테스트에 포함되지 않는다. 이전 S2 표시 전용3검사는 #25 결정으로 폐기한 제안의 과거 검증이다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — 글자 단계·강조 통일, 보조 설명 정리
+- 한 일: 브랜치 `feat/ui-polish`. `Theme.kt` 글자 단계를 다시 잡음(화면 제목 36, 카드 제목 30 굵게, 목록 이름 26 SemiBold, 본문 22, 보조 20, 주인공 숫자 112). 공통 부품: 보조·위험 버튼 글자를 주 버튼과 같은 labelLarge, `StatTile` 기본 숫자 44 + 단위는 글자선 맞춤 회색, 동의 카드 설명 20 회색, 태그 버튼 글자 가운데 정렬, 구역 이름 `SectionLabel` 추가. 화면: S1 상단 크루즈 상태·속도 강조, 안내가 없을 때 가운데에 상태 한 줄("안내할 구간 없음"/"크루즈를 켜면 안내해요"/"차량 신호를 기다리는 중"), S2 해제율을 목록 오른쪽 큰 숫자로, S3 세 숫자 같은 크기 칸(내용 높이만큼, 화면을 채우려 늘리지 않음), S4 구역 이름 회색 라벨. 사용자 요청으로 화면의 보조 설명 문구를 뺐다(정책상 필요한 동의·권한 설명, 안전 고지, 자동 기록 안내, 시연 데이터 표시는 남김). Robolectric 렌더로 두 앱 전 화면(차슐랭은 세로 포함) 확인, `assembleDebug test` 통과.
+- 결정한 것과 이유: 강조는 "숫자는 굵은 흰색, 단위는 작은 회색, 파랑·주황은 의미가 있을 때만"으로 통일(Theme.kt 주석). 한글이 단어 중간("기록/합니다")에서 끊기는 문제는 `LineBreak.WordBreak.Phrase`로 해결되지 않아(렌더로 확인) 공통 `ui/components/Text.kt`를 만듦: 여러 줄이 될 수 있는 글자는 단어 안 글자 사이에 보이지 않는 WORD JOINER(U+2060)를 넣어 띄어쓰기에서만 줄이 바뀐다. 접근성·테스트용 글자는 원문 그대로(`onNodeWithText(원문)` 통과 확인). **화면 파일은 `androidx.compose.material3.Text` 대신 `ui.components.Text`를 import 한다**
+- 바꾼 파일: `ui/theme/Theme.kt`, `ui/components/CarComponents.kt`, 각 화면 파일, `docs/handoff/gil-minjong.md`. 열린 팝업 PR(`fix/terms-dialog-title`)과 같은 `CarComponents.kt`를 고치지만 `CarAlertDialog` 부분은 건드리지 않음
 
 ### 2026-11-04 — 팝업 제목을 하단 구분선만으로 단순화
 - 사용자 피드백 “보더바텀 정도로만”에 따라 제목 박스·채움색·전체 테두리·강조 굵기·추가 안쪽 여백 제거. 제목 아래12dp 간격과1dp 구분선만 제공.
