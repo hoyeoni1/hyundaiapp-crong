@@ -4,6 +4,7 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.AtomicFile
+import android.util.Log
 import java.io.File
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -26,13 +27,22 @@ class EncryptedBackendStore(context: Context, namespace: String = "supabase") : 
         }.generateKey()
     }
 
+    /**
+     * 읽지 못하면(형식 오류, Keystore 키 유실·파일 손상으로 복호화 실패) null을 돌려준다 — 복구할 길이 없는 상태라
+     * 예외를 올려 앱이 매번 켜지자마자 죽게 두는 것보다 빈 상태로 시작하는 편이 낫다. 다음 [write]가 새 키로 덮어쓴다.
+     */
     override fun read(): String? {
         if (!file.baseFile.exists()) return null
-        val bytes = file.openRead().use { it.readBytes() }
-        require(bytes.size > 13 && bytes[0] == 1.toByte()) { "Invalid backend state format" }
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, bytes.copyOfRange(1, 13)))
-        return String(cipher.doFinal(bytes.copyOfRange(13, bytes.size)), Charsets.UTF_8)
+        return try {
+            val bytes = file.openRead().use { it.readBytes() }
+            require(bytes.size > 13 && bytes[0] == 1.toByte()) { "Invalid backend state format" }
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, bytes.copyOfRange(1, 13)))
+            String(cipher.doFinal(bytes.copyOfRange(13, bytes.size)), Charsets.UTF_8)
+        } catch (e: Exception) {
+            Log.w(TAG, "unreadable state file ($alias), starting empty: ${e.javaClass.simpleName}")
+            null
+        }
     }
 
     override fun write(value: String) {
@@ -43,4 +53,6 @@ class EncryptedBackendStore(context: Context, namespace: String = "supabase") : 
         try { output.write(bytes); file.finishWrite(output) }
         catch (e: Exception) { file.failWrite(output); throw e }
     }
+
+    private companion object { const val TAG = "EncryptedBackendStore" }
 }

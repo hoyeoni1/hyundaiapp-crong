@@ -13,6 +13,7 @@
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
   - 아직 없는 것: 실제 서버(황준용 — Supabase로 확정(11-02, PC 호스팅 안 함). 황준용이 이미 작업했고 곧 커밋 예정), 위치 재생 시연 모드, release 서명
 - 진행 중 브랜치·PR·이슈:
+  - 장호연 `fix/core-startup-resilience`(두 저장소, 11-04 전체 검토 보고서 `hyundai-app/project-review-2026-11-04.md` 2장 #3·#6 후속) — core v0.5.2 시작 크래시 방어(차슐랭 원본 동기화) + `RiskAnnouncer` 안내 3분 간격을 새 주행에서 초기화. 리뷰 Claude → 장호연 머지. **core(황준용)·`AppContainer`·`RiskAnnouncer`(이민하 담당)를 장호연 결정으로 고침** → 머지 전 두 사람에게 알릴 것
   - 열린 PR 없음(PR #1~#6, #10, #14 머지)
   - 열린 이슈: #9·#13(길민종), #11(이민하, androidx.core 직접 의존), #12(황준용, 동의 철회 시 서버 기록 처리 — 제출 전). #7·#8은 PR #10으로 닫힘
   - 장호연 `feat/demo-scripts`(두 저장소) — 11-02 main merge(인수인계 충돌은 main 쪽으로 해결) + 판정 규칙 v2·현재 앱에 맞게 고쳐 PR. `demo-drive.sh` 기본은 고정 위치 시연(위치 재생 없이 지금 앱으로 동작, 이민하 확인 순서와 같음), `route`는 앱 위치 재생 모드가 생긴 뒤. 가짜 콘솔·가짜 adb로 값 순서만 확인했고 **에뮬레이터 실행은 아직**(이상준이 `demo-charge.sh`는 에뮬레이터에서 확인함)
@@ -41,6 +42,17 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — 시작 크래시 방어(core v0.5.2) + 안내 쿨다운 수정, 브랜치 `fix/core-startup-resilience`
+- 배경: 11-04 두 작품 전체 검토(`hyundai-app/project-review-2026-11-04.md`)에서 ① 공통 core "켜자마자 죽는" 경로 2개, ② `RiskAnnouncer`의 3분 간격이 주행 사이에도 유지돼 **리허설 직후 본 시연에서 배너·음성이 안 나오는** 문제 확인 → 장호연 "수정 시작" 지시
+- 한 일:
+  - core v0.5.2는 차슐랭에서 고치고 `tools/sync-core.sh`로 복사(`--check` 일치). 내용은 차슐랭 `docs/handoff/jang-hoyeon.md` 같은 날짜 항목: `BackendConfig.fromBuildConfigOrNull`, `EncryptedBackendStore.read()`·`SupabaseBackend` 상태 로드가 예외 대신 빈 상태, 테스트 2개, `build-release.sh` 키 형식 검사
+  - `app/.../AppContainer.kt`(이민하 담당, 장호연 승인): `BackendConfig(...)` 직접 생성 → 팩토리 + `Log.e("SupabaseConfig", …)`
+  - `app/.../domain/RiskAnnouncer.kt`(이민하 담당, 장호연 승인): `tripNumber`가 바뀔 때 `announcedThisTrip`과 함께 `lastAnnounceMs`도 null로. 규칙 문서의 "안내 사이 최소 3분"은 **한 주행 안에서만** 센다는 뜻으로 해석(정차 P 뒤 새 주행이면 바로 안내 가능). `docs/disengage-rules.md` 70행 표 문구는 이민하가 맞출 것
+  - 테스트 1개 추가(`RiskAnnouncerTest` "새 주행이 시작되면 3분이 안 지났어도 다시 안내한다": 안내 → 30초 뒤 P→D → 다시 안내)
+- 결정한 것과 이유: 시연 직전 리허설을 돌려도 본 시연이 묵음이 되지 않게. 실사용에서도 주차 뒤 다시 출발하면 새 맥락이라 3분 억제가 필요 없음
+- 테스트 결과: `./gradlew :core:testDebugUnitTest :app:testDebugUnitTest --offline` 통과 — debug 106개(core 32 = 30 + 새 2, app 74 = 73 + 새 1), 실패 0. 차슐랭 쪽 PR: https://github.com/hoyeoni1/hyundaiapp-chachelin/pull/30. 에뮬레이터: `bash tools/demo-drive.sh`를 3분 안에 두 번 돌려 두 번째도 배너·음성이 나오는지(아직 안 함 — 에뮬레이터가 다른 세션 작업 중)
+- 바꾼 파일: `core/`(동기화), `tools/build-release.sh`(동기화), `app/src/main/java/com/hyundaiapp/cruisebreaker/AppContainer.kt`, `app/src/main/java/com/hyundaiapp/cruisebreaker/domain/RiskAnnouncer.kt`, `app/src/test/.../RiskAnnouncerTest.kt`, 이 문서
 
 ### 2026-11-04 — demo-drive.sh 시드 이름 PR 머지(차슐랭 #27 → 68460a1, 크루즈 #39 → 8f02c88)
 - 장호연 지시로 머지. GitHub 502·"merge already in progress"로 한 번 걸려 REST로 다시 머지함. 두 저장소 `tools/` 동일

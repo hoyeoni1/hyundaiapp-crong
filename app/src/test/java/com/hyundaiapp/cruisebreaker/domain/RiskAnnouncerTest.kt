@@ -123,6 +123,20 @@ class RiskAnnouncerTest {
     }
 
     @Test
+    fun `새 주행이 시작되면 3분이 안 지났어도 다시 안내한다`() = runTest(UnconfinedTestDispatcher()) {
+        cruiseOn()
+        start(ListRepo(listOf(ahead400)))
+        at(0.00001)
+        assertEquals(1, heard.size)
+
+        advanceTimeBy(30_000L) // 리허설 직후 바로 다시 시연하는 상황
+        fake.setDrive { copy(gear = Gear.PARK) }
+        fake.setDrive { copy(gear = Gear.DRIVE, speedKph = 100f) }
+        at(0.00002)
+        assertEquals(2, heard.size)
+    }
+
+    @Test
     fun `안내 사이는 최소 3분`() = runTest(UnconfinedTestDispatcher()) {
         cruiseOn()
         val other = risk(lat0 + 0.0040, lon0) // 이웃 칸
