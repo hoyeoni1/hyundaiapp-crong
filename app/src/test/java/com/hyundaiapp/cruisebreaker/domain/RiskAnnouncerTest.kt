@@ -138,13 +138,13 @@ class RiskAnnouncerTest {
     }
 
     @Test
-    fun `에뮬레이터 위치에서 시드의 시연 지점이 안내된다`() = runTest(UnconfinedTestDispatcher()) {
+    fun `에뮬레이터 위치에서 시드의 판교IC 진입로가 안내된다`() = runTest(UnconfinedTestDispatcher()) {
         cruiseOn()
         start(FakeCruiseServer())
         at(0.0)
 
         assertEquals(1, heard.size)
-        assertTrue(heard[0].risk.roadName.startsWith("시연 지점"))
+        assertEquals("판교IC 진입로", heard[0].risk.roadName)
     }
 
     @Test
