@@ -358,32 +358,27 @@ fun formatOneDecimal(value: Double): String = String.format(Locale.KOREA, "%.1f"
 
 fun formatWhole(value: Double?): String = value?.let { String.format(Locale.KOREA, "%.0f", it) } ?: "-"
 
-/** 모달의 행동은 64dp 이상. 닫기·취소는 동의가 아니다. [framedTitle]은 긴 약관의 제목을 별도 패널로 구분한다. */
+/** 모달 제목은 별도 패널로 구분하고 행동은 64dp 이상. 닫기·취소는 동의가 아니다. */
 @Composable
 fun CarAlertDialog(title: String, message: String, confirmLabel: String, onConfirm: () -> Unit,
-    onDismiss: () -> Unit, dismissLabel: String? = null, destructive: Boolean = false,
-    framedTitle: Boolean = false) {
+    onDismiss: () -> Unit, dismissLabel: String? = null, destructive: Boolean = false) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = CarColors.Surface,
         titleContentColor = CarColors.OnSurface,
         textContentColor = CarColors.OnSurface,
         title = {
-            if (framedTitle) {
-                Surface(
-                    color = CarColors.Track,
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(2.dp, CarColors.Outline),
-                ) {
-                    Text(
-                        title,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            } else {
-                Text(title, style = MaterialTheme.typography.titleLarge)
+            Surface(
+                color = CarColors.Track,
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(2.dp, CarColors.Outline),
+            ) {
+                Text(
+                    title,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
             }
         },
         text = { Text(message, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.verticalScroll(rememberScrollState())) },

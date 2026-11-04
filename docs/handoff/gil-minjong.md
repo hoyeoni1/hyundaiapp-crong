@@ -4,13 +4,13 @@
 
 ## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
 
-- 한 일 요약: 사용자 요청 범위를 “약관 팝업 상단”으로 확인해 LOCATION/PRIVACY 제목에 회색 배경(CarColors.Track), 2dp 테두리, 12dp 모서리, 굵은 제목과 안쪽 여백을 적용. 긴 본문과 제목의 경계를 분명히 함.
-- 진행 중 브랜치·PR: `fix/terms-dialog-title`. CarAlertDialog의 framedTitle 기본값은 false이며 TermsDialog에서만 true. 일반 화면 제목·철회/길안내 확인창·약관 문구·동의/닫기 콜백은 기존대로 유지.
-- 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 기존 임시 약관 UI3검사/앱을 재실행해 두 앱6검사 PASS. CruiseBreakerNavigation(debug=false, Fake 의존성)에서 1280×720dp, 600×1024dp/fontScale1.5, 1024×600dp/fontScale1.5의 제목 표시/스크롤 전후 위치 고정, 본문 끝 접근, 닫기64dp 이상, 닫기·Dialog Back 미동의 유지와 명시적 동의 조건을 확인.
-- 화면 확인: 두 앱 제목 패널·본문 간격, 좁은/낮은 화면 제목과 닫기 표시를 Dialog 전용 PNG로 시각 검사. 변경 전 캡처는 UI 코드가 현재 기준과 동일한 직전 약관 검사에서 가져왔으며 이전 증거를 덮어쓰지 않음.
-- 다음 할 일: PR 검토 후 실제 Pleos에서 팝업 배치·권한·Back/Home 동작을 팀 x86 환경에서 확인. 로직 계약 변경·약관 추가 확정은 해당 담당자 결정 후 UI 정합성 확인. #31 S5 보조 안내·#32 약관 연결은 main 반영 완료.
-- 주의: 제품 코드 변경은 본인 담당 UI 부품과 Nav의 약관 호출부만. UI 검사·의존성을 제품에 추가하지 않음. core·VM·data/domain·약관 전문/판 번호·서버 전송 변경 없음. 실제 Pleos 검증을 수행한 것으로 주장하지 않음.
-- 증거: 작성자 로컬 `output/hyundai-terms-title-2026-11-04/`에 일반 빌드 로그·UI 검사 소스/XML/로그·변경 전후 화면 보존. 팀 공유 조건/결과는 위 검증 항목과 PR 본문에서 확인 가능.
+- 한 일 요약: 사용자 후속 요청으로 제목 패널을 약관뿐 아니라 전체 앱 내 확인 모달로 통일. 회색 배경·2dp 테두리·굵은 제목·여백을 공통 CarAlertDialog에 적용. 두 앱 약관4종, 철회2종, 차슐랭 길안내1종 총7종을 확인.
+- 진행 중 브랜치·PR: `fix/terms-dialog-title` / [PR #34](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/34). 약관 한정 framedTitle 옵션은 제거하고 모든 기존 호출에 같은 제목 패널을 기본 제공. 확인·취소·닫기·철회 콜백과 전문/판 번호는 유지.
+- 전체 UI 검수본: 사용자 요청으로 차슐랭 S1~S7·크루즈 S1~S5, 정상/로딩/오류/빈 결과/선택·전송, 모달, 약관 처음/끝, 큰 글자·작은 화면, 충전 결과 복귀와 개발용 부록을 캡처. 원본109장, 동일 이미지 묶음97장 + 표지/목차로 PDF99쪽. 화면 ID·페이지 번호·검수 메모 칸·클릭 목차 포함.
+- 검증: 두 앱 JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 임시 전체 화면 렌더3+약관3검사/앱, 합계12검사 PASS. 실제 Nav 복귀3검사와 개발용2검사/앱 추가 캡처 성공. 모달 확인·취소 행동64dp 이상 및 취소 시 상태 유지 확인.
+- 글자 배율: 600×1024dp·1024×600dp 조건에는 RuntimeEnvironment.setFontScale(1.5f)로 Android 자원 배율까지 적용. Compose LocalDensity만 바꾸던 초기 캡처에서 팝업 배율이 반영되지 않은 것을 발견해 큰 글자 캡처와 약관 검사를 갱신. 현재 검수본은 갱신된 결과. 기본1280×720dp는100%.
+- 다음 할 일: 사용자가 PDF 페이지/화면 ID로 검수 의견을 주면 UI 후속. 실제 Pleos 시스템 권한창·홈·내비·알림센터/실차 동작은 팀 x86 환경에서 별도 검수. 약관 추가 확정과 로직 계약 변경은 해당 담당자 결정 후 UI 정합성 확인.
+- 경계·증거: 제품 변경은 본인 UI 부품과 handoff. VM·data/domain·core·시스템 UI는 수정하지 않음. 화면은 현재 Compose 코드와 샘플 데이터 기반이며, QA 코드/의존성은 제품에 추가하지 않음. 로컬 output/pdf/hyundai-ui-review-2026-11-04.pdf, output/pdf/hyundai-ui-pngs-2026-11-04.zip 및 output/hyundai-full-ui-review-2026-11-04/에 소스·로그/XML·카탈로그 보존.
 
 ## 공유 검증 요약
 
@@ -29,6 +29,13 @@
 일반 검증: JDK17 `bash ./gradlew assembleDebug test :app:lintDebug` PASS. 현재 UI 인수는 별도 임시 Robolectric SDK34/mdpi에서 기존15+S5 신규4 PASS이며 앱 일반 테스트에 포함되지 않는다. 이전 S2 표시 전용3검사는 #25 결정으로 폐기한 제안의 과거 검증이다. Compose 글자 배율은 Android 비선형 배율을 따른다. 실제 Pleos/실차 검증은 별도다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — 전체 모달 제목 통일·전체 UI 검수본
+- 사용자 요청 “다른 모달도 수정하고 두 앱 전체 UI를 검수용으로 제공”에 따라 공통 CarAlertDialog의 모든 제목에 패널을 적용. 약관 한정 옵션을 제거하고 길안내·철회 확인창까지 통일. 사용자 행동·전문은 유지.
+- 사용자용12개 화면의 정상/로딩/오류/빈 결과/선택·전송과 모달7종, 약관 처음/끝, 세로/큰 글자·낮은 가로, 실제 충전 화면/결과 복귀, 개발용 화면을 원본109장으로 캡처. 중복을 묶어 PDF99쪽과 PNG ZIP을 작성.
+- 전체 화면 렌더3+약관3검사/앱 PASS, 실제 Nav 복귀 및 개발용 추가 캡처 성공. 두 앱 일반 빌드·테스트·app lint PASS. Android 자원 fontScale1.5를 적용해 팝업 글자 배율까지 검수본에 반영.
+- PDF에는 페이지/화면 ID·검수 메모 칸·클릭 목차와 샘플 렌더링 범위를 명시. 실제 Pleos 시스템 UI·실차 검증과 구분한다. 원본 및 생성 소스/카탈로그는 작성자 PC output/hyundai-full-ui-review-2026-11-04/에 보존.
+
 
 ### 2026-11-04 — 약관 팝업 제목 영역 시각 구분
 - 사용자가 약관 팝업 상단만 바꾸도록 범위를 확인. 공통 CarAlertDialog에 선택형 framedTitle을 추가해 약관 호출부에서만 적용. 회색 배경·2dp 테두리·굵은 제목·안쪽 여백으로 본문과 구분.

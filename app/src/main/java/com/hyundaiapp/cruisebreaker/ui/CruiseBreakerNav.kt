@@ -247,7 +247,7 @@ private fun WithdrawDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
 @Composable
 private fun TermsDialog(terms: Terms, onDismiss: () -> Unit) {
     val location = terms == Terms.LOCATION
-    CarAlertDialog(if (location) "위치정보 이용" else "개인정보 수집·이용", if (location) TermsText.LOCATION else TermsText.PRIVACY, "닫기", onDismiss, onDismiss, framedTitle = true)
+    CarAlertDialog(if (location) "위치정보 이용" else "개인정보 수집·이용", if (location) TermsText.LOCATION else TermsText.PRIVACY, "닫기", onDismiss, onDismiss)
 }
 
 @Composable
