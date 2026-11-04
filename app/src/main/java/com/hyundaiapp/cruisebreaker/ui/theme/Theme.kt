@@ -13,9 +13,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /*
- * 두 앱 공통 테마(차슐랭과 같은 값). 한쪽을 바꾸면 다른 앱 Theme.kt도 같이 바꾼다.
+ * 두 앱 공통 테마(차슐랭과 같은 값, Primary만 다름). 한쪽을 바꾸면 다른 앱 Theme.kt도 같이 바꾼다.
  * 와이어프레임: https://claude.ai/artifact/9vidSJtHrxzCqtEcjJjVTf ("공통 테마" 보드)
- * - 어두운 배경 + 큰 글씨, 강조색은 파랑(정보·인증)과 주황(위험·실패) 둘만
+ * - 어두운 배경 + 큰 글씨, 강조색은 앱 대표색(Primary)과 주황(위험·실패) 둘만
+ * - Primary만 앱마다 다르다: 크루즈브레이커 앰버, 차슐랭 레드
  * - 상태는 색만으로 구분하지 않고 늘 글자와 함께 보여 준다
  */
 object CarColors {
@@ -30,11 +31,11 @@ object CarColors {
     val OnSurfaceVariant = Color(0xFFA3AEB9)
     /** 비활성 글자. 배경 대비 4.5:1 이상 */
     val Disabled = Color(0xFF8A95A1)
-    /** 정보·인증·선택 */
-    val Primary = Color(0xFF4FC3F7)
+    /** 앱 대표색(앰버). 주인공 숫자·선택·주 버튼 */
+    val Primary = Color(0xFFFFB020)
     /** 위험·실패 */
     val Warning = Color(0xFFFFB547)
-    /** 파랑·주황 위에 올리는 글자 */
+    /** 대표색·주황 위에 올리는 글자 */
     val OnAccent = Background
     /** 팝업 뒤 배경 */
     val Scrim = Color(0xFF080A0C)
@@ -76,7 +77,7 @@ private val Colors = darkColorScheme(
  * - headlineMedium 36: 화면 제목 / titleLarge 30: 카드·팝업 제목 / titleMedium 26: 목록 항목 이름
  * - bodyLarge 22: 본문 / bodyMedium 20: 회색 보조 설명·숫자 라벨 / bodySmall 18: 출처 같은 작은 주석만
  * - labelLarge 24: 버튼 / labelMedium 20: 상태 표시·구역 이름
- * 강조 규칙: 숫자는 굵게 + 흰색, 단위는 숫자보다 작은 회색. 파랑·주황은 의미(인증·위험)가 있을 때만.
+ * 강조 규칙: 숫자는 굵게 + 흰색, 단위는 숫자보다 작은 회색. 대표색·주황은 의미(주인공·위험)가 있을 때만.
  */
 private val Korean = LocaleList("ko-KR")
 private val CarTypography = Typography(

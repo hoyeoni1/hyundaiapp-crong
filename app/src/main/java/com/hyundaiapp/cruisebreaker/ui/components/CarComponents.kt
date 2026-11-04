@@ -107,6 +107,14 @@ fun SecondaryButton(
     }
 }
 
+/** 화면 머리의 아이콘 버튼(뒤로 버튼과 같은 모양). 이름은 읽기용 설명으로 둔다 */
+@Composable
+fun HeaderIconButton(icon: ImageVector, label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(onClick = onClick, modifier = modifier.size(CarDimens.TouchTargetSmall)) {
+        Icon(icon, contentDescription = label, tint = CarColors.OnSurface, modifier = Modifier.size(32.dp))
+    }
+}
+
 /** 선택은 테두리·약한 배경으로 표시한다. 하나만 고르는 곳은 Role.RadioButton. */
 @Composable
 fun SelectableButton(
@@ -251,10 +259,12 @@ fun ScreenHeader(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     onBack: () -> Unit,
+    /** 아이콘 버튼만 둘 때 true. 좁은 화면에서도 버튼을 제목 옆에 둔다 */
+    inlineActions: Boolean = false,
     actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
     BoxWithConstraints(modifier.fillMaxWidth()) {
-        val compact = maxWidth < 840.dp
+        val compact = maxWidth < 840.dp && !inlineActions
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack, modifier = Modifier.align(Alignment.Top).size(CarDimens.TouchTargetSmall)) {
