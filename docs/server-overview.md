@@ -9,13 +9,8 @@
 앱을 서버에 붙이는 것만으로는 Supabase 관리자 초대, CLI login/link, DB 비밀번호나 별도 서버 설치가 필요 없다. 팀 공용 프로젝트의 URL과 Publishable key 두 값만 받으면 된다. 개인 PC마다 새 프로젝트/DB를 만들지 않는다.
 
 1. 서버 연결 코드가 있는 버전을 받는다. 현재 차슐랭 PR #10 / 크루즈 PR #22의 `codex/supabase-foundation-20261102` 브랜치이며, 머지 후에는 해당 변경이 반영된 main을 사용한다. Android/Pleos 환경은 [Windows 테스트 환경](windows-local-testing.md)을 따른다.
-2. 팀 관리자에게 **현재 Publishable key**(`sb_publishable_...`)를 전달받는다. URL은 `https://qbdikckaqroxbpacvtqo.supabase.co`다. 다른 작업자의 local.properties는 Git에서 받지 못한다. Secret key/service_role/DB 비밀번호는 앱 연결에 사용하지 않는다.
-3. 작업하는 앱 저장소 **루트**의 Git 제외 `local.properties`에 아래 두 줄을 추가한다. 기존 `sdk.dir` 등은 유지한다. 두 앱을 모두 빌드하면 각 저장소에 따로 설정한다. `server/.env.local`은 Android 빌드에 사용되지 않는다.
-
-```properties
-supabase.url=https://qbdikckaqroxbpacvtqo.supabase.co
-supabase.publishableKey=sb_publishable_REPLACE_WITH_CURRENT_TEAM_KEY
-```
+2. 저장소 루트의 [공용 Supabase 설정](../supabase-public.properties)에서 URL과 Publishable key 두 줄을 복사한다. 두 앱은 같은 시연 프로젝트를 사용한다.
+3. 작업하는 앱 저장소 루트의 `local.properties`에 두 줄을 넣는다. 기존 `sdk.dir`은 유지하고 같은 설정이 이미 있으면 값만 교체한다. 두 앱을 빌드하면 각 저장소에서 설정한다.
 
 4. Android Studio Gradle Sync 후 **debug**로 다시 빌드·설치한다. 명령줄 빌드는 저장소 루트에서 ` .\gradlew.bat assembleDebug`다. 값은 빌드 시 APK에 들어가므로 파일만 바꿔서는 설치된 앱이 바뀌지 않는다.
 5. 앱에서 수집 동의를 마친 뒤 목록·상세를 조회하고 기록을 시작한다. 제품 저장소가 익명 인증·설치 등록·토큰 갱신을 처리하므로 개발자가 JWT를 직접 만들지 않는다. UI/도메인은 기존 저장소 인터페이스를 계속 사용한다.
