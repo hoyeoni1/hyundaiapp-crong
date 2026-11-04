@@ -13,7 +13,7 @@
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
   - 아직 없는 것: 실제 서버(황준용 — Supabase로 확정(11-02, PC 호스팅 안 함). 황준용이 이미 작업했고 곧 커밋 예정), 위치 재생 시연 모드, release 서명
 - 진행 중 브랜치·PR·이슈:
-  - 장호연 `fix/core-startup-resilience`(두 저장소, 11-04 전체 검토 보고서 `hyundai-app/project-review-2026-11-04.md` 2장 #3·#6 후속) — core v0.5.2 시작 크래시 방어(차슐랭 원본 동기화) + `RiskAnnouncer` 안내 3분 간격을 새 주행에서 초기화. 리뷰 Claude → 장호연 머지. **core(황준용)·`AppContainer`·`RiskAnnouncer`(이민하 담당)를 장호연 결정으로 고침** → 머지 전 두 사람에게 알릴 것
+  - 장호연 `fix/core-startup-resilience` — **11-04 머지 완료**(크루즈 #42 → `9ff1318`, 차슐랭 #30 → `0aa4032`). core v0.5.2 시작 크래시 방어(차슐랭 원본 동기화) + `RiskAnnouncer` 안내 3분 간격을 새 주행에서 초기화. 이민하 동의 코멘트 있음, 황준용(core) 확인 코멘트 없음 → 알릴 것
   - 열린 PR 없음(PR #1~#6, #10, #14 머지)
   - 열린 이슈: #9·#13(길민종), #11(이민하, androidx.core 직접 의존), #12(황준용, 동의 철회 시 서버 기록 처리 — 제출 전). #7·#8은 PR #10으로 닫힘
   - 장호연 `feat/demo-scripts`(두 저장소) — 11-02 main merge(인수인계 충돌은 main 쪽으로 해결) + 판정 규칙 v2·현재 앱에 맞게 고쳐 PR. `demo-drive.sh` 기본은 고정 위치 시연(위치 재생 없이 지금 앱으로 동작, 이민하 확인 순서와 같음), `route`는 앱 위치 재생 모드가 생긴 뒤. 가짜 콘솔·가짜 adb로 값 순서만 확인했고 **에뮬레이터 실행은 아직**(이상준이 `demo-charge.sh`는 에뮬레이터에서 확인함)
@@ -42,6 +42,13 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — 시작 크래시 방어·안내 쿨다운 PR 머지(크루즈 #42 `9ff1318`, 차슐랭 #30 `0aa4032`)
+- 한 일(Claude 에이전트, 장호연 "리뷰 후 머지" 지시): Claude 리뷰 `✅ 머지 가능`(d7821af)·이민하 동의 코멘트 확인. `docs/handoff/jang-hoyeon.md` "작업 기록"에서만 main과 충돌 → 두 항목 모두 남기는 쪽으로 origin/main을 브랜치에 합쳐 push. 합친 브랜치에서 `assembleDebug test` 통과(210개, 실패 0), 차슐랭 쪽과 `sync-core.sh --check` 일치(core 0.5.2). 차슐랭 #30을 먼저 머지한 뒤 merge commit
+- 에뮬레이터: 이민하가 main+#42 합친 빌드로 `demo-drive.sh` 45초 간격 반복에서 두 번째도 안내가 나오는 것을 실제 서버로 확인함(lee-minha.md 11-04) → PR 본문의 "에뮬레이터 확인 아직"은 충족
+- 리뷰의 선택 제안은 차슐랭 쪽 기록과 같음(안 고침)
+- 확인: 머지 뒤 main(`9ff1318`) `assembleDebug test` 통과(210개, 실패 0), core·tools 차슐랭 main(`0aa4032`)과 `sync-core.sh --check` 일치
+- 다음: `bash tools/build-release.sh` 후 `apk/` 커밋, 서버 연결 리허설. 검토 보고서 2장 #5(ScreenPolicy null 게이팅)·#8(아이콘·allowBackup)
 
 ### 2026-11-04 — core v0.5.2 시작 크래시 방어 PR 검토(차슐랭 #30, 크루즈 #42)
 - 검토 중 22:35에 장호연 계정으로 두 PR이 머지됨(0aa4032, 9ff1318). 머지된 main의 코드는 Claude가 검토·시험한 것과 같음(문서만 다름)
