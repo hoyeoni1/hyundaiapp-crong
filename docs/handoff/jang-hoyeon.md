@@ -21,7 +21,7 @@
 - 다음 할 일(우선순위 순, 11-04 PR 차슐랭 #19·크루즈 #32 머지 뒤):
   1. Supabase 원격 적용(대시보드 SQL Editor): `20261103000100` → `20261103000200` → `refresh-demo-dates.sql` → `verify.sql`(charge_sessions 325). 순서·기대값은 차슐랭 `server/deploy.md` "11-03 추가 migration"
   2. 두 저장소 `local.properties`에 `supabase.url`·`supabase.publishableKey` 넣기(지금 이 PC엔 없음 → 빌드가 조용히 Fake). 그다음 서버 연결 상태로 두 시연 스크립트 리허설
-  3. 약관(B01): 확정 전문이 앱 [내용 보기]에 들어감(`ui/TermsText.kt`, 11-04 머지). 황준용 답(Supabase 리전·요청 로그)이 오면 `docs/terms-draft.md`와 `TermsText.kt`의 해당 2곳 고치기. 판 번호를 바꾸면 각 AppContainer `termsVersion`도. 크루즈 #25는 11-04 닫음. 차슐랭 #14는 길민종 화면 검수(긴 글 스크롤·닫기=미동의) 뒤 닫기
+  3. 약관(B01): 확정 전문이 앱 [내용 보기]에 들어감(`ui/TermsText.kt`, 11-04 머지). 황준용 답(Supabase 리전·요청 로그)이 오면 `docs/terms-draft.md`와 `TermsText.kt`의 해당 2곳 고치기. 판 번호를 바꾸면 각 AppContainer `termsVersion`도. 크루즈 #25는 11-04 닫음. 차슐랭 #14도 11-04 닫음(길민종 화면 검수 통과, 차슐랭 #21·크루즈 #33)
   4. 남은 팀원 이슈: #12·#13(이상준·황준용 UI 감사 계약, 제출 필수 아님). #17은 #19로 닫힘. #8(차슐랭)·#20(크루즈)은 11-04 닫음(#10·#22로 해결)
   5. 주최 측 문의 메일 발송 — `docs/organizer-inquiry-email.md`에 위치기반서비스 신고 여부 문항 추가 권장. 심사용 GitHub 계정명(4번) 답을 받아야 아래 7번 가능
   6. 서명 키·`signingConfig`·`tools/build-release.sh`는 완료(키 `C:/Users/H/.samgakgorae/`, **백업할 것**). 2번 키가 들어오면 두 저장소에서 `bash tools/build-release.sh` → `apk/` 커밋. release는 실제 충전 기준(인증 3분·실패 2분)이라 시연 영상은 debug 빌드로 찍기
@@ -41,6 +41,12 @@
 - 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 — 길민종 약관 검수 PR 머지, #14 닫음
+- 장호연 "Yes, do all three" 지시. Claude 에이전트가 head 고정으로 merge commit: 차슐랭 #21(`675c167`), 크루즈 #33(`2dfe5e7`). 둘 다 `docs/handoff/gil-minjong.md`만 변경(약관 화면 검수 통과 기록)
+- 차슐랭 #14 닫음(D01 유지 결정, D02 #19, B01 #19·#32, 화면 검수 통과)
+- 남은 열린 이슈: 차슐랭 #12·#13(UI 감사 개선, 제출 필수 아님)뿐. 열린 PR 없음
+- 바꾼 파일: 이 문서
 
 ### 2026-11-04 — 해결된 이슈 3개 닫음
 - 장호연 지시("그거 닫아줘"). Claude 에이전트가 근거 코멘트와 함께 닫음: 차슐랭 #8(#10으로 해결), 크루즈 #20(#22로 해결), 크루즈 #25(이민하가 정한 닫는 조건 충족: #31 S5 안내, #32 약관 책임 제한)
