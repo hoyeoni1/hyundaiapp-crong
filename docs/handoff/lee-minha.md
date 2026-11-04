@@ -8,25 +8,26 @@
   - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). PRD·기획서·README 반영됨(장호연, 11-03 용어 결정 "해제 다발 구간" 포함)
   - 동작 흐름(에뮬레이터 확인): S5 동의 → 기록 서비스(포그라운드, 재부팅 후 자동 시작) → 크루즈 작동 중 통과·해제 기록 → 500m 앞 해제 다발 구간 안내(S1 배너 10초 + Pleos TTS) → S2 목록·S3 요약. S4 동의 철회 → 기록 즉시 중지·기기 데이터 삭제·서버 삭제를 성공할 때까지 재시도
   - 머지된 PR: #3(해제·통과 감지, geohash 구간), #4(안내기·TTS), #5(S2~S5 ViewModel), #6(기록 서비스), #10(동의 철회), #17(철회 시 서버 삭제·업로드 재시도), #23(업로드 대기열 상한·영구 거절 건너뛰기, TTS 해제 가드)
-  - 실제 서버: 황준용 PR #22로 Supabase 연결(`SupabaseCruiseServer`, core outbox). 이 PC의 `local.properties`에 팀 공개 키가 없어 **실제 서버로는 아직 확인 안 함**(키가 없으면 앱 안 Fake로 동작)
+  - 실제 서버: 황준용 PR #22로 Supabase 연결(`SupabaseCruiseServer`, core outbox). **11-04 에뮬레이터에서 실제 서버(시연 데이터 모드)로 확인함**: 동의 → `SupabaseSync connected` → `demo-drive.sh` 안내·음성·90km/h 해제 기록·업로드, 저속 해제 기록 안 함, S3 요약(1회·1곳·1건), S2 서버 목록(시드 "시연 지점 (고정 위치 앞 약 400m)" 40%·500 차량·일), S4 철회 → `pending=1` → 서버 삭제 확인 뒤 빈 목록·서비스 정지
+  - 장호연 PR #42(core 0.5.2 + 안내 3분 간격을 새 주행에서 초기화)의 이민하 파일 변경(`AppContainer`·`RiskAnnouncer`)에 동의 코멘트를 남김. main과 합친 상태로 `demo-drive.sh`를 45초 간격으로 다시 돌려도 두 번째에 안내가 나옴(고치기 전에는 3분 안이면 안 나옴). 규칙 문서 "안내 사이 최소 3분"에 "한 주행 안에서만" 반영(main). **PR #42는 main과 `docs/handoff/jang-hoyeon.md`에서 충돌 — 머지 때 장호연이 정리**
   - 닫힌 이슈 정리(11-03~04): #19·#21(PR #23), #20(PR #22 서버가 철회된 ID 업로드 거절), #25(오류 알림 대신 S5 보조 안내 + 약관 책임 제한, PR #31·#32), #26(필요 없음 — 요약은 다음 D까지 남고 S2 [최근 주행 요약]으로 다시 볼 수 있음)
 - 진행 중 브랜치·PR: 없음
 - 다음 할 일(우선순위 순):
-  1. 11-05 중간 점검: `bash tools/demo-drive.sh`로 시연 흐름 한 번 확인(장호연이 11-04에 재확인함)
-  2. (선택) 팀 공개 키를 받아 `local.properties`에 `supabase.url`·`supabase.publishableKey`를 넣고 실제 서버로 기록·안내·철회 삭제 확인(`docs/server-overview.md` "팀원 빠른 연결")
-  3. PT 대비: 판정·안내·기록·철회 구조를 직접 설명할 수 있게 정리. 교차 읽기 — 이상준 차슐랭 로직, 황준용 서버 구조(`docs/server-overview.md`)
+  1. 11-05 중간 점검: 실제 서버로 `bash tools/demo-drive.sh` 리허설 완료(11-04). 점검 때 그대로 시연
+  2. PT 대비: 판정·안내·기록·철회 구조를 직접 설명할 수 있게 정리. 교차 읽기 — 이상준 차슐랭 로직, 황준용 서버 구조(`docs/server-overview.md`)
 - 막힌 점·질문(누구에게): 없음
-  - 참고: 길민종 PR #38이 `FakeCruiseServer` 시드 이름을 "판교IC 진입로"로 바꿈(이슈 #37). 서버 시드 이름 변경은 황준용(#37 남은 부분)
+  - 참고: 길민종 PR #38이 `FakeCruiseServer` 시드 이름을 "판교IC 진입로"로 바꿈(이슈 #37). **실제 서버 시드는 아직 "시연 지점 (고정 위치 앞 약 400m)"** → 서버 시드 이름 변경은 황준용(#37 남은 부분)
   - 장호연: 최소 SDK를 34로 올릴지(지금은 28 유지, 코드로 분기) — 급하지 않음
 - 주의(함정·직접 겪은 이상한 동작):
   - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기([시작하기]는 화면 아래 고정)
   - **Pleos TTS SDK**: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 실패. SDK는 `Locale.KOREA`(ko_KR)여야 함("ko"면 엔진 오류). 해제된 객체에 `speak`를 불러도 예외 없이 **실제로 읽음** → 해제 뒤에는 SDK를 부르지 않음(`RiskSpeaker`의 `released` 가드)
-  - 공개 키가 없으면 빌드가 오류 없이 Fake로 됨. 제출 빌드는 `tools/build-release.sh`가 키 없으면 멈춤(장호연 PC에서 빌드). 공개 키(`sb_publishable_...`)는 APK에 들어가도 되는 키, 관리자 키는 절대 넣지 않음
+  - 빌드는 `local.properties`에서만 서버 키를 읽음 → 저장소의 `supabase-public.properties` 두 줄(`supabase.url`·`supabase.publishableKey`)을 `local.properties`에 복사해야 실제 서버로 붙음(이 PC는 11-04에 복사함). 공개 키가 없으면 빌드가 오류 없이 Fake로 됨. 제출 빌드는 `tools/build-release.sh`가 키 없으면 멈춤(장호연 PC에서 빌드). 공개 키(`sb_publishable_...`)는 APK에 들어가도 되는 키, 관리자 키는 절대 넣지 않음
   - 철회 뒤 기기에 남는 값은 `pending_server_deletions`(서버 삭제를 못 끝낸 차량 ID)뿐. 삭제가 성공하면 빈 목록
   - 시드 "판교IC 진입로"(에뮬레이터 고정 위치 북쪽 400m)는 실제 데이터 아님 — PT에서 시드임을 밝힐 것
   - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 실차 해제 값(USER_OVERRIDE 등)은 재현 불가, 해석은 `CruiseStateInterpreter`에만
   - lint `ImplicitSamInstance`(`stopService`) 경고는 오탐
   - Git Bash에서 `adb shell run-as ... cat /data/...`는 `MSYS_NO_PATHCONV=1`을 붙인다
+  - `demo-drive.sh`를 파이프(`| grep` 등)로 돌리면 `vconsole.sh up`의 하트비트가 출력을 붙잡아 명령이 끝나지 않음 → 파일로 출력(`> log 2>&1`)하거나 그냥 실행. 끝나면 `bash tools/vconsole.sh down`
 - 확인 방법:
   - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17)
   - 시연: `bash tools/demo-drive.sh` 또는 수동 — 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'controls?speed=0' 'gear?gear=Park'` → S3·S2. 로그 `adb logcat -s CruiseRecord`
@@ -34,6 +35,11 @@
   - PR 올리기: `gh`(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-04 (이민하, Claude 에이전트와 작업 — PR #42 확인·실제 서버 리허설)
+- 한 일: PR #42 이민하 파일 변경 검토·동의 코멘트, 규칙 문서 3분 문구(main), main+PR #42를 합친 임시 빌드(커밋 안 함)로 실제 서버 리허설 — 앱 80·core 32 단위 테스트 통과, `demo-drive.sh` 3회(두 번째·세 번째는 45초 간격에도 안내), S2·S3 확인, 철회 시 서버 삭제 확인
+- 결정한 것과 이유: 안내 3분 간격은 한 주행 안에서만 센다(장호연 PR #42 해석에 동의) — 원래 붙어 있는 칸들이 한 주행에서 연달아 안내되지 않게 하려던 규칙
+- 바꾼 파일: `docs/disengage-rules.md`, `docs/handoff/lee-minha.md`. 이 PC `local.properties`(커밋 안 됨)에 팀 공개 서버 키 추가
 
 ### 2026-11-04 (이민하, Claude 에이전트와 작업 — 상태 정리)
 - 한 일: 두 저장소 최신화 후 "현재 상태"를 머지 결과에 맞춰 다시 씀(PR #22·#23·#32 머지, #20·#25 닫힘)
