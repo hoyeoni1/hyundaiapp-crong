@@ -42,6 +42,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-04 — 텍스트 후속(차슐랭 #28, 크루즈 #40)·Supabase 공개 설정(차슐랭 #29, 크루즈 #41) 머지
+- 머지: 크루즈 #40 → 32ad976, 차슐랭 #29 → a874fca, 크루즈 #41 → ff29863. 차슐랭 #28은 GitHub가 PR head를 옛 커밋(a0d13d5)으로 잡아 머지 API가 계속 거절해서, 검토한 브랜치 끝(97d55cb)을 로컬에서 merge commit(9ea62b4)으로 main에 push → PR MERGED 처리됨
+- 황준용 #29/#41 검토: `supabase-public.properties`는 `sb_publishable_` 공개 키(Secret 아님). 이 PC 두 저장소 `local.properties`에 두 줄 추가(Git 제외 확인). debug 빌드로 차슐랭 S1 → `SupabaseSync: connected`, 서버 시연 데이터 표시. 대왕판교IC 휴게소 2.7점·7일 실패 5회로 맨 아래 → **11-03 migration 2개 실제 서버 적용 확인**
+- 최종 main(키 포함)에서 `assembleDebug assembleRelease test lint` 통과(242개·204개, 실패 0), `tools/` 동일
+- 남은 것: 키가 들어왔으니 `bash tools/build-release.sh`(두 저장소) 후 `apk/` 커밋, 서버 연결 상태 전체 리허설(크루즈 포함). 황준용: 시드 구간 이름 새 migration(크루즈 #37), 본인 handoff, Supabase 리전·요청 로그 답(약관 【확인 필요】 2곳). 앱 막 켠 직후 충전 시연 시작 SoC 문제(이상준 확인 필요)
+
 ### 2026-11-04 — 길민종 텍스트·이모지 후속 PR 검토(차슐랭 #28, 크루즈 #40)
 - 한 일: 두 PR을 main에 합쳐 `assembleDebug assembleRelease test lint` 통과(242개·204개, 실패 0), 충돌 없음. 에뮬레이터에서 S3 세로 가운데 배치·S4 전환, 약관 전문 줄바꿈 확인. 두 PR에 `✅ 머지 가능` 코멘트
 - 참고 의견(막지 않음): 이제 한글끼리만 묶어 `ID만`·`32분`처럼 숫자·영문+한글 단어가 줄 끝에서 갈릴 수 있음 → 한글과 글자·숫자 사이도 묶도록 넓히기 제안
