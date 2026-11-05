@@ -43,6 +43,13 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-05 — 길민종 Pleos 검수 후속 PR 2개 머지(크루즈 #46 → 3105a8d, 차슐랭 #34 → bdfaa3b)
+- 장호연 지시로 Claude가 진행. 두 PR 모두 base가 main이라 그대로 merge commit으로 머지(충돌 없음)
+- 머지 전 리뷰: 00:13 자동 리뷰 `✅` + 09:40 재검토 `✅`. PR 브랜치 `assembleDebug test --rerun-tasks` 통과(크루즈 app 82·core 32/18, 차슐랭 app 99·core 32/18, 실패 0). 두 PR의 `CarAlertDialog` `widthIn(min = 64.dp)`가 같은 내용이라 함께 머지해 두 앱 `CarComponents.kt` 동일 유지
+- 내용: 크루즈 S2 선택 구간·스크롤 보존(`SaveableStateProvider`, 철회 시 `removeState`), debug 정차 S1 미리보기 헤더(`canShowDrivingPreviewBack` — release·기어 D/R/N·차속≠0·UX 미확인이면 꺼짐, `ScreenPolicyTest` 추가), 설정 "자동 기록" 설명 복원. 차슐랭은 목록 스크롤 보존·헤더 정렬
+- 후속(타 담당): 황준용 — #37 서버 시드 이름 migration(실제 서버 S2 구간 이름이 아직 옛 이름). 이상준(차슐랭) — 내 충전 기록 최초 로딩 빈 상태
+- 남은 열린 PR: 없음
+
 ### 2026-11-04 — 길민종 대표색 PR 2개 머지(크루즈 #45 → 633996d, 차슐랭 #33 → 683a22f)
 - 장호연 지시로 Claude가 진행. 두 PR base를 `fix/car-header-back-20261104`(이미 머지됨)에서 `main`으로 바꾼 뒤(변경 파일 5개·7개 그대로) merge commit으로 머지
 - 머지 전 정기 리뷰: PR 브랜치 `assembleDebug test` 통과(크루즈 204개·차슐랭 242개, 실패 0), 필수 항목 통과, `✅ 머지 가능` 코멘트. 머지된 main에서 두 저장소 core 동일, 공통 UI 파일은 Primary 값·주석만 다름
