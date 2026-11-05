@@ -5,7 +5,7 @@
 ## 현재 상태 (2026-11-05 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
-  - **11-05 내비 위 헤드업 팝업**: 앱이 뒤에 있을 때 안내를 내비 위 헤드업 알림으로(`RiskNotification`). PR #48 → `398da90` **머지 완료**, release APK `apk/` 재커밋(아래 작업 기록)
+  - **11-05 내비 위 큰 배너 팝업**: 앱이 뒤에 있을 때 안내 순간 주행 화면(큰 배너)을 내비 위로 올리고 10초 뒤 내비로 복귀, 정차하면 S3 자동. 브랜치 `feat/announce-foreground-20261105`(PR 리뷰·머지 대기, 아래 작업 기록). 그 전 단계(헤드업 알림, PR #48 → `398da90`)는 머지됨
   - **11-05 시연 흐름 확정**: 확정 시나리오 `docs/demo-scenario.md`(고정 위치, 경로 재생 없음). 앱은 debug·release 모두 S5→S2로 시작, 개발 메뉴는 S2 제목 길게 누르기, UX 제한 미확인 5초 뒤 정차 화면 허용. 에뮬레이터 + 실제 서버로 처음부터 끝까지 확인. 크루즈 PR #47 → `0823124`, 차슐랭 PR #35 → `1047949` **머지 완료**, release APK `apk/` 커밋(아래 작업 기록)
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
     - 11-02: PR #10(동의 철회, 이슈 #7·#8)과 황준용 core v0.4.0 debug SDK 진단(PR #14)도 머지. 머지된 main(`bdc8f88`)에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0)
@@ -44,6 +44,15 @@
 - 확인 방법: `./gradlew assembleDebug test` / 시연 전체는 `docs/demo-scenario.md` 순서대로 / 신호 모니터는 S2 제목 길게 누르기 → 개발 메뉴 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-05 — 안내를 내비 위 큰 배너로(앱 화면 올리기 + 자동 복귀, 브랜치 `feat/announce-foreground-20261105`)
+- 장호연 피드백("헤드업 팝업이 너무 안 보인다"). Claude가 작업
+- 동작: 앱이 뒤에 있을 때 안내가 나가면 ① `RiskNotification.bringToFront()`로 주행 화면(S1 큰 주황 배너)을 내비 위로 올림 → 배너 10초 뒤 `MainActivity.scheduleReturn()`이 지도 앱(`Intent.CATEGORY_APP_MAPS`, Pleos 내비가 선언)을 띄워 돌아감 ② 1.5초 안에 안 올라오면 헤드업 알림(기존). 정차(D→P)하면 `AppContainer.summaryPending` + 다시 올려 S3 자동 표시(`CruiseNavigationDependencies.summaryPending/onSummaryShown`)
+- 실측(Pleos 에뮬레이터): 뒤에 있는 앱의 `startActivity`는 ATM이 "Background activity launch blocked"(BAL_BLOCK)를 찍지만 결과 코드 3이고 Pleos 홈(`HOME_SCREEN TaskSlotLayout`)이 `showTaskView(우리 앱)·hideTask(내비)`로 보여 줌. 단 **작업이 살아 있을 때만**(액티비티를 `finish`하면 못 올라옴). `moveTaskToBack(true)`는 true를 돌려주지만 화면은 그대로. 인텐트 extra는 전달되지 않아 복귀 신호는 `AppContainer.autoRaised`(AtomicBoolean) + `onStart`로. 알림의 BigTextStyle·색은 Pleos 헤드업이 무시, 큰 아이콘만 반영
+- 확인: 내비 앞 → `demo-drive.sh` → 안내 1초 뒤 앱 S1 배너가 슬라이드 인 → 10초 뒤 내비 복귀 → P → 앱이 올라오며 S3 1·1·1. 헤드업 중복 없음(hun=0). 크래시 0. `test` 통과
+- 담당 경로: `AppContainer`·`MainActivity`(이민하), `CruiseBreakerNav`(길민종)를 장호연 결정으로 고침. 머지 뒤 알릴 것
+- 정책 메모: 주행 중 화면은 앱 개발 규정 2.3(애니메이션 금지)을 지켜 배너는 정적. 화면 전환 슬라이드는 플랫폼(Pleos 홈)의 것. "게임 연출(슬라이드 인 애니메이션)"은 규정과 충돌해 넣지 않음 — 장호연 판단 필요
+- 문서: `docs/demo-scenario.md` 3·6단계·복구표·빌드 메모, PRD 5.5 S1
 
 ### 2026-11-05 — 내비 위 헤드업 팝업 PR #48 머지(→ 398da90) + release APK 재커밋
 - 장호연 지시("네, 머지해줘")로 Claude가 진행. main에 README 정리 커밋(d583efe·df01d54)이 먼저 들어와 `docs/handoff/jang-hoyeon.md` 작업 기록이 충돌 → 양쪽 항목 모두 유지하고 merge commit으로 머지
