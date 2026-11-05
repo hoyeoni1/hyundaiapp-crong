@@ -44,6 +44,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-05 — README 팀 내부 안내를 `docs/dev-guide.md`로 이동(두 저장소, main 직접 push)
+- 배경: 심사위원이 GitHub 링크로 들어오면 README의 팀 내부 안내(담당별 첫 작업·규칙, 팀원 실명 포함)를 먼저 보게 됨 → 장호연 "옮겨 줘"
+- 한 일(Claude): README의 `## 시작하기`부터 끝(`코드 구조`·`담당별 첫 작업`·`규칙`)까지를 **`docs/dev-guide.md`**로 그대로 옮기고(링크는 `docs/` 기준으로 고침), README에는 `## 팀 개발 안내` 한 줄 링크만 남김. `docs/README.md` 목차 맨 위에 항목 추가. 차슐랭 README도 같음
+- 확인: README·PRD·docs에서 README 절을 가리키는 링크 없음(grep). 문서만 바꿈. README에 남은 실명 없음(`docs/handoff/` 파일명·내용의 실명은 그대로 — 접수양식 실명 금지는 양식에만 적용)
+- 바꾼 파일: `README.md`, `docs/dev-guide.md`(신설), `docs/README.md`, 이 문서
+
 ### 2026-11-05 — README 심사용 안내 추가(두 저장소, main 직접 push)
 - 배경·구성은 차슐랭 `docs/handoff/jang-hoyeon.md` 같은 날짜 항목과 같음(GitHub 가산점 필수 4항목 + 오픈소스 고지). 이 저장소 README는 `## 시작하기` 앞에 "심사용 안내" 절 — 항목 표, 실행 방법(`adb install`, `pm grant --user 10 … CAR_SPEED`, S5 동의 → S2, `vconsole.sh up` → `demo-drive.sh` 장면 순서, `logcat -s CruiseRecord`, 시연 고지), 테스트 환경·필요 설정(권한 8개, DO 선언·S1 규정, 서버 설정 내장, 소스 빌드·Fake 폴백, 개발 메뉴는 debug만), 오픈소스 고지(TextToSpeech 3.3.1·core-ktx 포함)
 - 확인: 코드 기준(`CruiseBreakerNav`의 `BuildConfig.DEBUG`, 매니페스트, `build.gradle.kts`, 11-05 커밋된 `apk/`). 문서만 바꿈
