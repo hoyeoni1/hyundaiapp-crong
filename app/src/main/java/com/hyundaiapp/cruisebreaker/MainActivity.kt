@@ -14,6 +14,19 @@ import com.hyundaiapp.cruisebreaker.ui.theme.CruiseBreakerTheme
 
 // DO 선언 앱: 주행 중에도 화면이 보인다 → 주행 중 화면 규정(PRD 5.5) 준수
 class MainActivity : ComponentActivity() {
+    private val container get() = (application as CruiseBreakerApp).container
+
+    // 화면이 보이는 동안에는 헤드업 알림 대신 S1 배너로 안내한다
+    override fun onStart() {
+        super.onStart()
+        container.appVisible.value = true
+    }
+
+    override fun onStop() {
+        container.appVisible.value = false
+        super.onStop()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 동의를 마친 상태면 기록 서비스를 켠다(앞에 있을 때만 포그라운드 서비스를 시작할 수 있음)
