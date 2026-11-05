@@ -2,6 +2,7 @@ package com.hyundaiapp.cruisebreaker.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -262,6 +264,8 @@ fun ScreenHeader(
     onBack: () -> Unit,
     /** 아이콘 버튼만 둘 때 true. 좁은 화면에서도 버튼을 제목 옆에 둔다 */
     inlineActions: Boolean = false,
+    /** 제목을 길게 눌렀을 때(디버그 개발 메뉴 같은 숨은 진입용). null이면 아무 일도 없다 */
+    onTitleLongPress: (() -> Unit)? = null,
     actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
     BoxWithConstraints(modifier.fillMaxWidth()) {
@@ -272,7 +276,10 @@ fun ScreenHeader(
                     Icon(CarIcons.ChevronLeft, contentDescription = "뒤로", tint = CarColors.OnSurface, modifier = Modifier.size(32.dp))
                 }
                 Box(Modifier.size(8.dp))
-                Column(Modifier.weight(1f)) {
+                val titleModifier = if (onTitleLongPress != null) {
+                    Modifier.weight(1f).pointerInput(onTitleLongPress) { detectTapGestures(onLongPress = { onTitleLongPress() }) }
+                } else Modifier.weight(1f)
+                Column(titleModifier) {
                     Text(title, style = MaterialTheme.typography.headlineMedium)
                     if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
                 }

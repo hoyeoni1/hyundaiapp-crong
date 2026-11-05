@@ -126,6 +126,8 @@ internal class VehicleSdkSource(
         unregister += { battery.unregisterEvChargePortOpen(port) }
 
         battery.isEvChargePortOpen({ open -> ev.update { it.copy(chargePortOpen = open) } }, { fail("충전구 조회", it) })
+        // 연결 확인 조회와 리스너 등록 사이에 바뀐 SoC(시연 스크립트가 앱 시작 직후 넣는 값)를 놓치지 않게 한 번 더 조회한다
+        battery.getEvBatteryStateOfCharge({ soc -> ev.update { it.copy(socPercent = soc) } }, { fail("SoC 조회", it) })
         // getEvBatteryCapacity requires CAR_INFO, which neither host app declares.
         // Keep capacity unavailable so the app's selected vehicle preset remains the fallback.
         ev.update { it.copy(capacityKwh = null) }

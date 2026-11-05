@@ -41,6 +41,16 @@ class ScreenPolicyTest {
         assertEquals(Screen.DRIVING, visibleScreen(Screen.SETTINGS, DriveState(Gear.PARK, 0f), true))
     }
 
+    @Test fun `unknown platform restriction is trusted only after the grace period`() {
+        assertNull(resolveUxRestricted(null, graceElapsed = false))
+        assertEquals(false, resolveUxRestricted(null, graceElapsed = true))
+        assertEquals(true, resolveUxRestricted(true, graceElapsed = true))
+        assertEquals(false, resolveUxRestricted(false, graceElapsed = false))
+        // 유예가 지나도 차량 신호가 주행이면 주행 화면
+        assertEquals(Screen.DRIVING, visibleScreen(Screen.RISK_LIST, DriveState(Gear.DRIVE, 100f), resolveUxRestricted(null, true)))
+        assertEquals(Screen.RISK_LIST, visibleScreen(Screen.RISK_LIST, DriveState(Gear.PARK, 0f), resolveUxRestricted(null, true)))
+    }
+
     @Test fun `D through neutral to park opens summary once`() {
         val trip = TripEndNavigation()
         assertFalse(trip.shouldShowSummary(true, DriveState(Gear.PARK, 0f)))

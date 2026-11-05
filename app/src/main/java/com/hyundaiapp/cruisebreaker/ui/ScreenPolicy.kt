@@ -14,6 +14,14 @@ internal fun visibleScreen(requested: Screen, drive: DriveState, uxRestricted: B
     return if (uxRestricted != false || knownMoving) Screen.DRIVING else requested
 }
 
+/**
+ * 플랫폼 UX 제한 값을 [UX_RESTRICTION_GRACE_MS] 안에 못 받으면(Car 서비스 미연결·콘솔 하트비트 없음) 제한 없음으로 본다.
+ * 주행 여부는 그래도 차량 신호(기어·차속)로 막는다([visibleScreen]의 knownMoving). 심사위원 에뮬레이터에서 앱이 먹통으로 보이지 않게(11-04 검토 #5).
+ */
+internal fun resolveUxRestricted(reported: Boolean?, graceElapsed: Boolean): Boolean? = reported ?: if (graceElapsed) false else null
+
+internal const val UX_RESTRICTION_GRACE_MS = 5_000L
+
 /** D를 거친 다음 P로 돌아왔을 때 한 번만 요약을 연다. 신호 대기는 주행 종료로 보지 않는다. */
 internal class TripEndNavigation {
     private var drove = false
