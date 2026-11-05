@@ -51,6 +51,7 @@
 - 문서: **`docs/demo-scenario.md` 신설(확정 시연 순서·기대 시간·복구표)**, PRD 7절, README, `tools/demo-drive.sh` 머리 주석
 - 확인(에뮬레이터, 실제 서버 시연 데이터 모드, 앱 데이터 지우고 처음부터): S5 동의 → S2 시드 1곳(40%·500) → `demo-drive.sh` → D·100·크루즈 작동 → S1 자동 + "500m 앞 크루즈 해제 잦은 구간" 배너 + TTS → 90km/h 해제 기록(`CruiseRecord: disengage speed=90.0`, 업로드) → 40km/h 해제 기록 없음 → P → S3 1·1·1 → [목록으로] → S2. 제목 길게 → 개발 메뉴 → [뒤로] → S2. 하트비트 끄고 재실행 → 5초 뒤 S2. `assembleDebug test` 통과(app 83, core 32/18)
 - 담당 경로 참고: `ui/`(길민종) `CruiseBreakerNav`·`InitialScreen`·`ScreenPolicy`·`RiskListScreen`·`CarComponents`, `core/`(황준용)를 장호연 결정으로 고침. PR 머지 뒤 두 사람에게 알릴 것. 이민하 파일은 손대지 않음
+- 추가 확인(11-05 오후): `tools/build-release.sh`로 서명 release APK를 만들어 에뮬레이터에 설치(기존 debug는 `adb uninstall` 뒤) → S5→S2→S1 배너→S3→S2 같은 흐름, 크래시 0. `apk/`는 머지 뒤 main에서 다시 빌드해 커밋할 것(지금은 로컬에만 있음)
 - 남은 것: PR 머지(장호연) → `bash tools/build-release.sh` → `apk/` 커밋. 서버 시드 이름 "시연 지점 (고정 위치 앞 약 400m)" → "판교IC 진입로" migration(황준용 #37). 아이콘 2종(11-04 검토 #8)
 
 ### 2026-11-05 — 길민종 Pleos 검수 후속 PR 2개 머지(크루즈 #46 → 3105a8d, 차슐랭 #34 → bdfaa3b)
