@@ -15,7 +15,7 @@
 3. Android Studio로 `CruiseBreaker` 폴더 열기 → Gradle Sync → 에뮬레이터 켜고 ▶ Run `app`
    - CLI: `./gradlew assembleDebug` / `./gradlew installDebug` / 테스트 `./gradlew test`
 4. 처음 실행하면 **차속 권한**을 묻는다 → 허용
-5. **개발 메뉴**(디버그 빌드에만 보임) → **신호 모니터**에서 `vehicle=READY`, `speed=READY`, `navi=READY`이면 정상
+5. 앱이 켜지면 **S5 첫 실행 동의** → 동의·[시작하기] → **S2 근처 해제 다발 구간**(debug·release 같음). 디버그 빌드는 S2 제목을 **길게 누르면** 개발 메뉴가 열린다 → **신호 모니터**에서 `vehicle=READY`, `speed=READY`, `navi=READY`이면 정상
 6. 값 바꿔 보기: `bash tools/vconsole.sh up` 후
    - `bash tools/vconsole.sh put 'gear?gear=Drive' 'controls?speed=100'` → 차속 100
    - `bash tools/vconsole.sh put 'driving-mode?ad_mode_state=full_autonomous'` → 크루즈 `ACTIVATED`

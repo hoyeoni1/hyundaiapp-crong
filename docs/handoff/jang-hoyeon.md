@@ -2,16 +2,17 @@
 
 담당 경로: `tools/`(원본은 차슐랭), `apk/`, `README.md`, `PRD.md`, `docs/`, 릴리스. 이 저장소 앱 뼈대도 만들었음
 
-## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-05 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
+  - **11-05 시연 흐름 확정**: 확정 시나리오 `docs/demo-scenario.md`(고정 위치, 경로 재생 없음). 앱은 debug·release 모두 S5→S2로 시작, 개발 메뉴는 S2 제목 길게 누르기, UX 제한 미확인 5초 뒤 정차 화면 허용. 에뮬레이터 + 실제 서버로 처음부터 끝까지 확인. 브랜치 `feat/demo-flow-20261105`(두 저장소, PR 리뷰·머지 대기 — 아래 작업 기록)
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
     - 11-02: PR #10(동의 철회, 이슈 #7·#8)과 황준용 core v0.4.0 debug SDK 진단(PR #14)도 머지. 머지된 main(`bdc8f88`)에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0)
   - 문서를 판정 규칙 v2(`docs/disengage-rules.md`)에 맞춤(11-01): `PRD.md`, 기획서 원고 `docs/proposal.md`, `README.md`
     - **기획서 DOCX(`docs/submission/cruisebreaker-application.docx`)는 아직 옛 원고(1km 안내·정체 필터) 기준** → 재생성 필요(호공이 PC에 python 없음)
     - 재생성: `python tools/build-proposal-docx.py docs/submission/application-form-template.docx docs/proposal.md "<앱명>" docs/submission/cruisebreaker-application.docx`
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
-  - 아직 없는 것: 실제 서버(황준용 — Supabase로 확정(11-02, PC 호스팅 안 함). 황준용이 이미 작업했고 곧 커밋 예정), 위치 재생 시연 모드, release 서명
+  - 실제 서버는 11-04 연결 확인(이민하). 위치 재생 시연 모드는 **만들지 않기로 함**(11-05 장호연 결정, 고정 위치 시연)
 - 진행 중 브랜치·PR·이슈:
   - 장호연 `fix/core-startup-resilience` — **11-04 머지 완료**(크루즈 #42 → `9ff1318`, 차슐랭 #30 → `0aa4032`). core v0.5.2 시작 크래시 방어(차슐랭 원본 동기화) + `RiskAnnouncer` 안내 3분 간격을 새 주행에서 초기화. 이민하 동의 코멘트 있음, 황준용(core) 확인 코멘트 없음 → 알릴 것
   - 열린 PR 없음(PR #1~#6, #10, #14 머지)
@@ -25,7 +26,7 @@
   3. 약관(B01): 확정 전문이 앱 [내용 보기]에 들어감(`ui/TermsText.kt`, 11-04 머지). 황준용 답(Supabase 리전·요청 로그)이 오면 `docs/terms-draft.md`와 `TermsText.kt`의 해당 2곳 고치기. 판 번호를 바꾸면 각 AppContainer `termsVersion`도. 크루즈 #25는 11-04 닫음. 차슐랭 #14도 11-04 닫음(길민종 화면 검수 통과, 차슐랭 #21·크루즈 #33)
   4. 남은 팀원 이슈: #12·#13(이상준·황준용 UI 감사 계약, 제출 필수 아님). #17은 #19로 닫힘. #8(차슐랭)·#20(크루즈)은 11-04 닫음(#10·#22로 해결)
   5. 주최 측 문의 메일 발송 — `docs/organizer-inquiry-email.md`에 위치기반서비스 신고 여부 문항 추가 권장. 심사용 GitHub 계정명(4번) 답을 받아야 아래 7번 가능
-  6. 서명 키·`signingConfig`·`tools/build-release.sh`는 완료(키 `C:/Users/H/.samgakgorae/`, **백업할 것**). 2번 키가 들어오면 두 저장소에서 `bash tools/build-release.sh` → `apk/` 커밋. release는 실제 충전 기준(인증 3분·실패 2분)이라 시연 영상은 debug 빌드로 찍기
+  6. 서명 키·`signingConfig`·`tools/build-release.sh`는 완료(키 `C:/Users/H/.samgakgorae/`, **백업할 것**). `feat/demo-flow-20261105` 머지 뒤 두 저장소에서 `bash tools/build-release.sh` → `apk/` 커밋. 11-05부터 release도 실제 흐름 시작이라 심사위원이 직접 눌러도 시연이 됨
   7. 저장소 접근: 두 저장소가 **PRIVATE** → 심사용 계정 초대(또는 공개 전환) + 접근 확인. 새로 clone해서 빌드되는지 확인
   8. 시연 영상 촬영 → 기획서 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 영상) 채우고 DOCX 재생성
   9. 01 참가신청서·04 서명 칸, 5명 서명(11-13) → 11-14 메일 2통 발송(전원 CC). 11-05 중간 점검, Pleos Playground 프로젝트 생성
@@ -39,9 +40,18 @@
   - Virtual Console은 하트비트가 없으면 쓰기가 503 → `tools/vconsole.sh up` 먼저
   - 장호연 개발 PC는 python이 `py -3`(3.14)으로 있음(DOCX 재생성 가능, 11-03 확인)
   - 장호연 개발 PC의 CLI 빌드는 JAVA_HOME이 없음 → `export JAVA_HOME="E:\AndroidStudio\jbr"`(JDK 21, Gradle 빌드·테스트 통과 확인). 호공이(OpenClaw) PC에는 JDK·SDK·python이 없어 빌드·DOCX 재생성 불가
-- 확인 방법: `./gradlew assembleDebug test` / 에뮬레이터 실행 → 개발 메뉴 → 신호 모니터 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
+- 확인 방법: `./gradlew assembleDebug test` / 시연 전체는 `docs/demo-scenario.md` 순서대로 / 신호 모니터는 S2 제목 길게 누르기 → 개발 메뉴 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-05 — 시연 흐름 확정·실제 흐름 시작 화면(브랜치 `feat/demo-flow-20261105`, 두 저장소)
+- 장호연 목표("실제 앱이 시연 가능한 상태로 끊김 없이 동작, 사용자 시나리오를 픽스하고 그대로 쓰면 동작")로 Claude가 작업. 장호연 결정: 시작 화면은 debug·release 모두 실제 흐름(S5→S2), 개발 메뉴는 숨은 진입, 경로 재생 없이 고정 위치 시연
+- 앱: `initialScreen`이 debug에서도 동의 전 S5·동의 후 S2(`InitialScreenTest` 수정). `resetTo`가 개발 메뉴를 밑에 깔지 않음. 개발 메뉴는 S2 제목 길게 누르기(`ScreenHeader.onTitleLongPress`, 차슐랭과 동일). **플랫폼 UX 제한 null 5초 유예**(`ScreenPolicy.resolveUxRestricted`, 11-04 검토 #5): 하트비트 없이 앱을 켜도 5초 뒤 S2가 열림(확인함). 주행 여부는 기어·차속으로 계속 막음(테스트 추가). 화면 스택 `rememberSaveable`
+- core 0.5.2(차슐랭 원본 동기화): `VehicleSdkSource.subscribeEv` SoC 재조회(차슐랭 시작 SoC 문제용, 크루즈 동작 영향 없음)
+- 문서: **`docs/demo-scenario.md` 신설(확정 시연 순서·기대 시간·복구표)**, PRD 7절, README, `tools/demo-drive.sh` 머리 주석
+- 확인(에뮬레이터, 실제 서버 시연 데이터 모드, 앱 데이터 지우고 처음부터): S5 동의 → S2 시드 1곳(40%·500) → `demo-drive.sh` → D·100·크루즈 작동 → S1 자동 + "500m 앞 크루즈 해제 잦은 구간" 배너 + TTS → 90km/h 해제 기록(`CruiseRecord: disengage speed=90.0`, 업로드) → 40km/h 해제 기록 없음 → P → S3 1·1·1 → [목록으로] → S2. 제목 길게 → 개발 메뉴 → [뒤로] → S2. 하트비트 끄고 재실행 → 5초 뒤 S2. `assembleDebug test` 통과(app 83, core 32/18)
+- 담당 경로 참고: `ui/`(길민종) `CruiseBreakerNav`·`InitialScreen`·`ScreenPolicy`·`RiskListScreen`·`CarComponents`, `core/`(황준용)를 장호연 결정으로 고침. PR 머지 뒤 두 사람에게 알릴 것. 이민하 파일은 손대지 않음
+- 남은 것: PR 머지(장호연) → `bash tools/build-release.sh` → `apk/` 커밋. 서버 시드 이름 "시연 지점 (고정 위치 앞 약 400m)" → "판교IC 진입로" migration(황준용 #37). 아이콘 2종(11-04 검토 #8)
 
 ### 2026-11-05 — 길민종 Pleos 검수 후속 PR 2개 머지(크루즈 #46 → 3105a8d, 차슐랭 #34 → bdfaa3b)
 - 장호연 지시로 Claude가 진행. 두 PR 모두 base가 main이라 그대로 merge commit으로 머지(충돌 없음)

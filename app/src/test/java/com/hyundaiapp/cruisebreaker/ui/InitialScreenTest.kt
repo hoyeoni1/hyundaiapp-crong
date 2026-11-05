@@ -15,8 +15,8 @@ class InitialScreenTest {
     }
 
     @Test
-    fun `debug keeps development menu regardless of consent`() {
-        assertEquals(Screen.DEV_MENU, initialScreen(debug = true, onboarded = false))
-        assertEquals(Screen.DEV_MENU, initialScreen(debug = true, onboarded = true))
+    fun `debug starts with the same real flow as release`() {
+        assertEquals(Screen.ONBOARDING, initialScreen(debug = true, onboarded = false))
+        assertEquals(Screen.RISK_LIST, initialScreen(debug = true, onboarded = true))
     }
 }
