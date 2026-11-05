@@ -44,6 +44,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-05 — README 심사용 안내 추가(두 저장소, main 직접 push)
+- 배경·구성은 차슐랭 `docs/handoff/jang-hoyeon.md` 같은 날짜 항목과 같음(GitHub 가산점 필수 4항목 + 오픈소스 고지). 이 저장소 README는 `## 시작하기` 앞에 "심사용 안내" 절 — 항목 표, 실행 방법(`adb install`, `pm grant --user 10 … CAR_SPEED`, S5 동의 → S2, `vconsole.sh up` → `demo-drive.sh` 장면 순서, `logcat -s CruiseRecord`, 시연 고지), 테스트 환경·필요 설정(권한 8개, DO 선언·S1 규정, 서버 설정 내장, 소스 빌드·Fake 폴백, 개발 메뉴는 debug만), 오픈소스 고지(TextToSpeech 3.3.1·core-ktx 포함)
+- 확인: 코드 기준(`CruiseBreakerNav`의 `BuildConfig.DEBUG`, 매니페스트, `build.gradle.kts`, 11-05 커밋된 `apk/`). 문서만 바꿈
+- 남은 결정은 차슐랭 항목 ①~⑤와 같음
+- 바꾼 파일: `README.md`, 이 문서
+
 ### 2026-11-05 — 시연 흐름 PR 2개 머지(차슐랭 #35 → 1047949, 크루즈 #47 → 0823124) + release APK 커밋
 - 장호연 지시(AskUserQuestion 답 "머지하고 release 커밋")로 Claude가 진행. 두 PR 모두 merge commit, 충돌 없음
 - 머지된 main에서 `bash tools/build-release.sh` → `apk/SamgakGorae_<App>_release.apk` 서명 빌드·커밋(시연 데이터 모드 + 시연 판정 기준 + 실제 흐름 시작). 머지 전 브랜치 빌드로 에뮬레이터 시연 확인함(위 항목)
