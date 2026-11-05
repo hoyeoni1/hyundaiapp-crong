@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,6 +59,7 @@ fun RiskListScreen(
     onSettingsClick: () -> Unit,
     onBack: () -> Unit,
 ) {
+    val listState = rememberLazyListState()
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     val selected = state.items.firstOrNull { it.id == selectedId } ?: state.items.firstOrNull()
 
@@ -72,12 +74,12 @@ fun RiskListScreen(
                 state.loading && selected == null -> EmptyState("해제 다발 구간을 불러오는 중이에요", loading = true, modifier = Modifier.weight(1f))
                 selected == null -> EmptyState("근처에 해제 다발 구간이 없어요", modifier = Modifier.weight(1f))
                 wide -> Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    LazyColumn(Modifier.weight(3f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    LazyColumn(Modifier.weight(3f), state = listState, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(state.items, key = { it.id }) { row -> RiskRow(row, row.id == selected.id) { selectedId = row.id } }
                     }
                     LazyColumn(Modifier.weight(2f)) { item { RiskDetail(selected, Modifier.fillMaxWidth()) } }
                 }
-                else -> LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                else -> LazyColumn(Modifier.weight(1f), state = listState, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(state.items, key = { it.id }) { row ->
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             RiskRow(row, row.id == selected.id) { selectedId = row.id }

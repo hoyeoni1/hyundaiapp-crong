@@ -59,4 +59,24 @@ class ScreenPolicyTest {
         assertFalse(trip.shouldShowSummary(false, DriveState(Gear.PARK, 0f)))
         assertFalse(trip.shouldShowSummary(true, DriveState(Gear.PARK, 0f)))
     }
+    @Test fun `driving preview returns only when debug and platform allows parked controls`() {
+        val parked = DriveState(Gear.PARK, 0f)
+        assertTrue(canShowDrivingPreviewBack(true, Screen.DRIVING, parked, false))
+        assertTrue(canShowDrivingPreviewBack(true, Screen.DRIVING, DriveState(Gear.PARK), false))
+        assertFalse(canShowDrivingPreviewBack(false, Screen.DRIVING, parked, false))
+        assertFalse(canShowDrivingPreviewBack(true, Screen.RISK_LIST, parked, false))
+        for (restricted in listOf(true, null)) {
+            assertFalse(canShowDrivingPreviewBack(true, Screen.DRIVING, parked, restricted))
+        }
+        // 동의 전에는 차량 수집을 시작하지 않아 기어가 없다. 플랫폼이 허용하면 다른 정차 화면처럼 복귀 가능.
+        assertTrue(canShowDrivingPreviewBack(true, Screen.DRIVING, DriveState(), false))
+        assertTrue(canShowDrivingPreviewBack(true, Screen.DRIVING, DriveState(Gear.UNKNOWN, 0f), false))
+        for (gear in listOf(Gear.DRIVE, Gear.REVERSE, Gear.NEUTRAL)) {
+            assertFalse(canShowDrivingPreviewBack(true, Screen.DRIVING, DriveState(gear, 0f), false))
+        }
+        for (speed in listOf(1f, -1f, Float.NaN, Float.POSITIVE_INFINITY)) {
+            assertFalse(canShowDrivingPreviewBack(true, Screen.DRIVING, DriveState(Gear.PARK, speed), false))
+        }
+    }
+
 }

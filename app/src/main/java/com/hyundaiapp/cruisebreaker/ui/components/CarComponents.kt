@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -393,10 +394,10 @@ fun CarAlertDialog(title: String, message: String, confirmLabel: String, onConfi
         text = { Text(message, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.verticalScroll(rememberScrollState())) },
         confirmButton = {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                if (dismissLabel != null) TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 64.dp)) {
+                if (dismissLabel != null) TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 64.dp).widthIn(min = 64.dp)) {
                     Text(dismissLabel, style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurface)
                 }
-                TextButton(onClick = onConfirm, modifier = Modifier.heightIn(min = 64.dp)) {
+                TextButton(onClick = onConfirm, modifier = Modifier.heightIn(min = 64.dp).widthIn(min = 64.dp)) {
                     Text(confirmLabel, style = MaterialTheme.typography.labelLarge, color = if (destructive) CarColors.Warning else CarColors.Primary)
                 }
             }

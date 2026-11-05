@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -104,10 +106,12 @@ internal fun CruiseBreakerNavigation(
     context: Context = LocalContext.current,
     onExit: () -> Unit,
 ) {
+    val screenStates = rememberSaveableStateHolder()
     val stack = remember { mutableStateListOf(initialScreen(debug, dependencies.prefs.onboarded)) }
     var sessionStarted by remember { mutableStateOf(dependencies.prefs.onboarded) }
     val drive by dependencies.signals.drive.collectAsState()
     val currentScreen = visibleScreen(stack.last(), drive, uxRestricted)
+    val previewBackEnabled = canShowDrivingPreviewBack(debug, stack.last(), drive, uxRestricted)
     val go: (Screen) -> Unit = { stack.add(it) }
     val back: () -> Unit = { if (stack.size > 1) stack.removeAt(stack.lastIndex) else onExit() }
     val resetTo: (Screen) -> Unit = {
@@ -115,7 +119,8 @@ internal fun CruiseBreakerNavigation(
         if (debug && it != Screen.DEV_MENU) stack.add(Screen.DEV_MENU)
         stack.add(it)
     }
-    BackHandler(enabled = currentScreen == Screen.TRIP_SUMMARY || (currentScreen != Screen.DRIVING && stack.size > 1)) {
+    BackHandler(enabled = currentScreen == Screen.TRIP_SUMMARY ||
+        (stack.size > 1 && (currentScreen != Screen.DRIVING || previewBackEnabled))) {
         if (currentScreen == Screen.TRIP_SUMMARY) resetTo(Screen.RISK_LIST) else back()
     }
 
@@ -163,7 +168,12 @@ internal fun CruiseBreakerNavigation(
             Screen.DRIVING -> {
                 val vm = viewModel { DrivingViewModel(dependencies.signals, dependencies.announcer) }
                 val state by vm.state.collectAsState()
-                DrivingScreen(state)
+                if (previewBackEnabled) {
+                    Column(Modifier.fillMaxSize()) {
+                        ScreenHeader("주행 화면 미리보기", Modifier.padding(horizontal = 48.dp, vertical = 32.dp), onBack = back)
+                        Box(Modifier.weight(1f)) { DrivingScreen(state) }
+                    }
+                } else DrivingScreen(state)
             }
             Screen.SIGNALS -> {
                 // 신호 수신은 동의 후 기록 서비스가 시작한다. 개발 메뉴의 신호 모니터만 들어올 때 따로 켠다
@@ -173,7 +183,7 @@ internal fun CruiseBreakerNavigation(
                 }
                 SignalMonitorScreen(dependencies.signals, onBack = back)
             }
-            Screen.RISK_LIST -> {
+            Screen.RISK_LIST -> screenStates.SaveableStateProvider(Screen.RISK_LIST.name) {
                 val vm = viewModel { RiskListViewModel(dependencies.signals, dependencies.risks) }
                 // 화면에 들어올 때마다 새로 조회한다(방금 남긴 해제가 반영되게)
                 LaunchedEffect(Unit) { vm.refresh() }
@@ -206,6 +216,7 @@ internal fun CruiseBreakerNavigation(
                         onConfirm = {
                             confirmWithdraw = false
                             vm.withdrawConsent()
+                            screenStates.removeState(Screen.RISK_LIST.name)
                             sessionStarted = false
                             resetTo(initialScreen(debug, dependencies.prefs.onboarded))
                         },

@@ -31,3 +31,7 @@ internal class TripEndNavigation {
         return false
     }
 }
+
+/** 개발 미리보기도 다른 정차 화면과 같은 플랫폼 제한을 따른다. 주행·UX 미확인 상태에는 터치가 없다. */
+internal fun canShowDrivingPreviewBack(debug: Boolean, requested: Screen, drive: DriveState, uxRestricted: Boolean?): Boolean =
+    debug && requested == Screen.DRIVING && visibleScreen(Screen.DEV_MENU, drive, uxRestricted) == Screen.DEV_MENU
