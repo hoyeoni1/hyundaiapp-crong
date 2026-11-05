@@ -5,7 +5,7 @@
 ## 현재 상태 (2026-11-05 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
-  - **11-05 내비 위 큰 배너 팝업**: 앱이 뒤에 있을 때 안내 순간 주행 화면(큰 배너)을 내비 위로 올리고 10초 뒤 내비로 복귀, 정차하면 S3 자동. 브랜치 `feat/announce-foreground-20261105`(PR 리뷰·머지 대기, 아래 작업 기록). 그 전 단계(헤드업 알림, PR #48 → `398da90`)는 머지됨
+  - **11-05 내비 위 큰 배너 팝업**: 앱이 뒤에 있을 때 안내 순간 주행 화면(큰 배너)을 내비 위로 올리고 10초 뒤 내비로 복귀, 정차하면 S3 자동. PR #49 → `d6d4bd4` **머지 완료**, release APK `apk/` 재커밋(아래 작업 기록). 그 전 단계(헤드업 알림, PR #48 → `398da90`)는 머지됨
   - **11-05 시연 흐름 확정**: 확정 시나리오 `docs/demo-scenario.md`(고정 위치, 경로 재생 없음). 앱은 debug·release 모두 S5→S2로 시작, 개발 메뉴는 S2 제목 길게 누르기, UX 제한 미확인 5초 뒤 정차 화면 허용. 에뮬레이터 + 실제 서버로 처음부터 끝까지 확인. 크루즈 PR #47 → `0823124`, 차슐랭 PR #35 → `1047949` **머지 완료**, release APK `apk/` 커밋(아래 작업 기록)
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
     - 11-02: PR #10(동의 철회, 이슈 #7·#8)과 황준용 core v0.4.0 debug SDK 진단(PR #14)도 머지. 머지된 main(`bdc8f88`)에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0)
@@ -44,6 +44,12 @@
 - 확인 방법: `./gradlew assembleDebug test` / 시연 전체는 `docs/demo-scenario.md` 순서대로 / 신호 모니터는 S2 제목 길게 누르기 → 개발 메뉴 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-05 — 내비 위 큰 배너 PR #49 머지(→ d6d4bd4) + release APK 재커밋
+- 장호연 지시("네, 머지해줘")로 Claude가 진행. 충돌 없음, merge commit
+- 머지된 main에서 `bash tools/build-release.sh` → `apk/SamgakGorae_CruiseBreaker_release.apk` 다시 커밋(앱 화면 올리기·내비 복귀·정차 시 S3 자동 포함)
+- **알릴 것(장호연 → 팀원)**: 이민하 — `AppContainer`(autoRaised·summaryPending·안내 구독), `MainActivity`(scheduleReturn·returnToMaps), `RiskNotification.bringToFront`. 길민종 — `CruiseBreakerNav`(`summaryPending` 의존성·S3 자동)
+- 남은 열린 PR: 없음
 
 ### 2026-11-05 — 안내를 내비 위 큰 배너로(앱 화면 올리기 + 자동 복귀, 브랜치 `feat/announce-foreground-20261105`)
 - 장호연 피드백("헤드업 팝업이 너무 안 보인다"). Claude가 작업
