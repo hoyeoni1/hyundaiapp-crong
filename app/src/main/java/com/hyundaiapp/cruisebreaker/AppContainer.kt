@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -77,6 +78,10 @@ class AppContainer(context: Context) {
     /** 시스템 음성 서비스에 붙으므로 기록을 시작할 때 만들고 멈출 때 놓는다(이슈 #11) */
     private var speaker: RiskSpeaker? = null
 
+    /** 앱 화면이 보이는지([MainActivity]가 바꾼다). 안 보일 때(내비가 앞일 때)만 안내를 헤드업 알림으로 띄운다 */
+    val appVisible = MutableStateFlow(false)
+    private val riskNotification = RiskNotification(context)
+
     /** 기록 중일 때만 있다. [stopRecording]이 취소하면 기록 관련 코루틴이 모두 멈춘다 */
     private var recordingJob: Job? = null
     private var uploadQueue: UploadQueue? = null
@@ -116,7 +121,12 @@ class AppContainer(context: Context) {
         disengageDetector.start(scope)
 
         trips.start(scope)
-        scope.launch { announcer.announcements.collect { Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}") } }
+        scope.launch {
+            announcer.announcements.collect {
+                Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}")
+                if (!appVisible.value) riskNotification.show(it, rules.bannerMs)
+            }
+        }
         tripStats.start(scope, trips, announcer, disengageDetector)
         RiskSpeaker(appContext).also { speaker = it }.start(scope, announcer.announcements) { prefs.voiceEnabled }
         announcer.start(scope, signals, risks, trips)
@@ -128,6 +138,7 @@ class AppContainer(context: Context) {
         recordingJob = null
         job.cancel()
         announcer.reset()
+        riskNotification.hide()
         speaker?.release()
         speaker = null
         signals.stop()

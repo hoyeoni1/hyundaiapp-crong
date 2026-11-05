@@ -5,6 +5,7 @@
 ## 현재 상태 (2026-11-05 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
+  - **11-05 내비 위 헤드업 팝업**: 앱이 뒤에 있을 때 안내를 내비 위 헤드업 알림으로(`RiskNotification`). 브랜치 `feat/risk-headsup-20261105`(PR 리뷰·머지 대기, 아래 작업 기록)
   - **11-05 시연 흐름 확정**: 확정 시나리오 `docs/demo-scenario.md`(고정 위치, 경로 재생 없음). 앱은 debug·release 모두 S5→S2로 시작, 개발 메뉴는 S2 제목 길게 누르기, UX 제한 미확인 5초 뒤 정차 화면 허용. 에뮬레이터 + 실제 서버로 처음부터 끝까지 확인. 크루즈 PR #47 → `0823124`, 차슐랭 PR #35 → `1047949` **머지 완료**, release APK `apk/` 커밋(아래 작업 기록)
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
     - 11-02: PR #10(동의 철회, 이슈 #7·#8)과 황준용 core v0.4.0 debug SDK 진단(PR #14)도 머지. 머지된 main(`bdc8f88`)에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0)
@@ -43,6 +44,14 @@
 - 확인 방법: `./gradlew assembleDebug test` / 시연 전체는 `docs/demo-scenario.md` 순서대로 / 신호 모니터는 S2 제목 길게 누르기 → 개발 메뉴 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-05 — 내비 위 헤드업 팝업 안내(브랜치 `feat/risk-headsup-20261105`)
+- 장호연 요청("해제 다발 구간 목록만이 아니라 길 가는데 내비 위에 팝업처럼 떴으면"). Claude가 작업
+- 새 파일 `RiskNotification.kt`(앱 루트): 안내가 나갈 때 앱이 앞에 없으면 헤드업 알림(채널 "해제 다발 구간 안내" 중요도 HIGH, 분류 `navigation`, 소리 없음(TTS가 읽음), 10초 뒤 자동 삭제, 누르면 앱). `AppContainer`에 `appVisible`(MainActivity onStart/onStop)과 안내 구독 추가, 기록 중지 시 알림 제거. 이민하 경로(`AppContainer`·`MainActivity`)를 장호연 결정으로 고침 → 알릴 것
+- 실측: Pleos `ai.umos.notification`의 `HeadUpNotificationListenerService`가 `navigation` 분류·HIGH 알림을 내비 위 팝업으로 그림(logcat `OverlayController: HEADS_UP_NOTIFICATION`). **`car_warning` 분류는 `SEND_CATEGORY_CAR_NOTIFICATIONS` 시스템 권한이 없어 SecurityException으로 앱이 죽음** → 쓰지 않음. `notify`는 runCatching으로 감쌈
+- 확인(에뮬레이터, 실제 서버): 내비를 앞에 두고 `demo-drive.sh` → 안내 1초 뒤 내비 위에 "500m 앞 크루즈 해제 잦은 구간 · 크루즈브레이커 · 해제율 40%" 팝업 + 음성, 10초 뒤 사라짐, 상단 바 종 아이콘에 남음. 앱이 앞이면 팝업 없이 S1 배너. 크래시 0
+- 문서: `docs/demo-scenario.md` 3단계를 "내비 앞에 두고" 팝업으로, 복구표 추가. PRD 5.5 S1 행
+- 남은 것: PR 리뷰·머지(장호연) → release 재빌드·`apk/` 커밋. 차슐랭에는 해당 없음(정차 전용)
 
 ### 2026-11-05 — 시연 흐름 PR 2개 머지(차슐랭 #35 → 1047949, 크루즈 #47 → 0823124) + release APK 커밋
 - 장호연 지시(AskUserQuestion 답 "머지하고 release 커밋")로 Claude가 진행. 두 PR 모두 merge commit, 충돌 없음
