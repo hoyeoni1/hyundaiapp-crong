@@ -39,6 +39,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hyundaiapp.core.VehicleSignals
+import kotlinx.coroutines.flow.StateFlow
 import com.hyundaiapp.cruisebreaker.AppContainer
 import com.hyundaiapp.cruisebreaker.BuildConfig
 import com.hyundaiapp.cruisebreaker.RecordingService
@@ -86,6 +87,8 @@ fun CruiseBreakerNav(container: AppContainer, onExit: () -> Unit) {
             tripStats = container.tripStats,
             onStart = { RecordingService.startIfAllowed(context) },
             onWithdraw = container::withdrawConsent,
+            summaryPending = container.summaryPending,
+            onSummaryShown = { container.summaryPending.value = false },
         )
     }
     CruiseBreakerNavigation(dependencies, BuildConfig.DEBUG, rememberCarUxRestricted(), context, onExit)
@@ -100,6 +103,9 @@ internal data class CruiseNavigationDependencies(
     val tripStats: TripStats,
     val onStart: () -> Unit,
     val onWithdraw: () -> Unit,
+    /** 앱이 뒤에 있는 동안 주행이 끝났음(AppContainer). 화면이 열리면 S3을 보여 주고 [onSummaryShown]으로 비운다 */
+    val summaryPending: StateFlow<Boolean>? = null,
+    val onSummaryShown: () -> Unit = {},
 )
 
 @Composable
@@ -150,6 +156,15 @@ internal fun CruiseBreakerNavigation(
     LaunchedEffect(sessionStarted, dependencies.signals) {
         dependencies.signals.drive.collect { observed ->
             if (tripNavigation.shouldShowSummary(sessionStarted, observed)) resetTo(Screen.TRIP_SUMMARY)
+        }
+    }
+    // 안내 때문에 올라왔다가 내려간 뒤(액티비티 없음) 정차하면 AppContainer가 앱을 다시 올린다 → 여기서 S3
+    LaunchedEffect(sessionStarted, dependencies.summaryPending) {
+        dependencies.summaryPending?.collect { pending ->
+            if (pending && sessionStarted) {
+                resetTo(Screen.TRIP_SUMMARY)
+                dependencies.onSummaryShown()
+            }
         }
     }
     val notifications = rememberNotificationPermission()

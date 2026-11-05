@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -80,6 +81,12 @@ class AppContainer(context: Context) {
 
     /** 앱 화면이 보이는지([MainActivity]가 바꾼다). 안 보일 때(내비가 앞일 때)만 안내를 헤드업 알림으로 띄운다 */
     val appVisible = MutableStateFlow(false)
+
+    /** 안내 때문에 주행 화면을 앞으로 올렸음. [MainActivity]가 onStart에서 읽고 비운다 */
+    val autoRaised = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    /** 앱이 뒤에 있는 동안 주행이 끝났음(D → P). 화면이 열리면 S3을 보여 준다 */
+    val summaryPending = MutableStateFlow(false)
     private val riskNotification = RiskNotification(context)
 
     /** 기록 중일 때만 있다. [stopRecording]이 취소하면 기록 관련 코루틴이 모두 멈춘다 */
@@ -121,10 +128,28 @@ class AppContainer(context: Context) {
         disengageDetector.start(scope)
 
         trips.start(scope)
+        // 주행이 끝났는데 앱이 뒤에 있으면(안내 뒤 내비로 돌아간 경우) 요약을 보여 주려고 다시 올린다
         scope.launch {
-            announcer.announcements.collect {
-                Log.i(TAG, "announce ${it.risk.key} ${it.bannerText}")
-                if (!appVisible.value) riskNotification.show(it, rules.bannerMs)
+            var wasDriving = false
+            trips.driving.collect { driving ->
+                if (wasDriving && !driving) {
+                    summaryPending.value = true
+                    if (!appVisible.value) riskNotification.bringToFront()
+                }
+                wasDriving = driving
+            }
+        }
+        scope.launch {
+            announcer.announcements.collect { announcement ->
+                Log.i(TAG, "announce ${announcement.risk.key} ${announcement.bannerText}")
+                if (appVisible.value) return@collect
+                // 뒤에 있으면 주행 화면(큰 배너)을 앞으로 올린다. 플랫폼이 막아 올라오지 않으면 헤드업 알림으로 대신한다
+                autoRaised.set(true)
+                riskNotification.bringToFront()
+                launch {
+                    delay(RAISE_WAIT_MS)
+                    if (!appVisible.value) riskNotification.show(announcement, rules.bannerMs)
+                }
             }
         }
         tripStats.start(scope, trips, announcer, disengageDetector)
@@ -162,6 +187,7 @@ class AppContainer(context: Context) {
         appContext.stopService(Intent(appContext, RecordingService::class.java))
         stopRecording()
         tripStats.reset()
+        summaryPending.value = false
         // Persist the backend revocation before the legacy preferences forget this identity.
         try { backend?.withdraw(vehicleId) } finally {
             prefs.clearConsentAndData()
@@ -175,5 +201,8 @@ class AppContainer(context: Context) {
 
     private companion object {
         const val TAG = "CruiseRecord"
+
+        /** 주행 화면을 올린 뒤 실제로 보일 때까지 기다리는 시간. 지나도 안 보이면 헤드업 알림 */
+        const val RAISE_WAIT_MS = 1_500L
     }
 }
