@@ -5,7 +5,7 @@
 ## 현재 상태 (2026-11-05 기준, 매번 덮어쓰기)
 
 - 한 일 요약:
-  - **11-05 시연 흐름 확정**: 확정 시나리오 `docs/demo-scenario.md`(고정 위치, 경로 재생 없음). 앱은 debug·release 모두 S5→S2로 시작, 개발 메뉴는 S2 제목 길게 누르기, UX 제한 미확인 5초 뒤 정차 화면 허용. 에뮬레이터 + 실제 서버로 처음부터 끝까지 확인. 브랜치 `feat/demo-flow-20261105`(두 저장소, PR 리뷰·머지 대기 — 아래 작업 기록)
+  - **11-05 시연 흐름 확정**: 확정 시나리오 `docs/demo-scenario.md`(고정 위치, 경로 재생 없음). 앱은 debug·release 모두 S5→S2로 시작, 개발 메뉴는 S2 제목 길게 누르기, UX 제한 미확인 5초 뒤 정차 화면 허용. 에뮬레이터 + 실제 서버로 처음부터 끝까지 확인. 브랜치 `feat/demo-flow-20261105`(크루즈 PR #47, 차슐랭 PR #35 — 리뷰·머지 대기, 아래 작업 기록)
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
     - 11-02: PR #10(동의 철회, 이슈 #7·#8)과 황준용 core v0.4.0 debug SDK 진단(PR #14)도 머지. 머지된 main(`bdc8f88`)에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0)
   - 문서를 판정 규칙 v2(`docs/disengage-rules.md`)에 맞춤(11-01): `PRD.md`, 기획서 원고 `docs/proposal.md`, `README.md`
