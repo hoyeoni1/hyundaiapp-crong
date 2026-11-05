@@ -1,5 +1,6 @@
 # 프로젝트 문서
 
+- [팀 개발 안내](dev-guide.md): 처음 시작하기, 코드 구조, 담당별 첫 작업, 팀 규칙(README에서 옮김).
 - [두 앱 공통 서버 설명서](server-overview.md): 팀원 빠른 연결(local.properties·debug 빌드·연결 검사), Supabase 구조·테이블·RPC·인증·재전송·철회·배포와 남은 범위.
 - [황준용 인수인계](handoff/hwang-junyong.md): 우리 변경 범위와 최신 검증 결과.
 
