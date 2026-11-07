@@ -27,6 +27,8 @@
     <application
         android:name=".CruiseBreakerApp"
         android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
         <!-- DO 선언: 주행 중에도 S1을 보여 준다. 주행 중 화면 규정을 지킬 것(PRD 5.5) -->

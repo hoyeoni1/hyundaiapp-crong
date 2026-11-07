@@ -47,6 +47,17 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-07 — 리허설 후속 수정(브랜치 `fix/rehearsal-20261107`, 두 저장소 PR)
+- 장호연 지시("다 고쳐서 올려줘"). Claude가 작업. **PR 머지는 장호연**, 머지 뒤 두 저장소 `bash tools/build-release.sh` → `apk/` 재커밋 필요(아이콘이 제출 APK에 들어가려면)
+- **런처 아이콘(두 앱)**: `res/mipmap-anydpi-v26/ic_launcher(_round).xml`(적응형) + `res/drawable/ic_launcher_foreground.xml`(벡터) + `res/values/colors.xml`(배경 = 대표색), 매니페스트 `android:icon`/`roundIcon`. 차슐랭 = 레드 배경 흰 번개 + 별, 크루즈 = 앰버 배경 위가 끊긴 속도계. PNG 없음(minSdk 28). 에뮬레이터 앱 목록에서 확인
+  - 참고: Pleos 독(아래 바 오른쪽 2칸)은 **최근에 쓴 앱** 자리다. 11-07 리허설 때 독의 로봇 아이콘 2개는 우리 앱이 아니라 예전 샘플 앱 `com.example.pleosprobe`·`pleoshello`였음 → 시연 에뮬레이터에서는 두 샘플 앱을 지우는 게 깔끔
+- **S2 거리 "-" → "거리 확인 중"**(`ui/components/CarComponents.kt` `formatKm`, 길민종 경로): 위치를 받기 전 몇 초. 빌드로만 확인(화면에 잠깐만 나와 에뮬레이터 캡처는 안 함)
+- 서버 시드 구간 이름(#37 남은 부분)은 차슐랭 PR의 `20261107000100_demo_names.sql`로 "판교IC 진입로"(앱 Fake·README·demo-drive.sh와 같은 이름). 원격 적용 뒤 #37 닫기. #37의 S3 0·0·0 상태 문구는 이미 들어가 있음(`TripSummaryScreen` `empty`)
+- 팝업 확인: 11-05 장호연 요청 "내비 위에 팝업처럼" → #48 헤드업 알림(작아서 안 보임) → #49 앱 화면을 내비 위로 올리기(지금 방식, 헤드업은 대비용). 11-07 시스템 로그로 안내 0.04초 뒤 올라옴·10초 뒤 내비 복귀 확인. 진짜 오버레이(다른 앱 위에 그리기)는 Pleos에 권한 설정 화면이 없어(`MANAGE_OVERLAY_PERMISSION` 없음) 심사위원이 켤 수 없음 → 쓰지 않음
+- TTS "500미터 앞, 크루즈 해제가 잦은 구간입니다"는 이민하 작성(`domain/RiskAnnouncer.kt` `announcementFor`, 커밋 0f1d7d6, 11-01). 읽기는 `RiskSpeaker`(Pleos TTS SDK)
+- 검증: `assembleDebug test :app:lintDebug` 통과
+- **알릴 것**: 길민종(CarComponents), 이민하(매니페스트 아이콘 줄)
+
 ### 2026-11-07 — 제출 APK 리허설(에뮬레이터 + 실제 서버, 시나리오 화면 단위 점검)
 - 장호연 지시("실제 시연이라 생각하고 화면 단위로 검토"). Claude가 Pleos 에뮬레이터(36.4.10)에 **커밋된 release APK 2개**를 설치해 두 `docs/demo-scenario.md`를 1단계부터 끝까지 진행. 스크린샷: 팀 폴더 `screenshots-2026-11-07/`(ch-*, cb-*)
 - 주의: 에뮬레이터에 debug 빌드가 깔려 있으면 release는 서명이 달라 `INSTALL_FAILED_UPDATE_INCOMPATIBLE` → debug를 지우고 설치해야 함
