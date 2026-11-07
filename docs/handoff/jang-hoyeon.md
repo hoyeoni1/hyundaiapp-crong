@@ -47,6 +47,10 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-07 — 주최 측 문의 메일 최종 점검(두 저장소 + 팀 폴더 원본, main 직접 push)
+- 공식 사이트·FAQ·공지·Pleos 문서와 대조해 12문항 → 10문항. 크루즈 관련: 퍼미션 사전 협의(CAR_DRIVE·CAR_SPEED·TTS_SERVICE 포함), 포그라운드 서비스·부팅 수신, DO, 시동 off, 크루즈 해제 값은 남김. 상세는 차슐랭 인수인계 같은 날짜 항목과 `docs/organizer-inquiry-email.md`
+- 남은 것: 장호연이 직접 발송
+
 ### 2026-11-07 — S5 글 줄이기 PR #51 머지(→ 17b18ae) + release APK 재커밋
 - 장호연 지시("네, 머지해 줘")로 Claude가 진행. 충돌 없음, merge commit. 브랜치 삭제
 - 머지된 main에서 `bash tools/build-release.sh` → `apk/SamgakGorae_CruiseBreaker_release.apk` 다시 커밋(아이콘 + 짧아진 S5). 에뮬레이터 설치·실행 크래시 0, S5 캡처 `screenshots-2026-11-07/fix-10-release-s5.png`
