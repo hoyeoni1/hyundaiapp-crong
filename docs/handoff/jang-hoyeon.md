@@ -30,7 +30,7 @@
   6. 서명 키 `C:/Users/H/.samgakgorae/samgakgorae-release.jks` **백업**(백업 기록 없음). APK는 11-05 커밋(`1ef69ee`, 마지막 코드 `d9e5e2e` 뒤라 최신). 다시 만들 때 `bash tools/build-release.sh`
   7. 약관(B01): 황준용 답(Supabase 리전·요청 로그)이 오면 `docs/terms-draft.md`와 `ui/TermsText.kt`의 2곳 고치기(판 번호를 바꾸면 AppContainer `termsVersion`도)
   8. 알릴 것: 황준용에게 core v0.5.2 변경(#42/차슐랭 #30) — 확인 코멘트 아직 없음
-  9. 정리(급하지 않음): 로컬 머지 브랜치는 11-07 삭제함. 원격 머지 브랜치(`feat/demo-flow-20261105`, `feat/risk-headsup-20261105`, `feat/announce-foreground-20261105`, `fix/verified-navigation-20261104`) 삭제는 장호연 확인 뒤
+  9. 정리(급하지 않음): 로컬 머지 브랜치는 11-07 삭제함. 원격 머지 브랜치도 11-07 삭제함(장호연 지시) — 끝남
   - 11-07에 끝난 것으로 확인: 두 저장소 `local.properties`에 Supabase 키 있음(이민하 11-04 복사). Supabase 원격 migration은 이민하가 11-04 실제 서버로 시연 흐름을 확인해 적용된 것으로 보이나 `verify.sql`로 직접 확인하지는 않음
 - 막힌 점·질문:
   - GitHub 아이디 확인(11-02 PR로): 이상준 `wklee316`, 황준용 `Aodlf123` → `docs/handoff/README.md`에도 적을 것
@@ -45,6 +45,10 @@
 - 확인 방법: `./gradlew assembleDebug test` / 시연 전체는 `docs/demo-scenario.md` 순서대로 / 신호 모니터는 S2 제목 길게 누르기 → 개발 메뉴 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-07 — 머지 끝난 원격 브랜치 삭제
+- 장호연 지시("네, 삭제해 줘"). Claude가 진행
+- `origin/main`에 모두 들어간 것(`git merge-base --is-ancestor`)만 골라 원격 브랜치 35개 삭제. 열린 PR 없음. 이제 원격은 `main`만 남음. 지운 브랜치는 GitHub PR 화면의 "Restore branch"로 되살릴 수 있음
 
 ### 2026-11-07 — 장호연 지시("할 수 있는 작업 전부")로 제출 준비 정리(두 저장소, 문서만 main 직접 push)
 - **새로 clone 빌드 확인**: 두 저장소를 빈 폴더에 새로 clone(`local.properties` 없이 `ANDROID_HOME`만) → `./gradlew assembleDebug assembleRelease test` 성공. 테스트 실패 0 — 차슐랭 app debug·release 각 99, core 32 / 크루즈 app debug·release 각 83, core 32. 키가 없으면 Fake 저장소로 빌드됨(README "소스에서 빌드" 설명과 같음). `tools/sync-core.sh --check` 일치(core 0.5.2)
