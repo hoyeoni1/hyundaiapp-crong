@@ -14,7 +14,6 @@ import androidx.compose.material3.Surface
 import com.hyundaiapp.cruisebreaker.ui.components.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyundaiapp.cruisebreaker.ui.OnboardingUiState
@@ -52,8 +51,8 @@ fun OnboardingScreen(
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 Text("크루즈브레이커", style = MaterialTheme.typography.bodyLarge, color = CarColors.Primary)
                 Text("다른 차들이 크루즈를 끈\u00A0곳을 미리 알려 드려요", style = MaterialTheme.typography.headlineMedium)
-                Text("기록에는 좌표 대신 약 150m 구간 번호만 저장하고, 시각은 시간 단위로 저장해요.", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
-                Text("시동을 걸면 앱을 열지 않아도\n주행을 자동으로 기록합니다.\n설정에서 끌 수 있어요.", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                // 11-07 장호연 "글이 너무 많다" → 핵심만. 저장 방식(150m 구간·시간 단위)은 [내용 보기] 약관에 있다(TermsText)
+                Text("시동을 걸면 자동으로 기록해요.\n설정에서 끌 수 있어요.", style = MaterialTheme.typography.bodyLarge, color = CarColors.OnSurfaceVariant)
             }
         }
         val consents: @Composable () -> Unit = {
@@ -70,13 +69,14 @@ fun OnboardingScreen(
                     "차속 읽기 권한 (선택)",
                     state.speedPermissionGranted,
                     onRequestSpeedPermission,
-                    description = "다음 창에 '위치 정보'로 표시돼요.\n느린 속도의 해제를 거르려고 차속을 읽어요.\n거부해도 기록하지만\n저속 해제를 걸러내지 못할 수 있어요.",
+                    // 요청 전에 이유를 먼저 보여 준다(PRD 8: AAOS가 "위치 정보" 창으로 띄움)
+                    description = "저속 해제를 거르는 데 써요. 다음 창엔 '위치 정보'로 보여요.",
                     agreeLabel = "권한 요청",
                     agreedLabel = "허용됨",
                 )
                 ConsentRow(
                     "주행 기록 알림 (선택)", notificationsGranted, onRequestNotifications,
-                    description = "기록 중에는 '주행 기록 중' 알림을 표시해요.\n허용하지 않아도 주행 기록은 계속돼요.",
+                    description = "기록 중임을 알림으로 보여 줘요.",
                     agreeLabel = if (notificationsNeedSettings) "알림 설정" else "알림 허용", agreedLabel = "허용됨",
                 )
             }
@@ -88,9 +88,10 @@ fun OnboardingScreen(
                 Column(Modifier.weight(3f).verticalScroll(rememberScrollState())) { consents() }
             } else Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) { intro(); consents() }
             Text(
-                "크루즈브레이커는 운전을 돕는 보조 안내예요. 안내가 없거나 늦을 수 있으니 항상 직접 도로를 살피세요.",
+                // 보조 안내 고지는 남긴다(#25 결정: 오류 알림 대신 S5 고지 + 약관 4절 책임 제한)
+                "보조 안내예요. 항상 직접 도로를 살피세요.",
                 style = MaterialTheme.typography.bodyLarge,
-                color = CarColors.OnSurface,
+                color = CarColors.OnSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
             )
             if (reviewingConsent) SecondaryButton("설정으로 돌아가기", onBack, Modifier.fillMaxWidth())
