@@ -47,6 +47,11 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-07 — S5 글 줄이기 PR #51 머지(→ 17b18ae) + release APK 재커밋
+- 장호연 지시("네, 머지해 줘")로 Claude가 진행. 충돌 없음, merge commit. 브랜치 삭제
+- 머지된 main에서 `bash tools/build-release.sh` → `apk/SamgakGorae_CruiseBreaker_release.apk` 다시 커밋(아이콘 + 짧아진 S5). 에뮬레이터 설치·실행 크래시 0, S5 캡처 `screenshots-2026-11-07/fix-10-release-s5.png`
+- **알릴 것**: 길민종(OnboardingScreen 문구)
+
 ### 2026-11-07 — S5 첫 실행 동의 글 줄이기(브랜치 `fix/s5-concise-20261107`)
 - 장호연 요청("화면에 글이 너무 많으니 핵심만"). Claude가 작업. `ui/onboarding/OnboardingScreen.kt`(길민종 경로)만 고침
 - 왼쪽 소개: 저장 방식 문장(150m 구간·시간 단위)을 빼고 "시동을 걸면 자동으로 기록해요. / 설정에서 끌 수 있어요."만(굵은 글씨 → 보조색). 저장 방식은 [내용 보기] 약관(`TermsText`)에 그대로 있음
