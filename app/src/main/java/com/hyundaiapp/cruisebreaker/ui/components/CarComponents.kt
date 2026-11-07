@@ -375,7 +375,8 @@ fun OnboardingStartAction(enabled: Boolean, hint: String, onStart: () -> Unit, m
 /* ---- 숫자 포맷: UiState에는 원래 값만 있고 포맷은 화면에서 한다 ---- */
 
 fun formatKm(distanceM: Double?): String =
-    distanceM?.let { String.format(Locale.KOREA, "%.1f km", it / 1000) } ?: "-"
+    // 위치를 받기 전(앱을 켠 직후 몇 초)에는 거리가 없다. "-"는 값이 빠진 것처럼 보여 문구로 알린다(11-07 리허설)
+    distanceM?.let { String.format(Locale.KOREA, "%.1f km", it / 1000) } ?: "거리 확인 중"
 
 fun formatPercent(ratio: Double): String = String.format(Locale.KOREA, "%.0f%%", ratio * 100)
 
