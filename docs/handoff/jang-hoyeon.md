@@ -10,7 +10,7 @@
   - 두 앱 기반 + 이민하의 해제·통과 감지, 500m 앞 안내(배너·Pleos TTS 음성), S2~S5 ViewModel, 기록 포그라운드 서비스·부팅 자동 시작이 `main`에 들어옴(PR #3~#6, 11-01 머지, main `ccfdcdc`). 에뮬레이터 흐름은 이민하가 확인(`docs/handoff/lee-minha.md`)
     - 11-02: PR #10(동의 철회, 이슈 #7·#8)과 황준용 core v0.4.0 debug SDK 진단(PR #14)도 머지. 머지된 main(`bdc8f88`)에서 `assembleDebug test` 통과(디버그 테스트 61개, 실패 0)
   - 문서를 판정 규칙 v2(`docs/disengage-rules.md`)에 맞춤(11-01): `PRD.md`, 기획서 원고 `docs/proposal.md`, `README.md`
-    - **기획서 DOCX(`docs/submission/cruisebreaker-application.docx`)는 아직 옛 원고(1km 안내·정체 필터) 기준** → 재생성 필요(호공이 PC에 python 없음)
+    - 기획서 DOCX(`docs/submission/cruisebreaker-application.docx`)는 11-07 `docs/proposal.md`(고정 위치 시연 문구 반영)로 재생성함
     - 재생성: `python tools/build-proposal-docx.py docs/submission/application-form-template.docx docs/proposal.md "<앱명>" docs/submission/cruisebreaker-application.docx`
     - 01 참가신청서의 대표자·구성원 연락처, 참가 단위·부문 체크, 작성일, 04 서명은 아직 빈칸(손으로 기입)
   - 실제 서버는 11-04 연결 확인(이민하). 위치 재생 시연 모드는 **만들지 않기로 함**(11-05 장호연 결정, 고정 위치 시연)
@@ -22,15 +22,15 @@
   - 기타: 문서(`PRD.md`, `README.md`, `docs/`)는 PR 없이 `main`에 바로 push(10-30 결정)
 - 리뷰·머지: PR 리뷰는 Claude(정기 작업 "삼각고래 PR 리뷰", 매일 09~23시 매시), 머지는 장호연만(`docs/pr-review-guide.md`). 11-02 PR #14·차슐랭 #3·#4에 코멘트가 달려 정상 동작 확인
 - 다음 할 일(우선순위 순, 11-07 점검 기준 — 코드·APK는 끝났고 남은 건 제출 준비. 서명 11-13, 발송 11-14):
-  1. 주최 측 문의 메일 발송(`docs/organizer-inquiry-email.md`, 위치기반서비스 신고 여부 문항 추가 권장) — 발송 기록 없음. 심사용 GitHub 계정명(4번) 답이 와야 2번 가능
-  2. 저장소 접근: 두 저장소가 아직 **PRIVATE**(11-07 확인) → 심사용 계정 초대 또는 공개 전환 + 접근 확인 + 새로 clone해서 빌드되는지 확인
+  1. 주최 측 문의 메일 발송(`docs/organizer-inquiry-email.md`, 11-07 위치기반서비스 신고 문항 12번 추가해 둠) — **장호연이 직접 발송**(발송 기록 없음). 보내기 전 사이트 FAQ·공지에 답이 이미 있는 항목은 지우기. 심사용 GitHub 계정명(4번) 답이 와야 2번 가능
+  2. 저장소 접근: 두 저장소가 아직 **PRIVATE**(11-07 확인) → 심사용 계정 초대 또는 공개 전환 + 접근 확인. 새로 clone 빌드는 11-07 확인(아래 작업 기록)
   3. 시연 영상 촬영(`docs/demo-scenario.md` 순서). 촬영 전에 #37 실제 서버 시드 이름(아직 "시연 지점 (고정 위치 앞 약 400m)", 앱 Fake는 "판교IC 진입로")을 황준용에게 맞춰 달라고 할 것
-  4. 기획서 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 영상, `docs/proposal.md`에 2곳 남음) 채우고 DOCX 재생성
+  4. 기획서 7번 칸 【제출 전 기입】 2곳(GitHub 주소, 영상, `docs/proposal.md`에 2곳 남음) 채우고 DOCX 재생성(11-07 고정 위치 시연 문구는 반영·재생성 완료). 재생성 앱명 인자는 `"크루즈브레이커 (Cruise Breaker)"`
   5. 01 참가신청서(연락처·참가 단위·부문 체크·작성일)·04 서명 칸 → 5명 서명(11-13) → 11-14 메일 2통 발송(전원 CC)
   6. 서명 키 `C:/Users/H/.samgakgorae/samgakgorae-release.jks` **백업**(백업 기록 없음). APK는 11-05 커밋(`1ef69ee`, 마지막 코드 `d9e5e2e` 뒤라 최신). 다시 만들 때 `bash tools/build-release.sh`
   7. 약관(B01): 황준용 답(Supabase 리전·요청 로그)이 오면 `docs/terms-draft.md`와 `ui/TermsText.kt`의 2곳 고치기(판 번호를 바꾸면 AppContainer `termsVersion`도)
   8. 알릴 것: 황준용에게 core v0.5.2 변경(#42/차슐랭 #30) — 확인 코멘트 아직 없음
-  9. 정리(급하지 않음): 머지된 로컬·원격 브랜치(`feat/demo-flow-20261105`, `feat/risk-headsup-20261105`, `feat/announce-foreground-20261105`, `fix/verified-navigation-20261104`) 삭제
+  9. 정리(급하지 않음): 로컬 머지 브랜치는 11-07 삭제함. 원격 머지 브랜치(`feat/demo-flow-20261105`, `feat/risk-headsup-20261105`, `feat/announce-foreground-20261105`, `fix/verified-navigation-20261104`) 삭제는 장호연 확인 뒤
   - 11-07에 끝난 것으로 확인: 두 저장소 `local.properties`에 Supabase 키 있음(이민하 11-04 복사). Supabase 원격 migration은 이민하가 11-04 실제 서버로 시연 흐름을 확인해 적용된 것으로 보이나 `verify.sql`로 직접 확인하지는 않음
 - 막힌 점·질문:
   - GitHub 아이디 확인(11-02 PR로): 이상준 `wklee316`, 황준용 `Aodlf123` → `docs/handoff/README.md`에도 적을 것
@@ -45,6 +45,15 @@
 - 확인 방법: `./gradlew assembleDebug test` / 시연 전체는 `docs/demo-scenario.md` 순서대로 / 신호 모니터는 S2 제목 길게 누르기 → 개발 메뉴 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-07 — 장호연 지시("할 수 있는 작업 전부")로 제출 준비 정리(두 저장소, 문서만 main 직접 push)
+- **새로 clone 빌드 확인**: 두 저장소를 빈 폴더에 새로 clone(`local.properties` 없이 `ANDROID_HOME`만) → `./gradlew assembleDebug assembleRelease test` 성공. 테스트 실패 0 — 차슐랭 app debug·release 각 99, core 32 / 크루즈 app debug·release 각 83, core 32. 키가 없으면 Fake 저장소로 빌드됨(README "소스에서 빌드" 설명과 같음). `tools/sync-core.sh --check` 일치(core 0.5.2)
+- 주최 측 문의 메일에 12번(위치기반서비스사업 신고 필요 여부) 추가, 팀 문서 9절 9번 추가. 두 저장소 `docs/` 사본 + 팀 폴더 원본 `organizer-inquiry-email.md` 맞춤. **발송은 장호연이 직접**
+- 팀 문서 2절 담당 경로에 앱 연결 파일(`AppContainer`·`*App`·`RecordingService`·매니페스트 → 차슐랭 이상준 / 크루즈 이민하) 줄 추가, 10절 체크리스트에 APK·core 일치 체크
+- `docs/handoff/README.md` 담당자 표에 GitHub 아이디 칸 추가(hoyeoni1·Aodlf123·wklee316·minalee22·giljong)
+- 머지 끝난 로컬 브랜치 삭제(`git branch -d`, 머지 안 된 건 지우지 않음). 원격 브랜치는 그대로
+- **PRD 정리**: 11-05 중간 점검 경고를 통과로, 위치 재생 시연 문구(5.1 표·5.6 표·7절 1~2번·PT에서 밝힐 것)를 고정 위치 시연으로, 제출 빌드 데이터 모드 이유(환경부 API → 실제 주행 기록 없음) 고침. 5.4에 앱이 뒤에 있을 때 안내(PR #48·#49) 동작 추가
+- **기획서 수정·DOCX 재생성**: `docs/proposal.md`의 일정 2줄·시연 데이터 안내 1줄에서 경로 재생을 고정 위치로 고치고 DOCX 재생성(앱명 인자 `"크루즈브레이커 (Cruise Breaker)"`). 옛 DOCX와 본문을 비교해 그 3곳만 바뀐 것 확인
 
 ### 2026-11-07 — 최신 상태 점검, "다음 할 일" 갱신(두 저장소, main 직접 push)
 - 장호연 요청("최신 상태 체크 후 남은 작업 보고" → "갱신해 줘"). Claude가 진행, 문서만 바꿈

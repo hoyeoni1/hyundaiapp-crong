@@ -40,6 +40,7 @@ PR 리뷰는 Claude가, 머지는 장호연이 한다(4절 2번). 아래 "같이
 | `tools/`, `apk/`, `README.md` | 장호연 | 황준용 |
 | `hyundaiapp-chachelin` 로직(`data/`, `domain/` 등) | 이상준 | 이민하 |
 | `hyundaiapp-cruisebreaker` 로직 | 이민하 | 이상준 |
+| 앱 연결 파일(`AppContainer`, `ChachelinApp`·`CruiseBreakerApp`, `RecordingService`, 매니페스트) | 차슐랭 이상준 / 크루즈브레이커 이민하(11-02 장호연 승인, 11-07 표에 적음) | 길민종 |
 | 두 앱의 `ui/`, 테마 | 길민종 | 해당 앱 담당(이상준 / 이민하) |
 | `PRD.md`, 기획서 | 장호연 | 해당 앱 담당 |
 
@@ -136,7 +137,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 ## 9. 주최 측 문의 (장호연, 이번 주)
 
-메일 초안: [organizer-inquiry-email.md](organizer-inquiry-email.md) (10-31, 아래 1~7번 + 제출 관련 질문 포함. 11-01 8번 추가 → 메일 11번)
+메일 초안: [organizer-inquiry-email.md](organizer-inquiry-email.md) (10-31, 아래 1~7번 + 제출 관련 질문 포함. 11-01 8번 추가 → 메일 11번, 11-07 9번 추가 → 메일 12번)
 
 1. ~~백그라운드 수집 방법~~ → 에뮬레이터에서 포그라운드 서비스로 해결(크루즈브레이커 `docs/background-freeze-experiment.md`). 대신 물을 것: 포그라운드 서비스(`specialUse`)와 부팅 자동 시작(`RECEIVE_BOOT_COMPLETED`)이 앱마켓 심사에서 허용되는지
 2. 실차에서 크루즈 해제 시 들어오는 `CruiseControlState` 값
@@ -146,14 +147,15 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 6. DO(`distractionOptimized`) 선언만으로 앱마켓 배포본도 주행 중 화면이 허용되는지, 별도 심사 절차가 있는지 (10-30 "adb 설치본 차단" 관찰은 차슐랭 화면을 착각한 것으로 10-31 확인 — 에뮬레이터에서는 DO 선언 앱이 차단되지 않음)
 7. 실차는 시동 off 때 헤드유닛이 완전히 꺼지는지, 절전(suspend)했다가 깨어나는지 — 절전이면 부팅 자동 시작이 안 걸림
 8. 크루즈브레이커 안내 음성(Pleos TTS SDK)용 `pleos.car.permission.TTS_SERVICE` 권한이 앱마켓 심사에서 승인되는지, 별도 신청 절차가 있는지 (11-01 이민하 요청)
+9. 두 앱이 차량 위치를 익명 ID와 함께 서버에 올려 집계해 보여 주는 것에 위치정보법상 위치기반서비스사업 신고가 필요한지 — 공모전 단계와 실제 출시 단계 각각 (11-07 추가 → 메일 12번)
 
 ## 10. 제출 체크리스트 (작품마다)
 
 - [ ] 접수양식: 부문·팀명·앱명, 구성원 5명 정보, 02 파트에 실명·개인정보 없음
 - [ ] 5명 전원 동의 체크 + 본인 서명 + 날짜
-- [ ] GitHub: `apk/SamgakGorae_<영문 앱이름>_release.apk`(release, 서명) — `SamgakGorae_Chachelin_release.apk` / `SamgakGorae_CruiseBreaker_release.apk`. 사이트 규칙 `팀명_앱이름_release.apk`에 맞춰 영문 팀명을 넣는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
+- [x] GitHub: `apk/SamgakGorae_<영문 앱이름>_release.apk`(release, 서명) — `SamgakGorae_Chachelin_release.apk` / `SamgakGorae_CruiseBreaker_release.apk`. 사이트 규칙 `팀명_앱이름_release.apk`에 맞춰 영문 팀명을 넣는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
   - 만들기: 저장소 루트에서 `bash tools/build-release.sh`(서버 키·시연 데이터 모드·서명을 확인한 뒤 위 이름으로 복사). 서명 키는 저장소 밖 장호연 PC `C:/Users/H/.samgakgorae/`(11-03 생성, 백업 필수), 경로·비밀번호는 각 저장소 `local.properties`의 `release.*`
-- [ ] 두 저장소 `core` 일치 확인(`tools/sync-core.sh ../CruiseBreaker --check`), 저장소를 새로 clone해서 빌드되는지 확인
+- [x] 두 저장소 `core` 일치 확인(`tools/sync-core.sh ../CruiseBreaker --check`), 저장소를 새로 clone해서 빌드되는지 확인
 - [ ] 심사용 계정 초대 + 접근 확인
 - [ ] 시연 영상 링크
 - [ ] 메일: 대표자(장호연) 주소에서 발송, 제목에 앱명, 팀원 전원 CC, 전체 첨부

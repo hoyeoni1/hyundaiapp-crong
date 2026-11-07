@@ -40,13 +40,13 @@
 
 ## 담당자 파일
 
-| 파일 | 담당 | 주 영역 |
-|---|---|---|
-| `jang-hoyeon.md` | 장호연 (팀장) | 기획·제출, `tools/`, 릴리스, 전체 기반 |
-| `hwang-junyong.md` | 황준용 | `core/`, 서버 |
-| `lee-sangjun.md` | 이상준 | 차슐랭 로직 |
-| `lee-minha.md` | 이민하 | 크루즈브레이커 로직 |
-| `gil-minjong.md` | 길민종 | 두 앱 UI |
+| 파일 | 담당 | GitHub | 주 영역 |
+|---|---|---|---|
+| `jang-hoyeon.md` | 장호연 (팀장) | `hoyeoni1` | 기획·제출, `tools/`, 릴리스, 전체 기반 |
+| `hwang-junyong.md` | 황준용 | `Aodlf123` | `core/`, 서버 |
+| `lee-sangjun.md` | 이상준 | `wklee316` | 차슐랭 로직 |
+| `lee-minha.md` | 이민하 | `minalee22` | 크루즈브레이커 로직 |
+| `gil-minjong.md` | 길민종 | `giljong` | 두 앱 UI |
 
 저장소에 내 파일이 없으면 처음 작업할 때 위 양식으로 만든다.
 
