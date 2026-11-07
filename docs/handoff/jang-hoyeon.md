@@ -47,6 +47,15 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-07 — S5 첫 실행 동의 글 줄이기(브랜치 `fix/s5-concise-20261107`)
+- 장호연 요청("화면에 글이 너무 많으니 핵심만"). Claude가 작업. `ui/onboarding/OnboardingScreen.kt`(길민종 경로)만 고침
+- 왼쪽 소개: 저장 방식 문장(150m 구간·시간 단위)을 빼고 "시동을 걸면 자동으로 기록해요. / 설정에서 끌 수 있어요."만(굵은 글씨 → 보조색). 저장 방식은 [내용 보기] 약관(`TermsText`)에 그대로 있음
+- 차속 권한 설명 4줄 → "저속 해제를 거르는 데 써요. 다음 창엔 '위치 정보'로 보여요."(요청 전 이유 설명은 PRD 8 리스크 대응이라 유지)
+- 알림 설명 2줄 → "기록 중임을 알림으로 보여 줘요."
+- 아래 고지 → "보조 안내예요. 항상 직접 도로를 살피세요."(#25 결정으로 고지 자체는 유지, 책임 제한은 약관 4절)
+- 확인: `assembleDebug test :app:lintDebug` 통과, 에뮬레이터 S5 캡처(`screenshots-2026-11-07/fix-09-s5-concise.png`). 설정 → 동의 재열람 화면도 같은 컴포저블
+- 머지 뒤: release APK 재빌드·`apk/` 재커밋. **알릴 것**: 길민종(OnboardingScreen 문구)
+
 ### 2026-11-07 — 리허설 후속 PR #50 머지(→ 9d0639c) + release APK 재커밋
 - 장호연 지시("네, 머지해줘")로 Claude가 진행. 충돌 없음, merge commit. 브랜치 `fix/rehearsal-20261107` 삭제
 - 머지된 main에서 `bash tools/build-release.sh` → `apk/SamgakGorae_CruiseBreaker_release.apk` 다시 커밋(시연 데이터 모드, 서명). `aapt`로 아이콘 포함 확인, 에뮬레이터 설치·실행 크래시 0, 독에 새 아이콘 표시
