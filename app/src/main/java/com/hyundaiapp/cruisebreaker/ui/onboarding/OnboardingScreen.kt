@@ -14,6 +14,7 @@ import androidx.compose.material3.Surface
 import com.hyundaiapp.cruisebreaker.ui.components.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyundaiapp.cruisebreaker.ui.OnboardingUiState
@@ -70,7 +71,8 @@ fun OnboardingScreen(
                     state.speedPermissionGranted,
                     onRequestSpeedPermission,
                     // 요청 전에 이유를 먼저 보여 준다(PRD 8: AAOS가 "위치 정보" 창으로 띄움)
-                    description = "저속 해제를 거르는 데 써요. 다음 창엔 '위치 정보'로 보여요.",
+                    description = "거절해도 주행 기록은 계속돼요.\n" +
+                        "저속 해제를 거르는 데 써요. 다음 창엔 '위치 정보'로 보여요.",
                     agreeLabel = "권한 요청",
                     agreedLabel = "허용됨",
                 )
@@ -90,8 +92,8 @@ fun OnboardingScreen(
             Text(
                 // 보조 안내 고지는 남긴다(#25 결정: 오류 알림 대신 S5 고지 + 약관 4절 책임 제한)
                 "보조 안내예요. 항상 직접 도로를 살피세요.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = CarColors.OnSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = CarColors.OnSurface,
                 modifier = Modifier.fillMaxWidth(),
             )
             if (reviewingConsent) SecondaryButton("설정으로 돌아가기", onBack, Modifier.fillMaxWidth())
