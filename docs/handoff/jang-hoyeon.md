@@ -44,6 +44,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-09 — release APK 재빌드 + 홈 흐름 리허설(장호연 "네, 지금 해 줘")
+- main `197eabb`(#39·#41 포함)에서 `bash tools/build-release.sh` → `apk/SamgakGorae_Chachelin_release.apk`(24M, 시연 데이터 모드, 서명) 커밋
+- 에뮬레이터 `Pleos_Connect_2_1_0`, release 설치·`pm clear` 후 실제 서버로 `docs/demo-scenario.md` 순서: S7 동의 → **홈**(막대·카드 정상) → [근처 충전소] S1 → 시흥동 S2 → `success`: S3(막대 숨김) → S4 → 5점·빠름·대기 없음 → S2 인증 44→45 → `fail`: S5 → [닫기] S2 7일 실패 6→7 → 막대 [내 기록] S6 인증·실패 2건 → 막대 [홈] "2건"·최근 기록 줄. 모두 통과. 4단계 길안내는 변경 없어 생략
+- 본 것(버그 아님): ① S1 점수가 대부분 3.5·3.4로 비슷 → 11-09 별점 분포 migration이 원격에 아직 안 들어감(황준용 적용 대기). 적용 뒤 영상 촬영 ② 홈(루트)에도 왼쪽 위 [<]가 있어 누르면 앱이 닫힘 — 의도대로지만 길민종에게 숨길지 물어볼 것 ③ 리허설 기록(시흥동 인증 1·실패 1)이 서버에 남음 → 촬영 전 `server/supabase/clear-rehearsal-data.sql`
+- `docs/demo-scenario.md` 머리 메모를 "리허설 통과"로 고침
+
 ### 2026-11-09 — 열린 PR 충돌 확인(코멘트·수정 없음)
 - 차슐랭 #37(head `0fb9904`) `CONFLICTING`: #39 머지 뒤 새 커밋 없음. 충돌은 `ui/ChachelinNav.kt` 2곳(`LaunchedEffect(openCharging)` 자리, `ScreenContent` 구조로 옮길 S1 알림 버튼·S3/S4 `showDemoValues`)과 `docs/handoff/gil-minjong.md`. 장호연 결정: **길민종이 풀 때까지 기다림**(할 일은 PR 코멘트에 있음)
 - 크루즈 #54 `MERGEABLE`, head `7e5b01a`(리뷰 코멘트에 적힌 `69fde5e` 뒤 캐시 3줄 커밋). 제출 뒤 머지할 때 이 커밋까지 재확인
