@@ -44,6 +44,10 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-09 — tools PR 머지(장호연 "네, 머지")
+- 차슐랭 #43 → main `3cdc4a7`, 크루즈브레이커 #55 → main `ed73f19`(merge commit, 원격 브랜치 삭제). 두 저장소 tools 일치 확인(`sync-core.sh --check`: core 0.5.2)
+- 이제 main의 `tools/build-proposal-docx.py`가 그림을 넣는다. DOCX 재생성 명령은 그대로. 남은 것: DOCX Word 렌더링 확인(장호연), 별점 분포 migration 적용 후 차슐랭 S1·S2 재촬영
+
 ### 2026-11-09 — 기획서 DOCX 화면 캡처 삽입(A-7, 장호연 "네, 캡처 촬영")
 - 제출 release APK(11-09 빌드)를 에뮬레이터에 설치·`pm clear` 후 `docs/demo-scenario.md` 순서로 실행하며 캡처(원본 2560×1440은 팀 폴더 `screenshots-2026-11-09/`). 앱 영역(853,90)~(2560,1300)만 잘라 1280px 폭 PNG로 `docs/images/`에 저장: 차슐랭 8장(S7·홈·S1·S2·S3·S4·S5·S6), 크루즈 5장(S5·S2·S1 평소·S1 배너·S3)
 - `tools/build-proposal-docx.py`에 `![설명](images/파일.png)` 그림 삽입 지원 추가(PNG, 칸 너비 맞춤, 설명은 아래 작은 글씨, rels·content-type 자동). **tools/는 PR 규칙** → 브랜치로 올려 장호연 머지 필요. 크루즈브레이커에는 `sync-core.sh`로 맞춤
