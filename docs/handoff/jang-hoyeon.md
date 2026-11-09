@@ -44,6 +44,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-09 — #39 후속: 시연 시나리오·PRD를 홈 시작 화면에 맞춤(장호연 "네, 고쳐 줘")
+- 머지된 main 코드(`ChachelinNav.kt`·`HomeScreen.kt`)로 실제 흐름 확인 후 main 직접 push `4a7b6d1`: `docs/demo-scenario.md`(머리 갱신 메모, 준비 6, 1·2·11단계, 복구 표 S4 행, 빌드 메모: 시작 화면 홈·개발 메뉴는 홈 "차슐랭" 또는 S1 제목 길게 누르기), `PRD.md`(5.4에 홈 행·S7 설정 재진입, 7절 1번, 211행)
+- 충전 흐름 뒤 돌아가는 화면은 그대로(S4 [평가 보내기]·S5 [닫기] → S2)라 6~10단계는 그대로 둠
+- `tools/demo-charge.sh` 전제 주석 한 줄은 `tools/` PR 규칙대로 차슐랭 PR #41(`docs/demo-charge-home-comment`)로 올림 — 장호연 머지 필요
+- 남은 것: release APK 재빌드(`bash tools/build-release.sh`) → 새 흐름으로 에뮬레이터 리허설. #37이 다시 올라와 머지되면 한 번 더
+
 ### 2026-11-09 — 차슐랭 #39 머지(장호연 "네, #39 먼저")
 - 순서 결정: #39·#37을 두 순서로 시험 머지 → 어느 쪽이든 `ui/ChachelinNav.kt` 2곳·`docs/handoff/gil-minjong.md` 충돌. #39(화면 구조를 `ScreenContent`+전환 애니메이션으로 바꿈)가 커서 먼저 넣고 #37을 그 위에 맞추기로 함. 버튼 `충전 알림 켜기`는 S1이 아니라 새 홈에 두기로 함
 - #39 헤드 `d8e886d`(리뷰한 #40 머지) 그대로 확인 후 merge commit → main `16547de`. 길민종 `ui/` 수정은 장호연 결정으로 허용(길민종에게 알릴 것). 머지 후 main `assembleDebug test` 통과
