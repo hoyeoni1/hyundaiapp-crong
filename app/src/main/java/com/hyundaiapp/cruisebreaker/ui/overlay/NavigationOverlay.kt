@@ -36,6 +36,7 @@ class NavigationOverlay(
     private val handler = Handler(Looper.getMainLooper())
     private var recording = false
     private var scope: CoroutineScope? = null
+    private var nearby: NearbyCards? = null
     private var dataJob: Job? = null
     private var state = NearbyCardState()
     private var foreground = false
@@ -98,6 +99,7 @@ class NavigationOverlay(
         scope = null
         current.cancel()
         stopData()
+        nearby = null
         contentPolicy.reset()
         ops.stopWatchingMode(permissionChanges)
         ux.stop()
@@ -147,9 +149,9 @@ class NavigationOverlay(
             return
         }
         if (dataJob == null) {
+            val source = nearby ?: NearbyCards(signals, repository).also { nearby = it }
             dataJob = current.launch {
                 coroutineScope {
-                    val source = NearbyCards(signals, repository)
                     source.start(this)
                     source.state.collect { state = it; render() }
                 }
