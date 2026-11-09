@@ -137,7 +137,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 ## 9. 주최 측 문의 (장호연, 이번 주)
 
-메일 초안: [organizer-inquiry-email.md](organizer-inquiry-email.md) (10-31 작성, **11-07 최종 점검**: 공식 사이트·FAQ·공지·Pleos 문서와 대조해 10문항으로 정리. **11-09 다시 점검: 심사용 계정 문항을 다시 넣고, 10-28 설명회 녹취(`docs/transcript.txt`)에 답이 있는 것(두 작품 제출·퍼미션 사전 협의)과 지금 필요 없는 것(위치기반서비스·탑재 차종)을 빼 7문항, 이어 제출 안내 "제출 전 확인해 주세요"에 답이 있는 APK 경로 문항도 빼 6문항** — 제출 2 + 출시 준비 4. 대응표는 메일 초안 문서에 있음)
+메일 초안: [organizer-inquiry-email.md](organizer-inquiry-email.md) (10-31 작성, **11-07 최종 점검**: 공식 사이트·FAQ·공지·Pleos 문서와 대조해 10문항으로 정리. **11-09 다시 점검: 심사용 계정 문항을 다시 넣고, 10-28 설명회 녹취(`docs/transcript.txt`)에 답이 있는 것(두 작품 제출·퍼미션 사전 협의)과 지금 필요 없는 것(위치기반서비스·탑재 차종)을 빼 7문항, 이어 제출 안내 "제출 전 확인해 주세요"에 답이 있는 APK 경로 문항도 빼 6문항** — 제출 2 + 출시 준비 4. 대응표는 메일 초안 문서에 있음). **11-09 장호연 발송: 제출 1·2번만, 답 대기. 출시 준비 4문항은 1차 합격 뒤 발송**
 
 1. ~~백그라운드 수집 방법~~ → 에뮬레이터에서 포그라운드 서비스로 해결(크루즈브레이커 `docs/background-freeze-experiment.md`). 대신 물을 것: 포그라운드 서비스(`specialUse`)와 부팅 자동 시작(`RECEIVE_BOOT_COMPLETED`)이 앱마켓 심사에서 허용되는지
 2. 실차에서 크루즈 해제 시 들어오는 `CruiseControlState` 값
