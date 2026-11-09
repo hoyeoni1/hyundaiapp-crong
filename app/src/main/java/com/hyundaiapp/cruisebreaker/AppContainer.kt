@@ -72,7 +72,7 @@ class AppContainer(context: Context) {
     val trips = TripTracker(signals)
     val tripStats = TripStats()
     val announcer = RiskAnnouncer(rules)
-    val overlay by lazy { com.hyundaiapp.cruisebreaker.ui.overlay.NavigationOverlay(appContext, prefs, signals, risks, announcer) }
+    val overlay by lazy { com.hyundaiapp.cruisebreaker.ui.overlay.NavigationOverlay(appContext, prefs, signals, risks) }
 
     /** 동의 철회 때 서버 기록 삭제. 앱 수명 동안 돈다(기록이 멈춰도 삭제는 끝까지 보냄) */
     private val deletions = PendingDeletions(prefs, events, onFailure = { Log.w(TAG, "server delete failed, retrying: $it") })
@@ -143,13 +143,13 @@ class AppContainer(context: Context) {
         scope.launch {
             announcer.announcements.collect { announcement ->
                 Log.i(TAG, "announce ${announcement.risk.key} ${announcement.bannerText}")
-                if (appVisible.value || overlay.isShowing()) return@collect
+                if (appVisible.value) return@collect
                 // 뒤에 있으면 주행 화면(큰 배너)을 앞으로 올린다. 플랫폼이 막아 올라오지 않으면 헤드업 알림으로 대신한다
                 autoRaised.set(true)
                 riskNotification.bringToFront()
                 launch {
                     delay(RAISE_WAIT_MS)
-                    if (!appVisible.value && !overlay.isShowing()) riskNotification.show(announcement, rules.bannerMs)
+                    if (!appVisible.value) riskNotification.show(announcement, rules.bannerMs)
                 }
             }
         }

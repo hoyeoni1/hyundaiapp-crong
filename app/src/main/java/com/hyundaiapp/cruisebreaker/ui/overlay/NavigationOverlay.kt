@@ -19,7 +19,6 @@ import android.widget.TextView
 import com.hyundaiapp.core.VehicleSignals
 import com.hyundaiapp.cruisebreaker.data.AppPrefs
 import com.hyundaiapp.cruisebreaker.data.SegmentRiskRepository
-import com.hyundaiapp.cruisebreaker.domain.RiskAnnouncer
 import com.hyundaiapp.cruisebreaker.ui.CarUxRestrictionSource
 import kotlinx.coroutines.*
 import java.util.Locale
@@ -31,11 +30,11 @@ class NavigationOverlay(
     private val appPrefs: AppPrefs,
     private val signals: VehicleSignals,
     private val repository: SegmentRiskRepository,
-    private val announcer: RiskAnnouncer,
 ) {
     private val prefs = OverlayPrefs(context)
     private val wm = context.getSystemService(WindowManager::class.java)
     private val handler = Handler(Looper.getMainLooper())
+    private var recording = false
     private var scope: CoroutineScope? = null
     private var dataJob: Job? = null
     private var state = NearbyCardState()
@@ -57,39 +56,53 @@ class NavigationOverlay(
         onChanged = { restricted = it; reconcile() },
         onDetails = { limits = OverlayLimits.from(it) },
     )
-    private val changes = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> reconcile() }
+    private val changes = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == null || key == "overlay_enabled") syncEnabled() else reconcile()
+    }
     private val ops = context.getSystemService(AppOpsManager::class.java)
     private val permissionChanges = AppOpsManager.OnOpChangedListener { _, packageName ->
         if (packageName == null || packageName == context.packageName) handler.post { reconcile() }
     }
 
     fun start() {
+        if (recording) return
+        recording = true
+        prefs.storage.registerOnSharedPreferenceChangeListener(changes)
+        syncEnabled()
+    }
+
+    private fun syncEnabled() {
+        if (!recording || !appPrefs.onboarded || !prefs.enabled) {
+            deactivate()
+            return
+        }
         if (scope != null) return
         val current = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         scope = current
-        prefs.storage.registerOnSharedPreferenceChangeListener(changes)
         ops.startWatchingMode(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, context.packageName, permissionChanges)
         ux.start()
         current.launch { signals.drive.collect { reconcile() } }
         current.launch { signals.sources.collect { reconcile() } }
-        current.launch { announcer.current.collect { reconcile() } }
         current.launch { while (isActive) { reconcile(); delay(1_000) } }
     }
 
     fun stop() {
-        scope?.cancel()
-        scope = null
-        dataJob = null
-        state = NearbyCardState()
-        contentPolicy.reset()
+        if (!recording) return
+        recording = false
         prefs.storage.unregisterOnSharedPreferenceChangeListener(changes)
+        deactivate()
+    }
+
+    private fun deactivate() {
+        val current = scope ?: return
+        scope = null
+        current.cancel()
+        stopData()
+        contentPolicy.reset()
         ops.stopWatchingMode(permissionChanges)
         ux.stop()
         remove()
     }
-
-    /** Recheck permission and platform restrictions before suppressing the existing foreground/HUN fallback. */
-    fun isShowing(): Boolean { reconcile(); return card != null }
 
     fun setForeground(value: Boolean) { foreground = value; reconcile() }
 
@@ -120,13 +133,21 @@ class NavigationOverlay(
     private fun movable() = overlayMovementAllowed(signals.drive.value, restricted, signals.sources.value.vehicle)
 
     private fun reconcile() {
-        val current = scope
-        val enabled = current != null && appPrefs.onboarded && prefs.enabled && Settings.canDrawOverlays(context)
-        if (!enabled) {
-            dataJob?.cancel(); dataJob = null; state = NearbyCardState(); remove(); return
+        val current = scope ?: return
+        // 카드에는 여러 줄이 있으므로 P단·정차·제한 해제가 확인된 동안만 표시하고 조회한다.
+        if (foreground || !movable() || !Settings.canDrawOverlays(context) || area() == null || limits?.canDisplay != true) {
+            stopData()
+            remove()
+            return
+        }
+        if (card == null) attach()
+        layout()
+        if (card == null) {
+            stopData()
+            return
         }
         if (dataJob == null) {
-            dataJob = current!!.launch {
+            dataJob = current.launch {
                 coroutineScope {
                     val source = NearbyCards(signals, repository)
                     source.start(this)
@@ -134,11 +155,14 @@ class NavigationOverlay(
                 }
             }
         }
-        if (foreground || area() == null || limits?.canDisplay != true) { remove(); return }
-        if (!movable()) cancelDrag()
-        if (card == null) attach()
-        layout()
         render()
+    }
+
+    private fun stopData() {
+        val job = dataJob ?: return
+        dataJob = null
+        job.cancel()
+        state = NearbyCardState()
     }
 
     @SuppressLint("ClickableViewAccessibility", "RtlHardcoded") // 절대 화면 좌표로 배치하므로 LEFT 사용
@@ -195,11 +219,10 @@ class NavigationOverlay(
 
     private fun render() {
         val view = card ?: return
-        val highlight = announcer.current.value?.risk?.key?.toString()
         val currentLimits = limits ?: return
         val rows = contentPolicy.rows(state.rows, currentLimits)
-        val display = if (rows.isEmpty() && state.rows.isNotEmpty()) NearbyCardState("주행 중 목록 표시 제한") else state.copy(rows = rows)
-        val rendered = Triple(display to highlight, currentLimits, movable())
+        val display = state.copy(rows = rows)
+        val rendered = display to currentLimits
         if (rendered == lastRendered) return
         lastRendered = rendered
         view.removeAllViews()
@@ -217,16 +240,15 @@ class NavigationOverlay(
             val label = if (distance < 1000) "${distance.roundToInt()}m" else String.format(Locale.KOREA, "%.1fkm", distance / 1000)
             // 거리/해제율을 고정 폭으로 확보해 긴 구간 이름이 수치를 밀어내지 않게 한다.
             val strip = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, dp(4), 0, dp(4)) }
-            val color = if (row.id == highlight) 0xffffb020.toInt() else Color.WHITE
             fun cell(value: String, width: Int, weight: Float = 0f) {
                 strip.addView(TextView(context).apply {
-                    text = limitedOverlayText(value, currentLimits.maxStringLength); textSize = 23f; setTextColor(color); isSingleLine = true; ellipsize = TextUtils.TruncateAt.END
+                    text = limitedOverlayText(value, currentLimits.maxStringLength); textSize = 23f; setTextColor(Color.WHITE); isSingleLine = true; ellipsize = TextUtils.TruncateAt.END
                 }, LinearLayout.LayoutParams(width, LinearLayout.LayoutParams.WRAP_CONTENT, weight))
             }
             cell(label, dp(90)); cell(row.roadName, 0, 1f); cell("${(row.rate * 100).roundToInt()}%", dp(64))
             view.addView(strip)
         }
-        line(if (movable()) "직선거리 · P단에서 길게 눌러 이동" else "직선거리 기준 · 이동 잠김", 18f, Color.LTGRAY)
+        line("직선거리 · 길게 눌러 이동", 18f, Color.LTGRAY)
     }
 
     private fun touch(event: MotionEvent): Boolean {

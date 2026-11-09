@@ -79,7 +79,7 @@ internal fun OverlaySettings(
     onReset: () -> Unit,
 ) {
     ToggleSetting("내비 위 목록 카드", enabled, onEnabledChange,
-        "가까운 구간을 최대 3개 표시해요. 정차 중 길게 눌러 위치를 옮길 수 있어요.")
+        "P단 정차 중 가까운 구간을 최대 3개 표시해요. 길게 누르면 위치를 옮길 수 있어요.")
     if (enabled && !granted) {
         Text(if (unavailable) "Pleos 설정 → 앱 → 크루즈브레이커에서 ‘다른 앱 위에 표시’를 켜 주세요." else "‘다른 앱 위에 표시’ 권한을 허용한 뒤 앱으로 돌아와 주세요.")
         TextButton(onClick = onPermission, modifier = Modifier.heightIn(min = 64.dp)) { Text("표시 권한 설정") }
