@@ -2,20 +2,24 @@
 
 담당 경로: `core/`(복사본 — 수정은 차슐랭에서), 서버, `app/.../data/` 실제 구현
 
-## 현재 상태 (2026-11-03 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-09 기준, 매번 덮어쓰기)
 
-- 브랜치: `codex/supabase-foundation-20261102`. 서버 원본은 차슐랭 `server/`. 이전 SDK 진단 PR(차슐랭 #4/크루즈 #14)과 충전 PR #3은 팀장이 main에 반영한 상태다. 이번 PR은 서버·제품 backend 연결과 문서다.
-- 최신 main을 양쪽 로컬 브랜치에 병합했다(차슐랭 778b7c5 / 크루즈 9f873fb 기준). 최신 화면·알림·삭제 재시도를 보존하고, 크루즈 AppContainer 충돌은 영속 철회와 PendingDeletions를 함께 유지하도록 해결했다.
-- Supabase 두 migration 및 CLI 이력 정합 완료. 이번 최종 검사는 읽기/드라이런만 실행: RLS 9개, authenticated 전용 RPC 11개, 시드 10/300/400/2000, 함수 fingerprint 일치. 대기 migration 없음. SQL/시드는 다시 적용하지 않았다.
-- core v0.5.1: HTTPS 익명 인증·갱신, Keystore AES-GCM/noBackup 영속 상태, FIFO outbox, 세대별 철회 재시도와 서버 ACK 대기를 제공한다. CAR_INFO 미선언 getter 제거(#9), 선택적 내비 요청/취소는 런타임 권한 확인 후 실행한다. 두 core는 동일하다.
-- 두 앱 실제 저장소 연결: 공개 URL/키 설정 시 Supabase, 설정 없으면 Fake. debug는 DEMO, release는 LIVE. deleteMine은 서버 삭제 ACK 후에만 성공하여 PendingDeletions를 지우게 했다. 새 회귀 테스트로 오프라인 삭제 대기·실패 재시도·ACK 완료를 검증한다.
-- 최종 통합 검증: debug/release 앱 빌드 및 앱 테스트 각68, core debug29/release15(backend12) 통과. app lint 오류0/경고19, core lint 오류0/경고3. 로컬 DB 테스트15(차슐랭 원본) 및 공통 파일 일치 검사 통과.
-- PR: [차슐랭 #10](https://github.com/hoyeoni1/hyundaiapp-chachelin/pull/10) / [크루즈 #22](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/22). 최종 문서·검증 결과 포함, 원격 main은 직접 머지하지 않는다.
-- 상세 서버 설명은 `docs/server-overview.md`: 구조·테이블·11 RPC·인증/RLS·재전송/철회·시드·운영/검증·남은 한계. `server/README.md`와 연결/설계 문서, docs/README 및 이 인수인계를 최신화했다.
-- 실제 JWT HTTP 통합 검사와 양쪽 Pleos debug fixture(HTTPS·Keystore 복원·영속 outbox·철회 ACK)는 이전 연결 단계에서 통과했다. 이번 최신 main 통합 후 전체 SDK 주입/UI 시연은 재검사 전이다.
-- 남은 일: 전체 제품 시연, WorkManager, 철회 대기 UI, 영속 읽기 캐시, 환경부 API 캐시, 약관/보관 정책 확정. 원격 main 머지와 최종 배포는 팀장 장호연이 한다.
+- 서버·앱 연결과 공개 설정 공유는 main에 반영됐고 두 앱의 서명 release APK가 준비됐다. core는 양쪽 모두 v0.5.2이며 동일 소스를 확인했다.
+- 실제 프로젝트 주 리전은 호주 시드니(ap-southeast-2), ACTIVE_HEALTHY다. 약관용 로그 근거와 확인 한계는 차슐랭 server/review-20261109.md에 정리했다. 기본 API/DB 로그 보관은 공식 Free 요금표상 1일이며 플랫폼 전체 삭제 보장과 구분한다.
+- 원격 DB는 기존 4개 migration, 충전 시드325·충전소10·해제400·통과2000이다. 11-07 시드 이름 변경은 원격 dry-run에서 대기를 확인했다.
+- PR #36의 이름 변경과 리허설 정리 SQL을 검토했다. 촬영 전 업로드를 모두 처리하고 기록을 중지한 뒤 정리한다. 이번 점검에서는 원격 정리 SQL을 실행하지 않았다.
+- 신규 20261109000100 migration으로 원래 시드 리뷰233건을 재배분했다. 평균 별점 약3.2~4.3, st-004 별점1위/점수최하위를 유지한다. 충전325건과 실제 앱 리뷰를 유지한다. 코드/로컬 검증 단계이며 원격 적용은 PR 검토 뒤 진행한다.
+- 로컬 DB20 테스트와 core debug32 테스트 통과. Android Keystore 손상 재현이나 최신 전체 UI 리허설은 이번 점검 범위에 포함하지 않았다.
+- 다음은 새 migration 리뷰/원격 적용, 실제 요청 로그 열람 또는 공급자 확인, 약관 본문과 판 번호의 대표자 확정이다. core 손상 초기화는 전송·철회 대기 복구 한계가 있으므로 확인 기록을 참고한다.
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-09 — 서버 피드백 검토와 별점 분포 조정
+- PR #36의 시드 이름 변경/리허설 정리 SQL을 읽고 기존 회귀 테스트20개를 실행했다. 이름 migration은 원격 대기 상태다.
+- 새 migration으로 시드 리뷰 평균을 10개 값으로 분산했다. 같은 날 재실행·날짜 갱신, 실제 리뷰/세션 보존, 불완전 시드 중단을 확인했다.
+- CLI 프로젝트 메타데이터에서 ap-southeast-2(시드니)를 확인하고 관리 세션 DB 로그 설정을 조회했다. 공식 로그 필드·보관·리전 외 처리 문서와 코드의 POST 본문 전송을 대조했다.
+- core v0.5.2 변경과 양쪽 소스 일치를 확인하고 core debug32 테스트 통과. 복호화 실패 시 상태 손실/로그 표시의 한계를 확인 기록에 적었다.
+- 상세는 차슐랭 server/review-20261109.md다.
 
 ### 2026-11-03 — 장호연이 이 PR 브랜치에 남은 수정을 이어서 반영(황준용 작업 대신)
 - 장호연 지시("다 진행해줘, 내가 팀장이니 내가 진행할게", Claude 에이전트가 작업). 황준용은 이 브랜치를 **pull한 뒤** 이어서 작업할 것
