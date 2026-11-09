@@ -40,6 +40,31 @@ class NearbyCardsTest {
         assertEquals(1, repo.calls)
     }
 
+    @Test fun `reopening the card reuses valid cached rows with the latest location`() = runTest {
+        val signals = FakeVehicleSignals().apply {
+            location.value = LocationState(origin, 0.0, receivedAtMs = 0)
+        }
+        val repo = Repo(listOf(risk(.001, "one"), risk(.003, "two")))
+        val model = NearbyCards(signals, repo) { testScheduler.currentTime }
+        val firstOwner = CoroutineScope(backgroundScope.coroutineContext + Job(backgroundScope.coroutineContext[Job]))
+        model.start(firstOwner)
+        runCurrent()
+        assertEquals(listOf("one", "two"), model.state.value.rows.map { it.roadName })
+        assertEquals(1, repo.calls)
+
+        firstOwner.cancel()
+        // Wait longer than the retry delay while keeping the cached result valid.
+        advanceTimeBy(11_000)
+        signals.location.value = LocationState(
+            GeoPoint(origin.latitude + .0027, origin.longitude), 0.0, receivedAtMs = testScheduler.currentTime,
+        )
+        model.start(backgroundScope)
+        runCurrent()
+
+        assertEquals(listOf("two", "one"), model.state.value.rows.map { it.roadName })
+        assertEquals(1, repo.calls)
+    }
+
     @Test fun `missing or expired location hides numeric distances and does not use fallback`() = runTest {
         val signals = FakeVehicleSignals().apply { location.value = null }
         val repo = Repo(listOf(risk(.001, "one")))
