@@ -44,6 +44,10 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-09 — 열린 PR 충돌 확인(코멘트·수정 없음)
+- 차슐랭 #37(head `0fb9904`) `CONFLICTING`: #39 머지 뒤 새 커밋 없음. 충돌은 `ui/ChachelinNav.kt` 2곳(`LaunchedEffect(openCharging)` 자리, `ScreenContent` 구조로 옮길 S1 알림 버튼·S3/S4 `showDemoValues`)과 `docs/handoff/gil-minjong.md`. 장호연 결정: **길민종이 풀 때까지 기다림**(할 일은 PR 코멘트에 있음)
+- 크루즈 #54 `MERGEABLE`, head `7e5b01a`(리뷰 코멘트에 적힌 `69fde5e` 뒤 캐시 3줄 커밋). 제출 뒤 머지할 때 이 커밋까지 재확인
+
 ### 2026-11-09 — 차슐랭 #41 머지(장호연 "네, 머지해 줘")
 - `tools/demo-charge.sh` 전제 주석(S1 → 홈) 한 줄. 헤드 `e02d4bd` 확인 후 merge commit → main `197eabb`, 브랜치 삭제. 주석만이라 빌드 영향 없음
 
