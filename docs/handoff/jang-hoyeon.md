@@ -44,6 +44,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-09 — 팀 시연 리허설(release APK, 시나리오 1~7단계 통과) + 권한 순서 메모
+- 장호연 요청("크루즈브레이커 시나리오 시작"). 설치된 release APK로 `pm clear` 후 S5부터 `docs/demo-scenario.md` 순서대로 Claude가 adb·`demo-drive.sh`로 진행. 내비를 앞에 두고 스크립트 → S1이 내비 위로 올라와 배너 "500m 앞 크루즈 해제 잦은 구간" + 음성(로그 `speak`), 10초 뒤 내비 복귀, 정차(P) 후 S3 "안내 1회 · 안내한 구간 1곳 · 내가 보탠 기록 1건", [해제 다발 구간 목록으로] → S2. 로그 `disengage … speed=90.0` 1건, 40 km/h 해제 기록 없음
+- **첫 시도는 어긋남**: `pm clear` → 앱 실행(S5 동의) → 스크립트가 `pm grant CAR_SPEED` 순서라 앱이 차속을 못 받아(`speed=null`) 해제 3건이 모두 기록되고 S3에 "내가 보탠 기록 3건". 앱을 `force-stop` 후 다시 켜니 정상. 시나리오 0-5에 "pm clear 직후 pm grant 먼저(또는 S5 [권한 요청] 허용)"를 적음. 그 3건은 서버 시연 데이터에 남아 있음(해제율 표시는 시드가 커서 40% 그대로)
+- 메모: `demo-drive.sh`도 `ADB=/e/Android/Sdk/platform-tools/adb.exe` 필요. 볼륨은 `adb shell cmd media_session volume --stream 3 --set 12`. 캡처는 팀 폴더 `screenshots-2026-11-09/cb-*.png`
+
+
 ### 2026-11-09 — 열린 PR 최종 체크(#54)
 - 장호연 요청("PR 최종 체크"). #54 head `a1e82a5`는 마지막 리뷰(❓, 11-15 제출 뒤 머지 권고)와 같음. 이민하 확인 코멘트 아직 없음
 - 현재 main(`08cde35`, #55 tools·문서 포함)에 테스트 머지 → 충돌 없음, `assembleDebug test` 통과(app debug·release 95, core 32·18, 실패 0)

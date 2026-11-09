@@ -11,7 +11,7 @@
 | 2 | `local.properties`에 Supabase 공개 키 2줄(`supabase-public.properties` 복사). 없으면 Fake 서버로 돌아가며 흐름은 같다 | 앱 로그 `SupabaseSync: connected` |
 | 3 | Git Bash에서 `bash tools/vconsole.sh up` (하트비트 시작). **파이프(`\| tail`)로 받지 말 것** | `준비 완료` |
 | 4 | `bash tools/demo-drive.sh reset` → 기어 P, 차속 0, 브레이크 0, 크루즈 대기 | 콘솔 200 ×5 |
-| 5 | 처음 보여 줄 때는 앱 데이터를 지운다: `adb shell pm clear --user 10 com.hyundaiapp.cruisebreaker` | 앱을 켜면 S5 동의 화면 |
+| 5 | 처음 보여 줄 때는 앱 데이터를 지운다: `adb shell pm clear --user 10 com.hyundaiapp.cruisebreaker`. **지운 직후 차속 권한을 먼저 준다**: `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED`(또는 S5에서 [권한 요청] → 허용). 앱을 켠 뒤에 스크립트가 권한을 주면 앱을 다시 켜기 전까지 차속이 비어 40 km/h 해제도 기록된다(11-09 리허설: S3 "내가 보탠 기록 3건") | 앱을 켜면 S5 동의 화면 |
 | 6 | 소리: 에뮬레이터 볼륨 켜기(TTS 안내가 들려야 함) | |
 
 스크립트 출력 창은 녹화 화면 밖에 둔다. 차속 권한(CAR_SPEED)은 스크립트가 `pm grant`로 준다. S5에서 [허용]을 눌러도 된다(AAOS 창에는 "위치 정보"로 표시됨).
