@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +32,7 @@ class MainActivity : ComponentActivity() {
     // 화면이 보이는 동안에는 헤드업 알림 대신 S1 배너로 안내한다
     override fun onStart() {
         super.onStart()
+        container.overlay.setForeground(true)
         container.appVisible.value = true
         // 안내 때문에 올라왔으면(RiskNotification.bringToFront) 배너가 끝날 때 스스로 뒤로 간다.
         // 인텐트는 전달되지 않을 수 있어(Pleos가 작업만 앞으로 올림, 11-05 실측) 앱 안의 상태로 알린다
@@ -38,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         container.appVisible.value = false
+        container.overlay.setForeground(false)
         super.onStop()
     }
 
@@ -49,7 +53,14 @@ class MainActivity : ComponentActivity() {
             CruiseBreakerTheme {
                 // Pleos 에뮬레이터에서 아래 시스템 바(140px)가 앱 창 아래를 덮는데, 창은 바까지 그리고 inset도 주지 않는다.
                 // 설정의 화면 높이(screenHeightDp)만 바를 뺀 값이라 그 높이로 맞춰 아래 고정 버튼이 바에 가리지 않게 한다(11-04 확인)
-                Box(Modifier.fillMaxWidth().heightIn(max = LocalConfiguration.current.screenHeightDp.dp)) {
+                Box(Modifier.fillMaxWidth().heightIn(max = LocalConfiguration.current.screenHeightDp.dp).onGloballyPositioned { coordinates ->
+                    val origin = IntArray(2)
+                    window.decorView.getLocationOnScreen(origin)
+                    val position = coordinates.positionInWindow()
+                    val x = origin[0] + position.x.toInt()
+                    val y = origin[1] + position.y.toInt()
+                    container.overlay.recordAppArea(x, y, x + coordinates.size.width, y + coordinates.size.height)
+                }) {
                     CruiseBreakerNav((application as CruiseBreakerApp).container, onExit = { finish() })
                 }
             }

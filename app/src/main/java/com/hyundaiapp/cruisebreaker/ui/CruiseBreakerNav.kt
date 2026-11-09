@@ -240,6 +240,7 @@ internal fun CruiseBreakerNavigation(
                     onConsentClick = { go(Screen.ONBOARDING) },
                     onBack = back,
                     onWithdrawConsent = { confirmWithdraw = true },
+                    overlaySettings = { com.hyundaiapp.cruisebreaker.ui.overlay.OverlaySettingsRoute() },
                 )
                 if (confirmWithdraw) {
                     WithdrawDialog(

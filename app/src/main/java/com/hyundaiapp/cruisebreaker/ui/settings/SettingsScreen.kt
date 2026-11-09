@@ -45,6 +45,7 @@ fun SettingsScreen(
     onConsentClick: () -> Unit,
     onBack: () -> Unit,
     onWithdrawConsent: () -> Unit,
+    overlaySettings: @Composable () -> Unit = {},
 ) {
     Column(
         Modifier.fillMaxSize().padding(horizontal = CarDimens.ScreenPadding, vertical = 32.dp),
@@ -54,6 +55,7 @@ fun SettingsScreen(
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(24.dp)) {
             SectionLabel("안내")
             ToggleSetting("음성 안내", state.voiceEnabled, onVoiceEnabledChange)
+            overlaySettings()
             SectionLabel("기록")
             ToggleSetting("자동 기록", state.autoRecordEnabled, onAutoRecordEnabledChange, description = "시동을 걸 때 기록을 자동으로 시작해요.\n끄더라도 진행 중인 기록은 계속돼요.")
             SectionLabel("동의")
@@ -87,7 +89,7 @@ fun SettingsScreen(
 
 /** 전체 줄을 하나의 Switch로 읽고 누른다. */
 @Composable
-private fun ToggleSetting(title: String, checked: Boolean, onChange: (Boolean) -> Unit, description: String? = null) {
+internal fun ToggleSetting(title: String, checked: Boolean, onChange: (Boolean) -> Unit, description: String? = null) {
     Surface(
         color = CarColors.Surface,
         contentColor = CarColors.OnSurface,

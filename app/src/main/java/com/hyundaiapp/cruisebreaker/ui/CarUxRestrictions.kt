@@ -1,6 +1,7 @@
 package com.hyundaiapp.cruisebreaker.ui
 
 import android.car.Car
+import android.car.drivingstate.CarUxRestrictions
 import android.car.drivingstate.CarUxRestrictionsManager
 import android.content.ComponentName
 import android.content.Context
@@ -28,7 +29,7 @@ internal interface UxRestrictionSource {
 /** UI 사용 제한만 읽는다. 동의 전 차량·위치 기록 파이프라인은 시작하지 않는다. null은 미확인. */
 @Composable
 internal fun rememberCarUxRestricted(
-    createSource: (Context, (Boolean?) -> Unit) -> UxRestrictionSource = ::CarUxRestrictionSource,
+    createSource: (Context, (Boolean?) -> Unit) -> UxRestrictionSource = { context, changed -> CarUxRestrictionSource(context, changed) },
 ): Boolean? {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -56,7 +57,15 @@ internal fun rememberCarUxRestricted(
 
 /** minSdk 28에서도 연결 대기로 UI를 막지 않도록 비동기 ServiceConnection을 쓴다. */
 @Suppress("DEPRECATION")
-private class CarUxRestrictionSource(private val context: Context, private val onChanged: (Boolean?) -> Unit) : UxRestrictionSource {
+internal class CarUxRestrictionSource(
+    private val context: Context,
+    private val onChanged: (Boolean?) -> Unit,
+    private val onDetails: (CarUxRestrictions?) -> Unit = {},
+) : UxRestrictionSource {
+    private fun publish(value: CarUxRestrictions?) {
+        onDetails(value)
+        onChanged(value?.isRequiresDistractionOptimization)
+    }
     private var car: Car? = null
     private var manager: CarUxRestrictionsManager? = null
     private var started = false
@@ -68,7 +77,7 @@ private class CarUxRestrictionSource(private val context: Context, private val o
         if (started) return
         started = true
         val current = ++generation
-        onChanged(null)
+        publish(null)
         if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) return
         try {
             car = Car.createCar(context, object : ServiceConnection {
@@ -82,16 +91,16 @@ private class CarUxRestrictionSource(private val context: Context, private val o
                         manager = restrictions
                         restrictions?.registerListener { value ->
                             if (current == generation && currentConnection == connectionGeneration && connected) {
-                                onChanged(value.isRequiresDistractionOptimization)
+                                publish(value)
                             }
                         }
-                        onChanged(restrictions?.currentCarUxRestrictions?.isRequiresDistractionOptimization)
+                        publish(restrictions?.currentCarUxRestrictions)
                     } catch (_: Exception) {
                         connected = false
                         connectionGeneration++
                         runCatching { manager?.unregisterListener() }
                         manager = null
-                        onChanged(null)
+                        publish(null)
                     }
                 }
 
@@ -101,7 +110,7 @@ private class CarUxRestrictionSource(private val context: Context, private val o
                         connectionGeneration++
                         runCatching { manager?.unregisterListener() }
                         manager = null
-                        onChanged(null)
+                        publish(null)
                     }
                 }
             })
@@ -114,9 +123,9 @@ private class CarUxRestrictionSource(private val context: Context, private val o
     override fun refresh() {
         // 설정 화면 복귀 시 연결을 끊었다 다시 여는 대신 최신 플랫폼 값을 먼저 확인한다.
         try {
-            onChanged(if (connected) manager?.currentCarUxRestrictions?.isRequiresDistractionOptimization else null)
+            publish(if (connected) manager?.currentCarUxRestrictions else null)
         } catch (_: Exception) {
-            onChanged(null)
+            publish(null)
         }
     }
 
@@ -129,6 +138,6 @@ private class CarUxRestrictionSource(private val context: Context, private val o
         manager = null
         runCatching { car?.disconnect() }
         car = null
-        onChanged(null)
+        publish(null)
     }
 }
