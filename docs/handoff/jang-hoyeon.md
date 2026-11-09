@@ -44,6 +44,12 @@
 
 ## 작업 기록 (최신이 위, 지우지 않음)
 
+### 2026-11-09 — 열린 PR 최종 체크(#54)
+- 장호연 요청("PR 최종 체크"). #54 head `a1e82a5`는 마지막 리뷰(❓, 11-15 제출 뒤 머지 권고)와 같음. 이민하 확인 코멘트 아직 없음
+- 현재 main(`08cde35`, #55 tools·문서 포함)에 테스트 머지 → 충돌 없음, `assembleDebug test` 통과(app debug·release 95, core 32·18, 실패 0)
+- 체크리스트: 새 퍼미션 `SYSTEM_ALERT_WINDOW`(Vehicle SDK 아님, `CoreFeature` 대상 아님), 이민하 담당 3파일(매니페스트 +1, `AppContainer` +3, `MainActivity` +12) 변경, PRD 변경 없음, 비밀값·apk·한글 이름 없음. 판단 사항(권한을 제출본에 넣을지, 이민하 확인)은 그대로
+- 차슐랭 쪽: #42·#37은 각각 main과 충돌 없음, 둘을 함께 넣으면 `ChachelinNav.kt`·`gil-minjong.md` 충돌(단순). 자세한 것은 차슐랭 `jang-hoyeon.md`
+
 ### 2026-11-09 — tools PR 머지(장호연 "네, 머지")
 - 차슐랭 #43 → main `3cdc4a7`, 크루즈브레이커 #55 → main `ed73f19`(merge commit, 원격 브랜치 삭제). 두 저장소 tools 일치 확인(`sync-core.sh --check`: core 0.5.2)
 - 이제 main의 `tools/build-proposal-docx.py`가 그림을 넣는다. DOCX 재생성 명령은 그대로. 남은 것: DOCX Word 렌더링 확인(장호연), 별점 분포 migration 적용 후 차슐랭 S1·S2 재촬영
