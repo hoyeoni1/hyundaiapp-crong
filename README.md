@@ -14,7 +14,7 @@
 |---|---|
 | 앱 이름 | 크루즈브레이커 (Cruise Breaker) — 팀 삼각고래, 일반 부문 |
 | 한 줄 소개 | 다른 차량들이 크루즈 컨트롤을 해제한 지점을 모아, 해제가 반복되는 구간을 진입 500m 전에 배너와 음성으로 알려 주는 Pleos Connect 앱 |
-| APK 위치 | `apk/SamgakGorae_CruiseBreaker_release.apk` (서명된 release 빌드, 시연 데이터 모드·시연 판정 기준, 11-05 빌드) |
+| APK 위치 | `apk/SamgakGorae_CruiseBreaker_release.apk` (서명된 release 빌드, 시연 데이터 모드·시연 판정 기준, 11-09 빌드) |
 | 패키지 | `com.hyundaiapp.cruisebreaker` |
 | 기획서 | [docs/proposal.md](docs/proposal.md) (접수양식 02 항목과 같은 내용), 제품 요구사항 [PRD.md](PRD.md), 판정 규칙 [docs/disengage-rules.md](docs/disengage-rules.md) |
 | 시연 순서 | [docs/demo-scenario.md](docs/demo-scenario.md) |
