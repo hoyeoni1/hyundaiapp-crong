@@ -4,6 +4,8 @@
 
 ## 현재 상태 (2026-11-09 기준, 매번 덮어쓰기)
 
+- PR [#54](https://github.com/hoyeoni1/hyundaiapp-cruisebreaker/pull/54) 생성 완료. 정책 보완·검증 결과와 출시 전 확인 항목을 기재. 머지하지 않음.
+
 - 최근 작업: F6 내비 위 거리순 카드·P단 드래그·상대 위치 저장 및 일반 사용자 권한 설정. 기존 `codex/navigation-overlay` 작업을 보존하고 `/private/tmp/cruisebreaker-overlay-pr`의 `feat/navigation-overlay-20261109`에서 최신 main `2eecdb8`에 통합했다.
 - 정책 대조: PRD 5.5.4. `CarUxRestrictions` 세부 콘텐츠/문자 제한과 UX 미확인 숨김을 추가. 공개 정책에서 일반 앱 오버레이 일괄 금지/명시 허용을 확인하지 못했으며 에뮬레이터 권한 허용을 실차·마켓 승인으로 설명하지 않는다.
 - 최신 main 안내와 연결: 카드가 실제 보이면 #49 전면 안내/#48 HUN을 생략하여 내비를 유지. 카드 미표시는 기존 대체 안내 유지. 기존 TTS·판정·정차 요약은 보존. Manifest/AppContainer/MainActivity의 서비스 연결은 사용자 통합 요청 범위이며 로직 담당 리뷰 필요. core·서버 변경 없음.
