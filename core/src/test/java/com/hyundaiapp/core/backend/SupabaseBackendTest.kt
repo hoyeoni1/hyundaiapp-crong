@@ -19,7 +19,7 @@ class SupabaseBackendTest {
 
     @Test fun projectAppAndDemoModeDoNotShareStoredCredentials() {
         assertNotEquals(config.storageNamespace, config.copy(simulated = false).storageNamespace)
-        assertNotEquals(config.storageNamespace, config.copy(app = "CRUISEBREAKER").storageNamespace)
+        assertNotEquals(config.storageNamespace, config.copy(app = "CRONG").storageNamespace)
         assertNotEquals(config.storageNamespace, config.copy(url = "https://other.supabase.co").storageNamespace)
         assertEquals(config.storageNamespace, config.copy(url = config.url + "/").storageNamespace)
     }

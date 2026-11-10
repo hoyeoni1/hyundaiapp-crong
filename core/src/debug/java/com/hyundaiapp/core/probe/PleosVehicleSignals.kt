@@ -18,7 +18,7 @@ data class PleosSignalOptions(
     }
 
     companion object {
-        fun cruiseBreaker() = PleosSignalOptions(setOf(
+        fun crong() = PleosSignalOptions(setOf(
             VehicleSignal.CRUISE_STATE, VehicleSignal.CRUISE_TARGET_SPEED, VehicleSignal.BRAKE,
             VehicleSignal.STEERING, VehicleSignal.VEHICLE_SPEED, VehicleSignal.LOCATION, VehicleSignal.ROUTE_TRAFFIC,
         ))

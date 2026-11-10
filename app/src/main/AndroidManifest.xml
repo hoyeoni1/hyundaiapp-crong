@@ -25,7 +25,7 @@
     <uses-permission android:name="pleos.car.permission.TTS_SERVICE" />
 
     <application
-        android:name=".CruiseBreakerApp"
+        android:name=".CrongApp"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"

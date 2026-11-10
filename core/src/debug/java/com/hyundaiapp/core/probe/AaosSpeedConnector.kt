@@ -15,7 +15,7 @@ import android.util.Log
 internal class AaosSpeedConnector(private val context: Context, private val timeoutMillis: Long) : SignalConnector {
     override val signals = setOf(VehicleSignal.VEHICLE_SPEED)
     @Volatile private var closing = false
-    private val thread = HandlerThread("cruisebreaker-speed")
+    private val thread = HandlerThread("crong-speed")
     private var worker: Handler? = null
     private var car: Car? = null
     private var manager: CarPropertyManager? = null

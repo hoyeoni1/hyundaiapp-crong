@@ -19,12 +19,12 @@ fun backendFlag(key: String, default: Boolean): Boolean = when (val v = backendP
 }
 
 android {
-    namespace = "com.hyundaiapp.cruisebreaker"
+    namespace = "com.hyundaiapp.crong"
     compileSdk = 35
     useLibrary("android.car", false)
 
     defaultConfig {
-        applicationId = "com.hyundaiapp.cruisebreaker"
+        applicationId = "com.hyundaiapp.crong"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
