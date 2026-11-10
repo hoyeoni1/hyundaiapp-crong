@@ -137,13 +137,13 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 ## 9. 주최 측 문의 (장호연, 이번 주)
 
-메일 초안: [organizer-inquiry-email.md](organizer-inquiry-email.md) (10-31 작성, **11-07 최종 점검**: 공식 사이트·FAQ·공지·Pleos 문서와 대조해 10문항으로 정리. **11-09 다시 점검: 심사용 계정 문항을 다시 넣고, 10-28 설명회 녹취(`docs/transcript.txt`)에 답이 있는 것(두 작품 제출·퍼미션 사전 협의)과 지금 필요 없는 것(위치기반서비스·탑재 차종)을 빼 7문항, 이어 제출 안내 "제출 전 확인해 주세요"에 답이 있는 APK 경로 문항도 빼 6문항** — 제출 2 + 출시 준비 4. 대응표는 메일 초안 문서에 있음). **11-09 장호연 발송: 제출 1·2번만, 답 대기. 출시 준비 4문항은 1차 합격 뒤 발송**
+메일 초안: [organizer-inquiry-email.md](organizer-inquiry-email.md) (10-31 작성, **11-07 최종 점검**: 공식 사이트·FAQ·공지·Pleos 문서와 대조해 10문항으로 정리. **11-09 다시 점검: 심사용 계정 문항을 다시 넣고, 10-28 설명회 녹취(`docs/transcript.txt`)에 답이 있는 것(두 작품 제출·퍼미션 사전 협의)과 지금 필요 없는 것(위치기반서비스·탑재 차종)을 빼 7문항, 이어 제출 안내 "제출 전 확인해 주세요"에 답이 있는 APK 경로 문항도 빼 6문항** — 제출 2 + 출시 준비 4. 대응표는 메일 초안 문서에 있음). **11-09 장호연 발송: 제출 1·2번만, **11-10 답 받음**(아래 4·5번). 출시 준비 4문항은 1차 합격 뒤 발송**
 
 1. ~~백그라운드 수집 방법~~ → 에뮬레이터에서 포그라운드 서비스로 해결(크루즈브레이커 `docs/background-freeze-experiment.md`). 대신 물을 것: 포그라운드 서비스(`specialUse`)와 부팅 자동 시작(`RECEIVE_BOOT_COMPLETED`)이 앱마켓 심사에서 허용되는지
 2. 실차에서 크루즈 해제 시 들어오는 `CruiseControlState` 값
 3. Pleos Connect 첫 탑재 차종에 전기차가 포함되는지
-4. 심사용 GitHub 계정명
-5. 시연 영상 길이·형식·제출 방법
+4. 심사용 GitHub 계정명 → **11-10 답: 추후 공지사항으로 안내 예정.** 공지가 나오면 바로 초대·접근 확인. 쓰기 권한·공개 전환 질문은 답 없음 → 공지 시점 보고 장호연이 정함
+5. 시연 영상 길이·형식·제출 방법 → **11-10 답: 길이·파일 형식 기준 없음(제출 내용을 모두 담으면 됨), 영상 포함 제출 자료는 파일 또는 링크로 제출 가능**
 6. DO(`distractionOptimized`) 선언만으로 앱마켓 배포본도 주행 중 화면이 허용되는지, 별도 심사 절차가 있는지 (10-30 "adb 설치본 차단" 관찰은 차슐랭 화면을 착각한 것으로 10-31 확인 — 에뮬레이터에서는 DO 선언 앱이 차단되지 않음)
 7. 실차는 시동 off 때 헤드유닛이 완전히 꺼지는지, 절전(suspend)했다가 깨어나는지 — 절전이면 부팅 자동 시작이 안 걸림
 8. 크루즈브레이커 안내 음성(Pleos TTS SDK)용 `pleos.car.permission.TTS_SERVICE` 권한이 앱마켓 심사에서 승인되는지, 별도 신청 절차가 있는지 (11-01 이민하 요청)
@@ -156,6 +156,6 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 - [x] GitHub: `apk/SamgakGorae_<영문 앱이름>_release.apk`(release, 서명) — `SamgakGorae_Chachelin_release.apk` / `SamgakGorae_CruiseBreaker_release.apk`. 사이트 규칙 `팀명_앱이름_release.apk`에 맞춰 영문 팀명을 넣는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
   - 만들기: 저장소 루트에서 `bash tools/build-release.sh`(서버 키·시연 데이터 모드·서명을 확인한 뒤 위 이름으로 복사). 서명 키는 저장소 밖 장호연 PC `C:/Users/H/.samgakgorae/`(11-03 생성, 백업 필수), 경로·비밀번호는 각 저장소 `local.properties`의 `release.*`
 - [x] 두 저장소 `core` 일치 확인(`tools/sync-core.sh ../CruiseBreaker --check`), 저장소를 새로 clone해서 빌드되는지 확인
-- [ ] 심사용 계정 초대 + 접근 확인
-- [ ] 시연 영상 링크
+- [ ] 심사용 계정 초대 + 접근 확인 (계정은 공지사항으로 안내 예정 — 11-10 주최 측 답)
+- [ ] 시연 영상 파일 또는 링크 (길이·형식 기준 없음 — 11-10 주최 측 답)
 - [ ] 메일: 대표자(장호연) 주소에서 발송, 제목에 앱명, 팀원 전원 CC, 전체 첨부
