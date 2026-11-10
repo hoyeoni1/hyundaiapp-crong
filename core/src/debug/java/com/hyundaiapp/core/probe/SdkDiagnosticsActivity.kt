@@ -50,7 +50,7 @@ class SdkDiagnosticsActivity : Activity() {
         if (intent.getBooleanExtra("autostart", false)) startLive()
     }
 
-    private fun options() = if (selectedProfile == "charging") PleosSignalOptions.chachelin() else PleosSignalOptions.cruiseBreaker()
+    private fun options() = if (selectedProfile == "charging") PleosSignalOptions.chachelin() else PleosSignalOptions.crong()
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

@@ -19,7 +19,7 @@ object GeoMath {
         return 2 * EARTH_RADIUS_M * atan2(sqrt(h), sqrt(1 - h))
     }
 
-    /** a에서 b를 바라보는 방위각(0 = 북, 시계 방향, 0~360). 크루즈브레이커: 진행 방향 앞 구간 판정 */
+    /** a에서 b를 바라보는 방위각(0 = 북, 시계 방향, 0~360). 크롱: 진행 방향 앞 구간 판정 */
     fun bearingDeg(a: GeoPoint, b: GeoPoint): Double {
         val lat1 = Math.toRadians(a.latitude)
         val lat2 = Math.toRadians(b.latitude)

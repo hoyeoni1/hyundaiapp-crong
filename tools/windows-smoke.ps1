@@ -5,7 +5,7 @@ $environmentRoot = Join-Path $env:LOCALAPPDATA 'hyundai-dev'
 $adb = Join-Path $environmentRoot 'android-sdk/platform-tools/adb.exe'
 $argsAdb = @()
 if ($Device) { $argsAdb = @('-s', $Device) }
-$package = if ((Get-Content "$root/settings.gradle.kts" -Raw) -match '"Chachelin"') { 'com.hyundaiapp.chachelin' } else { 'com.hyundaiapp.cruisebreaker' }
+$package = if ((Get-Content "$root/settings.gradle.kts" -Raw) -match '"Chachelin"') { 'com.hyundaiapp.chachelin' } else { 'com.hyundaiapp.crong' }
 $results = [System.Collections.Generic.List[object]]::new()
 function Read-Report {
     $userId = (& $adb @argsAdb shell am get-current-user).Trim()

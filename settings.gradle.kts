@@ -13,6 +13,6 @@ dependencyResolutionManagement {
         maven("https://nexus-playground.pleos.ai/repository/maven-releases/")
     }
 }
-rootProject.name = "CruiseBreaker"
+rootProject.name = "Crong"
 include(":app")
 include(":core")

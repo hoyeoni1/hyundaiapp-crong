@@ -1,0 +1,97 @@
+package com.hyundaiapp.crong.domain
+
+import android.content.Context
+import android.media.AudioAttributes
+import android.util.Log
+import ai.pleos.playground.tts.TextToSpeech
+import ai.pleos.playground.tts.constant.ErrorType
+import ai.pleos.playground.tts.constant.Mode
+import ai.pleos.playground.tts.listener.EventListener
+import ai.pleos.playground.tts.listener.OnInitializeListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import java.util.Locale
+
+/**
+ * 안내 음성(F4). 담당: 이민하.
+ * Pleos TTS SDK(기기 내 모드). Android 기본 TextToSpeech는 에뮬레이터에 엔진이 없어 초기화가 실패한다(11-01 확인).
+ * SDK는 시스템 음성 서비스(`ai.pleos.playground.caas` 4.1.29 이상)에 붙는다. 퍼미션 `pleos.car.permission.TTS_SERVICE`.
+ *
+ * 해제(이슈 #21, 11-03 에뮬레이터 실측): SDK는 해제된 객체에 `setLocale`·`speak`·`release`를 다시 불러도 예외를 던지지 않고,
+ * **해제 뒤 `speak`도 실제로 읽는다**. 초기화 전에 해제하면 `onSuccess`는 오지 않았다. 그래서 해제 뒤에는 이 클래스가
+ * SDK를 아예 부르지 않는다 — [released]와 [ready]를 [lock] 하나로 묶어 SDK 스레드의 `onSuccess`와 [release]가 겹쳐도 안전하게.
+ */
+class RiskSpeaker(context: Context) {
+    private val lock = Any()
+
+    // SDK 스레드(onSuccess)에서 쓰고 코루틴에서 읽는다(이슈 #8). 바꿀 때는 lock 안에서
+    @Volatile
+    private var ready = false
+
+    @Volatile
+    private var released = false
+    private val tts = TextToSpeech(context.applicationContext, Mode.ON_DEVICE)
+
+    init {
+        tts.initialize(object : OnInitializeListener {
+            override fun onSuccess() {
+                synchronized(lock) { onReady() }
+            }
+
+            private fun onReady() {
+                if (released) return
+                ready = true
+                // "ko"만 주면 엔진이 "unsupported locale: ko-"로 실패한다(11-01 에뮬레이터). 국가까지 준다
+                tts.setLocale(Locale.KOREA)
+                tts.setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build(),
+                )
+                Log.i(TAG, "tts ready (sdk ${TextToSpeech.version})")
+            }
+
+            override fun onFailure(error: ErrorType) {
+                Log.w(TAG, "tts init failed: $error")
+            }
+        })
+        tts.addEventListener(object : EventListener {
+            override fun onStart() = Log.i(TAG, "tts start").let { }
+            override fun onReady() = Unit
+            override fun onDone() = Log.i(TAG, "tts done").let { }
+            override fun onError(error: ErrorType) = Log.w(TAG, "tts error: $error").let { }
+            override fun onStop() = Unit
+            override fun onUpdatedRms(rms: Double) = Unit
+        })
+    }
+
+    /** [announcements]가 올 때마다 읽는다. [enabled]가 false면(S4 음성 끔) 읽지 않는다 */
+    fun start(scope: CoroutineScope, announcements: Flow<Announcement>, enabled: () -> Boolean = { true }) {
+        scope.launch {
+            announcements.collect { a ->
+                if (!enabled()) return@collect
+                val spoke = synchronized(lock) {
+                    if (ready && !released) tts.speak(a.speechText)
+                    ready && !released
+                }
+                Log.i(TAG, if (spoke) "speak ${a.speechText}" else "skip speech ready=$ready released=$released")
+            }
+        }
+    }
+
+    /** 시스템 음성 서비스 연결을 놓는다(기록 중지·동의 철회). 다시 쓰려면 새로 만든다 */
+    fun release() {
+        synchronized(lock) {
+            if (released) return
+            released = true
+            ready = false
+            tts.release()
+        }
+    }
+
+    private companion object {
+        const val TAG = "CruiseRecord"
+    }
+}

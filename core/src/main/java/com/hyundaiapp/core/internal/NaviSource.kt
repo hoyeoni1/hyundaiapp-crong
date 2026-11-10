@@ -204,7 +204,7 @@ internal class NaviSource(
         val RECONNECT_TOKEN = Any()
         const val STALE_MS = 10_000L
         const val RECONNECT_MS = 3_000L
-        // 100km/h ≈ 28m/s → 1초면 약 28m. 크루즈브레이커 구간(약 150m) 판정에 충분
+        // 100km/h ≈ 28m/s → 1초면 약 28m. 크롱 구간(약 150m) 판정에 충분
         const val LOCATION_POLL_MS = 1_000L
         const val ROUTE_POLL_MS = 5_000L
     }

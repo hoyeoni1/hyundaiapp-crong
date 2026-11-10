@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 크루즈브레이커 시연 시나리오(PRD 7절, 판정 규칙 v2 docs/disengage-rules.md). 2차 PT·시연 영상용.
+# 크롱 시연 시나리오(PRD 7절, 판정 규칙 v2 docs/disengage-rules.md). 2차 PT·시연 영상용.
 #
 # usage:
 #   bash tools/demo-drive.sh          # 고정 위치 시연(지금 앱으로 동작): 출발 → 500m 앞 안내 → 해제 기록 → 저속 해제는 기록 안 함 → 정차 요약
@@ -8,7 +8,7 @@
 #   bash tools/demo-drive.sh stop     # 위치 재생 중지 + 정차
 #
 # 전제:
-#   - 에뮬레이터 실행, 크루즈브레이커 **디버그 빌드** 설치
+#   - 에뮬레이터 실행, 크롱 **디버그 빌드** 설치
 #   - **앱을 켜면 S5 동의 화면 → 동의 2개 + [시작하기] → S2**. 동의 전에는 기록·안내가 돌지 않는다. 확정 순서는 docs/demo-scenario.md
 #   - 차속 권한은 이 스크립트가 준다(pm grant). 차속을 모르면 앱이 속도 조건을 건너뛰어 저속 해제도 기록된다
 #   - 고정 위치: 에뮬레이터 위치(판교) 앞 400m의 시드 "판교IC 진입로"가 해제 다발 구간이다. PT에서 시드 데이터임을 밝힌다
@@ -24,10 +24,10 @@
 #   ROUTE=tools/demo/gyeongbu-north.csv   (만들기: python tools/demo/make-route.py > ...)
 #
 # route 모드의 앱 쪽 계약(디버그 빌드에 아직 없음, 구현할 것):
-#   - 이 스크립트가 경로 파일을 /sdcard/Android/data/com.hyundaiapp.cruisebreaker/files/demo/ 에 adb push 한다
-#   - 시작: am broadcast -a com.hyundaiapp.cruisebreaker.DEMO_ROUTE -p com.hyundaiapp.cruisebreaker --es file <이름> --ef rate <배속>
+#   - 이 스크립트가 경로 파일을 /sdcard/Android/data/com.hyundaiapp.crong/files/demo/ 에 adb push 한다
+#   - 시작: am broadcast -a com.hyundaiapp.crong.DEMO_ROUTE -p com.hyundaiapp.crong --es file <이름> --ef rate <배속>
 #     → 앱은 CSV(t,lat,lon,heading,mark)를 t/rate 초마다 한 줄씩 읽어 NaviHelper 위치 대신 쓴다
-#   - 중지: am broadcast -a com.hyundaiapp.cruisebreaker.DEMO_ROUTE_STOP -p com.hyundaiapp.cruisebreaker
+#   - 중지: am broadcast -a com.hyundaiapp.crong.DEMO_ROUTE_STOP -p com.hyundaiapp.crong
 #
 # 콘솔 매핑(findings 6.2.1): full_autonomous → ACTIVATED(작동), ready → ENABLED(대기). 실차 해제 값은 재현 불가라
 # ACTIVATED → ENABLED를 해제로 본다(CruiseStateInterpreter). 해제로 세는 조건: 작동 3초 이상 + 해제 순간 차속 ≥ 60 km/h
@@ -42,7 +42,7 @@ USER_ID=${USER_ID:-10}
 RATE=${RATE:-1}
 NO_REPLAY=${NO_REPLAY:-0}
 ROUTE=${ROUTE:-tools/demo/gyeongbu-north.csv}
-PKG=com.hyundaiapp.cruisebreaker
+PKG=com.hyundaiapp.crong
 DEVICE_DIR=/sdcard/Android/data/$PKG/files/demo
 
 vc() { bash tools/vconsole.sh put "$@" >/dev/null; }

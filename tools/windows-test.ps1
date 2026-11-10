@@ -14,7 +14,7 @@ $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
 $adb = Join-Path $env:ANDROID_HOME 'platform-tools/adb.exe'
 $adbArgs = @()
 if ($Device) { $adbArgs = @('-s', $Device) }
-$package = if ((Get-Content (Join-Path $repository 'settings.gradle.kts') -Raw) -match '"Chachelin"') { 'com.hyundaiapp.chachelin' } else { 'com.hyundaiapp.cruisebreaker' }
+$package = if ((Get-Content (Join-Path $repository 'settings.gradle.kts') -Raw) -match '"Chachelin"') { 'com.hyundaiapp.chachelin' } else { 'com.hyundaiapp.crong' }
 Push-Location $repository
 try {
     switch ($Action) {

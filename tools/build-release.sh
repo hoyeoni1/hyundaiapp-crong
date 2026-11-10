@@ -19,7 +19,7 @@ fail() { echo "✗ $*" >&2; exit 1; }
 
 case "$(sed -n 's/.*applicationId = "com.hyundaiapp.\([a-z]*\)".*/\1/p' app/build.gradle.kts)" in
   chachelin) APP=Chachelin ;;
-  cruisebreaker) APP=CruiseBreaker ;;
+  crong) APP=CRONG ;;
   *) fail "applicationId를 찾지 못함" ;;
 esac
 OUT="apk/SamgakGorae_${APP}_release.apk"

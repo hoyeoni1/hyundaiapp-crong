@@ -79,6 +79,6 @@ class ManagedVehicleSignalsTest {
 
     @Test fun permissionProfilesOnlyRequestEachAppsSignals() {
         assertEquals(setOf(SignalPermissions.ENERGY, SignalPermissions.NAVIGATION), SignalPermissions.required(PleosSignalOptions.chachelin()))
-        assertEquals(setOf(SignalPermissions.DRIVE, SignalPermissions.NAVIGATION, SignalPermissions.SPEED), SignalPermissions.required(PleosSignalOptions.cruiseBreaker()))
+        assertEquals(setOf(SignalPermissions.DRIVE, SignalPermissions.NAVIGATION, SignalPermissions.SPEED), SignalPermissions.required(PleosSignalOptions.crong()))
     }
 }

@@ -26,7 +26,7 @@ data class BackendConfig(
         require(publishableKey.startsWith("sb_publishable_")) {
             "publishableKey must start with sb_publishable_ (legacy anon JWT keys are not supported; check for quotes/whitespace)"
         }
-        require(app in setOf("CHACHELIN", "CRUISEBREAKER")) { "unknown app $app" }
+        require(app in setOf("CHACHELIN", "CRONG")) { "unknown app $app" }
         require(consentVersion.length in 1..100) { "consentVersion must be 1..100 chars" }
     }
 
