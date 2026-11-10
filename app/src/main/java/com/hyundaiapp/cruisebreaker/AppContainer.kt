@@ -49,7 +49,7 @@ class AppContainer(context: Context) {
     val prefs: AppPrefs = SharedPrefsAppPrefs(context)
 
     /** 동의한 약관 판 번호(서버에 남김). 약관 문구를 바꾸면 함께 올린다. 지금은 승인 전 초안 docs/terms-draft.md의 번호 */
-    private val termsVersion = "cruisebreaker-terms-2026-11-v1"
+    private val termsVersion = "cruisebreaker-terms-2026-11-v2"
 
     // 서버 설정이 없으면 Fake, 있는데 형식이 틀리면(구형 키·http·공백) 죽지 않고 로그만 남기고 Fake(core 0.5.2)
     val backend: SupabaseBackend? = BackendConfig.fromBuildConfigOrNull(
