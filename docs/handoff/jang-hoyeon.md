@@ -28,7 +28,7 @@
   4. 시연 영상 촬영(`docs/demo-scenario.md` 순서) — **11-10 장호연 제작 중**. **11-10 GitHub 주소 기입·DOCX 재생성 완료.** 남은 것: 영상 링크가 오면 7번 칸 시연 영상 1곳 채우고 DOCX 재생성(앱명 인자 `"크루즈브레이커 (Cruise Breaker)"`)
   5. ~~01 참가신청서 기입~~ → **11-10 두 DOCX에 채움**(장호연이 차슐랭에 Word로 입력, 크루즈는 같은 값 복사. 이상준 소속·이메일은 빈칸 그대로, 04 동의 체크·성명까지). **11-10 장호연 결정: 연락처가 든 DOCX는 저장소에 올리지 않음.** 채운 제출본은 팀 폴더(git 아님) `submission-filled/<앱>-application-filled.docx`에 두고, 저장소 `docs/submission/`의 DOCX는 01·04가 빈 판으로 유지. 7번 칸 등으로 재생성하면 저장소 판을 커밋한 뒤, 같은 방법(아래 작업 기록)으로 01·04를 옮긴 새 제출본을 `submission-filled/`에 다시 만든다. **메일로 보낼 파일은 `submission-filled/`의 것**. 남은 것: 04 본인 서명·서명일자 → 5명 서명(11-13) → 11-14 메일 2통 발송(전원 CC, 제목에 앱명: `[차량용 앱 개발 공모전] 앱명_팀명_대표자명`, 설명회 20:24). 사이트 접수 마감 11-15(일)
   6. ~~서명 키 백업~~ → **11-10 장호연 백업 완료** — 끝남
-  0. **앱 이름 변경(11-10 장호연): 크루즈브레이커 → 크롱 (CRONG, Cruise Risk Observation & Navigation Guide)**. "전부 바꿈" 결정: 패키지·applicationId `com.hyundaiapp.crong`, 클래스 `Crong*`, 서버 앱 코드 `CRONG`, 저장소 `hoyeoni1/hyundaiapp-crong`(GitHub 이름 변경 완료, 옛 주소는 자동 이동, 로컬 폴더는 `CruiseBreaker` 그대로), APK `SamgakGorae_CRONG_release.apk`. 문서(README·PRD·기획서·팀 문서·약관 원본)는 main 반영, DOCX `docs/submission/crong-application.docx` 재생성, 채운 제출본 `submission-filled/crong-application-filled.docx`(14쪽, 이전 크루즈 파일은 치움). 코드는 **크롱 PR #57 + 차슐랭 PR #45를 같이 머지**(#57은 #56 약관 v2 포함) → 황준용이 원격 Supabase에 `20261110000100_rename_crong.sql` 적용(적용 뒤 예전 APK는 등록 거절) → 두 앱 release 재빌드, 예전 `SamgakGorae_CruiseBreaker_release.apk` 삭제. **시연 영상에 크루즈브레이커 이름이 나오면 다시 찍거나 고쳐야 함.** 에뮬레이터에 예전 `com.hyundaiapp.cruisebreaker`가 남아 있음(새 앱은 별도 설치). 이력(작업 기록·회의록·문의 메일 원문)은 옛 이름 그대로 둠. 드라이브의 크루즈 신청서도 새 파일로 교체할 것
+  0. **11-10 장호연 "팀장 권한으로 진행" — 머지·재빌드 완료**: 약관 v2(차슐랭 #44·크롱 #56)와 크롱 이름 변경(크롱 #57·차슐랭 #45)을 담당자 확인 없이 머지(PR에 사후 확인 요청). 두 앱 release APK 재빌드·커밋(차슐랭 `303437f`, 크롱 `4c25915` — `SamgakGorae_CRONG_release.apk`, 예전 크루즈 APK 삭제). 에뮬레이터: 차슐랭 약관 v2 표시·서버 connected 확인, 크롱 첫 화면·약관 v2 표시 확인. **막힌 것: 원격 Supabase에 `20261110000100_rename_crong.sql` 미적용** — 이 PC에는 Supabase CLI·로그인이 없음. 적용 전에는 크롱 APK의 설치 등록이 거절(`400/22023`)되고 core가 조회 전에 등록하므로 근처 구간 목록부터 비어 보임. 예전 크루즈 APK는 별칭 처리로 적용 뒤에도 동작. 황준용에게 #45 코멘트로 요청(11-10). 적용되면 크롱 서버 연결·주행 시나리오 리허설. 시연 영상에 옛 이름이 나오면 크롱 빌드로 다시 촬영. 드라이브의 크루즈 신청서를 `submission-filled/crong-application-filled.docx`로 교체. #37(이상준 확인 대기)·#54는 그대로
   7. **약관 v2(11-10 장호연 "약관 고쳐줘")**: `docs/terms-draft.md` v2는 main(`42e3374`), 앱 `TermsText.kt`·`termsVersion` v2는 PR #56(브랜치 `fix/terms-v2-log-region`, `assembleDebug test` 통과, 화면 확인 전). 남은 것: 길민종(`ui/`)·이상준(`AppContainer`) 확인 → 장호연 머지 → release APK 재빌드(차슐랭은 #37과 묶어 한 번에). EU 안 국가·Supabase 연락 주소는 확인 못 해 안 적음
   8. ~~알릴 것: 황준용에게 core v0.5.2 변경~~ → 황준용이 11-10 확인(두 저장소 core 31개 파일·v0.5.2 일치, `hwang-junyong.md`) — 끝남. 별점 분포 migration(`20261109000100`)의 원격 적용은 아직 대기 → 영상 촬영 전·후 어느 쪽에 적용할지 황준용과 맞출 것(촬영 뒤 적용하면 영상 속 별점과 앱이 달라짐)
 - 막힌 점·질문:
@@ -44,6 +44,12 @@
 - 확인 방법: `./gradlew assembleDebug test` / 시연 전체는 `docs/demo-scenario.md` 순서대로 / 신호 모니터는 S2 제목 길게 누르기 → 개발 메뉴 / 기록 흐름은 `docs/handoff/lee-minha.md` "확인 방법"
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-10 — 팀장 권한 진행: 약관 v2·크롱 이름 변경 머지, 두 APK 재빌드
+- 머지(merge commit, 장호연 지시): 차슐랭 #44·#45, 크롱 #56·#57. 머지 전 #45에 `CRUISEBREAKER` → `CRONG` 등록 별칭 추가(적용 순서 무관, 서버 테스트 21개 통과)
+- 머지된 main에서 두 앱 `assembleDebug test` 통과, `sync-core --check` 일치(core 0.5.3), release 재빌드·커밋
+- 에뮬레이터: 크롱 release는 migration 전이라 등록 거절 → 목록 비어 있음(예전 크루즈 앱은 목록 정상). 차슐랭 release는 connected
+- 황준용에게 원격 migration 적용 요청(차슐랭 #45 코멘트). #37은 11-09 결정대로 이상준 확인 대기로 둠
 
 ### 2026-11-10 — 크루즈브레이커 → 크롱(CRONG) 이름 변경(장호연 "전부 바꿈")
 - 크롱 저장소: 패키지 디렉터리 이동·클래스/파일명·문구·약관(판 번호 `crong-terms-2026-11-v2`)·applicationId → PR #57(`assembleDebug test lint` 통과, 에뮬레이터 첫 화면 "크롱" 확인). 문서 main `ecb28f3`, GitHub 저장소 이름 `hyundaiapp-crong`, remote 갱신
