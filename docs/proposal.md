@@ -183,7 +183,7 @@
 
 ## 7. 참고자료
 
-- GitHub 저장소: 【제출 전 기입 — GitHub 저장소 주소】 (소스 코드 + apk/SamgakGorae_CruiseBreaker_release.apk)
+- GitHub 저장소: https://github.com/hoyeoni1/hyundaiapp-cruisebreaker (소스 코드 + apk/SamgakGorae_CruiseBreaker_release.apk)
 - 시연 영상: 【제출 전 기입 — 영상 링크 또는 첨부 파일명】
 - 화면: 아래 화면은 제출 release APK를 Pleos Connect 에뮬레이터 2.1.0에서 실행해 찍은 것이다(해제 다발 구간과 다른 차량 기록은 시연용 시드 데이터).
 
