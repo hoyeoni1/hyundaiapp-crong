@@ -317,7 +317,7 @@ $A shell run-as com.example.pleosprobe --user 10 cat files/navi.tsv   > results/
 | 시트 슬라이드 `seat?kind=position…` / `kind=move…` | ❌ SDK 값 0 그대로 | 콘솔 값만 바뀜 |
 
 #### 6.2.1 크루즈 해제 감지 실측 (2026-10-29)
-- 목적: '크루즈브레이커'(크루즈 해제 지점 집계) 아이디어의 핵심 신호 확인.
+- 목적: '크롱'(크루즈 해제 지점 집계) 아이디어의 핵심 신호 확인.
 - 콘솔 크루즈 상태는 실제로는 자율주행 제어 모드(`SDV_ADAS_AD_CONTROL…AD_MODE_STATE`)이고, 선택지는 `not_ready / ready / longitudinal / lateral / full_autonomous` 5개뿐(`virtual_console_catalog.json`).
 - SDK `CruiseControl` 열거형(Vehicle 2.3.2 `javap` 확인): `OTHER, ENABLED, ACTIVATED, USER_OVERRIDE, SUSPENDED, FORCED_DEACTIVATION_WARNING`.
 - 결과:

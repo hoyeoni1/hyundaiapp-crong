@@ -1,4 +1,4 @@
-# 팀 협업 계획 — 차슐랭 · 크루즈브레이커 동시 출품
+# 팀 협업 계획 — 차슐랭 · 크롱 동시 출품
 
 - 대상: 2026 현대자동차그룹 Pleos Connect 앱 개발 공모전
 - 작성: 2026-10-29
@@ -11,7 +11,7 @@
 | 작품 | 저장소 | 성격 |
 |---|---|---|
 | 차슐랭 (Chachelin) | `hyundaiapp-chachelin` | 정차(충전) 시나리오. 콘솔 주입만으로 시연 가능 → 상대적으로 안전 |
-| 크루즈브레이커 (Cruise Breaker) | `hyundaiapp-cruisebreaker` | 주행 시나리오. 크루즈 해제 값 재현 불가·백그라운드 동결·주행 중 UI 규정 → **위험 높음** |
+| 크롱 (CRONG) | `hyundaiapp-crong` | 주행 시나리오. 크루즈 해제 값 재현 불가·백그라운드 동결·주행 중 UI 규정 → **위험 높음** |
 
 공통 `core` 모듈, 시연 도구(`tools/`), 이 문서는 **두 저장소에 똑같이** 들어 있다. 원본은 차슐랭 저장소다(3절).
 
@@ -26,8 +26,8 @@
 | **장호연** (팀장·대표자) | 기획·제출 + 시연 도구 | 시연 시나리오 스크립트(`tools/`), release APK 빌드·서명, 저장소 README | 기획서 2개, 시연 영상 2개, 주최 측 문의, 서명 수집, 제출 메일 |
 | **황준용** | 공통 플랫폼 | `core` 모듈(Vehicle/NaviHelper 래퍼, 권한, capability 체크), 서버(리뷰·이벤트 저장, 집계 API) | ~~Organization·저장소·브랜치 보호 세팅~~ → Organization은 만들지 않음(10-30 결정, 4절 1번) |
 | **이상준** | 차슐랭 로직 | 충전 세션 기록(충전구 열림 → SoC 변화 → 닫힘), 충전 인증 판정, 충전소 매칭(위치 ↔ 환경부 충전소 API) | |
-| **이민하** | 크루즈브레이커 로직 | 해제·통과 기록, 구간 ID, 진입 전 안내·음성, 기록 서비스, **백그라운드 동결 실험(첫 주 최우선)**. 판정 규칙 v2(11-01, 정체 필터 없앰): 크루즈브레이커 `docs/disengage-rules.md` | |
-| **길민종** | 두 앱 UI | 공통 테마, 차슐랭 별점·후기·충전소 화면, 크루즈브레이커 안내 화면(주행 중 UI·DO 규정) | 영상용 화면 연출(장호연과 함께) |
+| **이민하** | 크롱 로직 | 해제·통과 기록, 구간 ID, 진입 전 안내·음성, 기록 서비스, **백그라운드 동결 실험(첫 주 최우선)**. 판정 규칙 v2(11-01, 정체 필터 없앰): 크롱 `docs/disengage-rules.md` | |
+| **길민종** | 두 앱 UI | 공통 테마, 차슐랭 별점·후기·충전소 화면, 크롱 안내 화면(주행 중 UI·DO 규정) | 영상용 화면 연출(장호연과 함께) |
 
 ### 담당 경로
 
@@ -39,8 +39,8 @@ PR 리뷰는 Claude가, 머지는 장호연이 한다(4절 2번). 아래 "같이
 | 서버 | 황준용 | 이상준, 이민하 |
 | `tools/`, `apk/`, `README.md` | 장호연 | 황준용 |
 | `hyundaiapp-chachelin` 로직(`data/`, `domain/` 등) | 이상준 | 이민하 |
-| `hyundaiapp-cruisebreaker` 로직 | 이민하 | 이상준 |
-| 앱 연결 파일(`AppContainer`, `ChachelinApp`·`CruiseBreakerApp`, `RecordingService`, 매니페스트) | 차슐랭 이상준 / 크루즈브레이커 이민하(11-02 장호연 승인, 11-07 표에 적음) | 길민종 |
+| `hyundaiapp-crong` 로직 | 이민하 | 이상준 |
+| 앱 연결 파일(`AppContainer`, `ChachelinApp`·`CrongApp`, `RecordingService`, 매니페스트) | 차슐랭 이상준 / 크롱 이민하(11-02 장호연 승인, 11-07 표에 적음) | 길민종 |
 | 두 앱의 `ui/`, 테마 | 길민종 | 해당 앱 담당(이상준 / 이민하) |
 | `PRD.md`, 기획서 | 장호연 | 해당 앱 담당 |
 
@@ -49,7 +49,7 @@ PR 리뷰는 Claude가, 머지는 장호연이 한다(4절 2번). 아래 "같이
 저장소는 **앱마다 하나**이고, 각 저장소만 받아도 바로 빌드된다(제출 형태와 같음).
 
 ```
-hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
+hyundaiapp-chachelin/            hyundaiapp-crong/
 ├─ app/        이상준·길민종      ├─ app/        이민하·길민종
 ├─ core/       ◄── 원본 ──────►  ├─ core/       (복사본)
 ├─ tools/      ◄── 원본 ──────►  ├─ tools/      (복사본)
@@ -66,7 +66,7 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
    tools/sync-core.sh ../CruiseBreaker            # 복사
    tools/sync-core.sh ../CruiseBreaker --check    # 같은지 확인만
    ```
-   그다음 크루즈브레이커에도 같은 내용으로 PR을 올린다. PR 제목에 `core vX.Y.Z`를 적는다.
+   그다음 크롱에도 같은 내용으로 PR을 올린다. PR 제목에 `core vX.Y.Z`를 적는다.
 4. `--check`는 11-05 중간 점검과 11-12 제출 준비 때 장호연이 돌린다.
 
 참고 문서 원본(`vehicle-data-findings.md` 등)은 팀 로컬 폴더 `hyundai-app/`에 있다. 각 앱의 `docs/`는 PRD 근거용 사본이며, 제출 전에 장호연이 원본과 맞춘다.
@@ -132,28 +132,28 @@ hyundaiapp-chachelin/            hyundaiapp-cruisebreaker/
 
 ### 11-05 중간 점검 판단 기준
 
-- 크루즈브레이커가 "해제 이벤트 → 기록 → 안내 화면" 흐름을 에뮬레이터에서 못 보여 주면: 이민하는 차슐랭 보강으로 옮기고, 크루즈브레이커는 기획서 + 화면 시안 위주로 낸다.
+- 크롱이 "해제 이벤트 → 기록 → 안내 화면" 흐름을 에뮬레이터에서 못 보여 주면: 이민하는 차슐랭 보강으로 옮기고, 크롱은 기획서 + 화면 시안 위주로 낸다.
 - 백그라운드 동결이 해결되지 않으면: 시연은 "앱이 화면 앞에 있는 상태"로 한정하고 PT에서 이를 밝힌다.
 
 ## 9. 주최 측 문의 (장호연, 이번 주)
 
 메일 초안: [organizer-inquiry-email.md](organizer-inquiry-email.md) (10-31 작성, **11-07 최종 점검**: 공식 사이트·FAQ·공지·Pleos 문서와 대조해 10문항으로 정리. **11-09 다시 점검: 심사용 계정 문항을 다시 넣고, 10-28 설명회 녹취(`docs/transcript.txt`)에 답이 있는 것(두 작품 제출·퍼미션 사전 협의)과 지금 필요 없는 것(위치기반서비스·탑재 차종)을 빼 7문항, 이어 제출 안내 "제출 전 확인해 주세요"에 답이 있는 APK 경로 문항도 빼 6문항** — 제출 2 + 출시 준비 4. 대응표는 메일 초안 문서에 있음). **11-09 장호연 발송: 제출 1·2번만, **11-10 답 받음**(아래 4·5번). 출시 준비 4문항은 1차 합격 뒤 발송**
 
-1. ~~백그라운드 수집 방법~~ → 에뮬레이터에서 포그라운드 서비스로 해결(크루즈브레이커 `docs/background-freeze-experiment.md`). 대신 물을 것: 포그라운드 서비스(`specialUse`)와 부팅 자동 시작(`RECEIVE_BOOT_COMPLETED`)이 앱마켓 심사에서 허용되는지
+1. ~~백그라운드 수집 방법~~ → 에뮬레이터에서 포그라운드 서비스로 해결(크롱 `docs/background-freeze-experiment.md`). 대신 물을 것: 포그라운드 서비스(`specialUse`)와 부팅 자동 시작(`RECEIVE_BOOT_COMPLETED`)이 앱마켓 심사에서 허용되는지
 2. 실차에서 크루즈 해제 시 들어오는 `CruiseControlState` 값
 3. Pleos Connect 첫 탑재 차종에 전기차가 포함되는지
 4. 심사용 GitHub 계정명 → **11-10 답: 추후 공지사항으로 안내 예정.** 공지가 나오면 바로 초대·접근 확인. 쓰기 권한·공개 전환 질문은 답 없음 → 11-10 장호연 결정: 미리 공개 전환하지 않고 공지를 기다림
 5. 시연 영상 길이·형식·제출 방법 → **11-10 답: 길이·파일 형식 기준 없음(제출 내용을 모두 담으면 됨), 영상 포함 제출 자료는 파일 또는 링크로 제출 가능**
 6. DO(`distractionOptimized`) 선언만으로 앱마켓 배포본도 주행 중 화면이 허용되는지, 별도 심사 절차가 있는지 (10-30 "adb 설치본 차단" 관찰은 차슐랭 화면을 착각한 것으로 10-31 확인 — 에뮬레이터에서는 DO 선언 앱이 차단되지 않음)
 7. 실차는 시동 off 때 헤드유닛이 완전히 꺼지는지, 절전(suspend)했다가 깨어나는지 — 절전이면 부팅 자동 시작이 안 걸림
-8. 크루즈브레이커 안내 음성(Pleos TTS SDK)용 `pleos.car.permission.TTS_SERVICE` 권한이 앱마켓 심사에서 승인되는지, 별도 신청 절차가 있는지 (11-01 이민하 요청)
+8. 크롱 안내 음성(Pleos TTS SDK)용 `pleos.car.permission.TTS_SERVICE` 권한이 앱마켓 심사에서 승인되는지, 별도 신청 절차가 있는지 (11-01 이민하 요청)
 9. 두 앱이 차량 위치를 익명 ID와 함께 서버에 올려 집계해 보여 주는 것에 위치정보법상 위치기반서비스사업 신고가 필요한지 — 공모전 단계와 실제 출시 단계 각각 (11-07 추가 → 메일 12번)
 
 ## 10. 제출 체크리스트 (작품마다)
 
 - [ ] 접수양식: 부문·팀명·앱명, 구성원 5명 정보, 02 파트에 실명·개인정보 없음
 - [ ] 5명 전원 동의 체크 + 본인 서명 + 날짜
-- [x] GitHub: `apk/SamgakGorae_<영문 앱이름>_release.apk`(release, 서명) — `SamgakGorae_Chachelin_release.apk` / `SamgakGorae_CruiseBreaker_release.apk`. 사이트 규칙 `팀명_앱이름_release.apk`에 맞춰 영문 팀명을 넣는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
+- [x] GitHub: `apk/SamgakGorae_<영문 앱이름>_release.apk`(release, 서명) — `SamgakGorae_Chachelin_release.apk` / `SamgakGorae_CRONG_release.apk`. 사이트 규칙 `팀명_앱이름_release.apk`에 맞춰 영문 팀명을 넣는다(10-30 결정), README 필수 4항목, 오픈소스 라이선스 고지
   - 만들기: 저장소 루트에서 `bash tools/build-release.sh`(서버 키·시연 데이터 모드·서명을 확인한 뒤 위 이름으로 복사). 서명 키는 저장소 밖 장호연 PC `C:/Users/H/.samgakgorae/`(11-03 생성, 백업 필수), 경로·비밀번호는 각 저장소 `local.properties`의 `release.*`
 - [x] 두 저장소 `core` 일치 확인(`tools/sync-core.sh ../CruiseBreaker --check`), 저장소를 새로 clone해서 빌드되는지 확인
 - [ ] 심사용 계정 초대 + 접근 확인 (계정은 공지사항으로 안내 예정 — 11-10 주최 측 답)

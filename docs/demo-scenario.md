@@ -1,4 +1,4 @@
-# 크루즈브레이커 시연 시나리오 (확정판, 2026-11-05)
+# 크롱 시연 시나리오 (확정판, 2026-11-05)
 
 > 이 문서가 시연의 기준이다. 여기 적힌 순서대로 누르고 스크립트를 돌리면 그대로 동작해야 한다(2026-11-05 장호연 결정, 에뮬레이터 + 실제 서버 시연 데이터 모드로 처음부터 끝까지 확인함).
 > 동작이 다르면 앱 버그다. 시나리오를 바꾸지 말고 고친다. 경로 재생(위치 이동)은 하지 않고 **고정 위치**로 시연한다(11-05 장호연 결정).
@@ -7,11 +7,11 @@
 
 | # | 할 일 | 확인 |
 |---|---|---|
-| 1 | Pleos 에뮬레이터 실행, 크루즈브레이커 **debug 빌드** 설치(`./gradlew installDebug`). 제출 release도 같은 흐름이다 | 독에 앱 아이콘 2개(오른쪽 크루즈브레이커) |
+| 1 | Pleos 에뮬레이터 실행, 크롱 **debug 빌드** 설치(`./gradlew installDebug`). 제출 release도 같은 흐름이다 | 독에 앱 아이콘 2개(오른쪽 크롱) |
 | 2 | `local.properties`에 Supabase 공개 키 2줄(`supabase-public.properties` 복사). 없으면 Fake 서버로 돌아가며 흐름은 같다 | 앱 로그 `SupabaseSync: connected` |
 | 3 | Git Bash에서 `bash tools/vconsole.sh up` (하트비트 시작). **파이프(`\| tail`)로 받지 말 것** | `준비 완료` |
 | 4 | `bash tools/demo-drive.sh reset` → 기어 P, 차속 0, 브레이크 0, 크루즈 대기 | 콘솔 200 ×5 |
-| 5 | 처음 보여 줄 때는 앱 데이터를 지운다: `adb shell pm clear --user 10 com.hyundaiapp.cruisebreaker`. **지운 직후 차속 권한을 먼저 준다**: `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED`(또는 S5에서 [권한 요청] → 허용). 앱을 켠 뒤에 스크립트가 권한을 주면 앱을 다시 켜기 전까지 차속이 비어 40 km/h 해제도 기록된다(11-09 리허설: S3 "내가 보탠 기록 3건") | 앱을 켜면 S5 동의 화면 |
+| 5 | 처음 보여 줄 때는 앱 데이터를 지운다: `adb shell pm clear --user 10 com.hyundaiapp.crong`. **지운 직후 차속 권한을 먼저 준다**: `adb shell pm grant --user 10 com.hyundaiapp.crong android.car.permission.CAR_SPEED`(또는 S5에서 [권한 요청] → 허용). 앱을 켠 뒤에 스크립트가 권한을 주면 앱을 다시 켜기 전까지 차속이 비어 40 km/h 해제도 기록된다(11-09 리허설: S3 "내가 보탠 기록 3건") | 앱을 켜면 S5 동의 화면 |
 | 6 | 소리: 에뮬레이터 볼륨 켜기(TTS 안내가 들려야 함) | |
 
 스크립트 출력 창은 녹화 화면 밖에 둔다. 차속 권한(CAR_SPEED)은 스크립트가 `pm grant`로 준다. S5에서 [허용]을 눌러도 된다(AAOS 창에는 "위치 정보"로 표시됨).
@@ -46,7 +46,7 @@
 |---|---|---|
 | 앱을 켜도 주행 화면(S1)만 보이고 아무것도 못 누름 | 플랫폼 UX 제한 값을 못 받음(하트비트 없음·Car 서비스 미연결) | 11-05부터 5초 뒤 정차 화면으로 넘어온다. 그래도 안 되면 `bash tools/vconsole.sh up` 후 `gear?gear=Park` 주입 |
 | 배너·음성이 안 나옴 | 같은 주행 안에서 3분 안에 이미 안내함, 또는 동의 전 | 스크립트를 처음부터(reset → P로 시작하면 새 주행) 다시. 설정에서 음성 켜짐 확인 |
-| 내비 위로 앱이 안 올라옴(음성만, 작은 헤드업 알림만) | 플랫폼이 뒤에 있는 앱 띄우기를 막음. 앱이 아예 꺼져 있으면(작업 없음) 못 올라온다 | 시연 전에 앱을 한 번 열어 둔다(동의 뒤 S2까지). 알림도 안 보이면 알림 권한: S5 [알림 허용] 또는 `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.permission.POST_NOTIFICATIONS` |
+| 내비 위로 앱이 안 올라옴(음성만, 작은 헤드업 알림만) | 플랫폼이 뒤에 있는 앱 띄우기를 막음. 앱이 아예 꺼져 있으면(작업 없음) 못 올라온다 | 시연 전에 앱을 한 번 열어 둔다(동의 뒤 S2까지). 알림도 안 보이면 알림 권한: S5 [알림 허용] 또는 `adb shell pm grant --user 10 com.hyundaiapp.crong android.permission.POST_NOTIFICATIONS` |
 | 배너 뒤 내비로 안 돌아감 | 지도 앱이 없음 | 앱이 그대로 앞에 남는다(기능 문제 아님) |
 | 40 km/h 해제도 기록됨 | 차속 권한 없음 | S5에서 차속 권한 [허용] 또는 스크립트의 `pm grant` 확인 |
 | P로 돌아왔는데 S3이 안 뜸 | D를 거치지 않았거나 차속이 0이 아님 | `controls?speed=0` 뒤 `gear?gear=Park` |
@@ -64,4 +64,4 @@
 - 개발 메뉴(debug만): **S2 제목 "근처 해제 다발 구간"을 길게 누르면** 열린다. 화면에는 보이지 않는다.
 - 플랫폼 UX 제한을 5초 안에 못 받으면 제한 없음으로 본다(`ScreenPolicy.resolveUxRestricted`). 주행 여부는 그래도 기어·차속으로 막는다.
 - 내비 위 팝업(`RiskNotification`): 앱이 뒤에 있으면 ① 주행 화면을 앞으로 올린다(Android는 "Background activity launch blocked"를 찍지만 Pleos 홈이 작업을 다시 보여 줌, 11-05 실측). 배너가 끝나면 `MainActivity`가 지도 앱(`CATEGORY_APP_MAPS`)을 띄워 돌아간다(`moveTaskToBack`은 Pleos 홈이 무시하고 `finish`는 작업이 사라져 정차 때 못 올라옴). ② 1.5초 안에 안 올라오면 헤드업 알림(채널 HIGH, 분류 `navigation`, 10초 뒤 삭제). `car_warning` 분류는 시스템 권한이 필요해 쓸 수 없다. 정차(D→P)하면 `AppContainer.summaryPending`으로 앱을 다시 올려 S3.
-- 제출 release APK: `bash tools/build-release.sh` → `apk/SamgakGorae_CruiseBreaker_release.apk`.
+- 제출 release APK: `bash tools/build-release.sh` → `apk/SamgakGorae_CRONG_release.apk`.

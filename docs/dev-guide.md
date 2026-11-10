@@ -1,4 +1,4 @@
-# 팀 개발 안내 — 크루즈브레이커 (Cruise Breaker)
+# 팀 개발 안내 — 크롱 (CRONG)
 
 팀 내부용 문서다. 심사용 안내(실행 방법·테스트 환경·APK 위치·오픈소스 고지)는 [README.md](../README.md)에 있다. 원래 README에 있던 내용을 2026-11-05에 이 파일로 옮겼다.
 
@@ -18,7 +18,7 @@
 ## 코드 구조
 
 ```
-app/src/main/java/com/hyundaiapp/cruisebreaker/
+app/src/main/java/com/hyundaiapp/crong/
 ├─ AppContainer.kt      객체 모음(수동 DI). 신호·저장소·감지기를 여기서 만든다
 ├─ domain/              판정 로직 (이민하)
 │  ├─ CruiseStateInterpreter.kt  크루즈 작동/해제 해석 — 실차 값이 오면 여기만 고친다(테스트 있음)
@@ -32,7 +32,7 @@ app/src/main/java/com/hyundaiapp/cruisebreaker/
 ├─ ui/                  화면 (길민종) — 화면은 UiState만 보고 그린다
 │  ├─ UiStates.kt       S1~S5 화면 상태 계약 (이민하 ↔ 길민종 합의)
 │  ├─ PreviewData.kt    미리보기 샘플
-│  ├─ CruiseBreakerNav.kt  화면 목록·이동, 개발 메뉴
+│  ├─ CrongNav.kt  화면 목록·이동, 개발 메뉴
 │  ├─ driving/          S1 예시: 신호 → ViewModel → UiState → Screen
 │  └─ debug/            신호 모니터
 core/                   공통 차량·내비 신호 (황준용) — core/README.md

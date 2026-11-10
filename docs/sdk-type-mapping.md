@@ -53,7 +53,7 @@
 3. SDK null/미수신/권한 거부/미지원/연결 종료는 정상 해제 이벤트와 구분한다. 값과 상태를 별도로 모델링한다.
 4. SDK callback은 현재 코드의 StateFlow와 동일하지 않다. StateFlow는 동일값을 합치므로 매 콜백 수신 시각이 필요하면 관측 시각도 함께 갱신한다.
 5. 읽기는 비동기 성공·실패 callback, 변경 구독은 register/unregister 구조다. 초기 getter와 변경 구독을 함께 고려한다.
-6. core v0.3.0은 차슐랭 원본에서 변경한 뒤 크루즈브레이커에 동기화했다. Vehicle·NaviHelper·AAOS 어댑터를 구현했고 실제 SDK 및 Android 34 JAR로 컴파일·변환 테스트를 확인했다. Binder 연결·실제 수신은 미검증이다.
+6. core v0.3.0은 차슐랭 원본에서 변경한 뒤 크롱에 동기화했다. Vehicle·NaviHelper·AAOS 어댑터를 구현했고 실제 SDK 및 Android 34 JAR로 컴파일·변환 테스트를 확인했다. Binder 연결·실제 수신은 미검증이다.
 
 ## 남은 의미 검증
 

@@ -2,7 +2,7 @@
 
 기준: 2026-11-03, core v0.5.1. 담당: 황준용.
 
-차슐랭·크루즈브레이커는 **하나의 Supabase 프로젝트**를 공유한다. 서버 코드·SQL·시드·테스트 원본은 [차슐랭 저장소](https://github.com/hoyeoni1/hyundaiapp-chachelin)의 `server/`다. 크루즈 저장소는 공통 Android core와 크루즈용 저장소 구현을 포함한다. DB migration을 두 저장소에서 따로 실행하지 않는다.
+차슐랭·크롱은 **하나의 Supabase 프로젝트**를 공유한다. 서버 코드·SQL·시드·테스트 원본은 [차슐랭 저장소](https://github.com/hoyeoni1/hyundaiapp-chachelin)의 `server/`다. 크루즈 저장소는 공통 Android core와 크루즈용 저장소 구현을 포함한다. DB migration을 두 저장소에서 따로 실행하지 않는다.
 
 ## 팀원 빠른 연결 (앱 개발·테스트)
 
@@ -19,7 +19,7 @@
 ```powershell
 # 현재 에뮬레이터 사용자 확인: Pleos의 10을 하드코딩하지 않는다.
 $androidUser = (adb shell am get-current-user).Trim()
-# 차슐랭. 크루즈는 com.hyundaiapp.cruisebreaker로 바꾼다.
+# 차슐랭. 크루즈는 com.hyundaiapp.crong로 바꾼다.
 $appId = 'com.hyundaiapp.chachelin'
 adb shell am start --user $androidUser -n "$appId/.BackendConnectionCheckActivity"
 # 검사가 끝난 뒤 조회. running이면 잠시 후 다시 읽는다.
@@ -114,7 +114,7 @@ Auth 사용자 자체는 Supabase `auth.users`에 있다. 사용자 이름·이�
 - 최근 7일 FAILED 횟수와 상위 태그·별점 분포는 별도 제공한다. 타인 실패 시각은 원본 대신 시간대 단위로 축약한다.
 - FAILED는 충전구/SoC/시간으로 추정한 충전 미진행 기록이다. 충전기 고장을 확정하지 않는다. 잘못된 추정은 [실패 아님]으로 정정한다.
 
-### 크루즈브레이커
+### 크롱
 
 - 같은 방향에서 대상 격자+둘레 8칸을 합친다.
 - 한국 날짜로 오늘 포함 28일(오늘-27~오늘), 분모는 통과한 DISTINCT 설치-일, 분자는 해제한 DISTINCT 설치-일이다.

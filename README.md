@@ -1,4 +1,6 @@
-# 크루즈브레이커 (Cruise Breaker)
+# 크롱 (CRONG)
+
+> Cruise Risk Observation & Navigation Guide. 11-10 크루즈브레이커(Cruise Breaker)에서 이름을 바꿨다.
 
 다른 차량들이 크루즈 컨트롤을 해제하는 지점을 모아, 크루즈 해제가 반복되는 구간(해제 다발 구간)을 진입 전에 알려 주는 Pleos Connect 앱. 팀 삼각고래 · 일반 부문.
 
@@ -12,19 +14,19 @@
 
 | 항목 | 내용 |
 |---|---|
-| 앱 이름 | 크루즈브레이커 (Cruise Breaker) — 팀 삼각고래, 일반 부문 |
+| 앱 이름 | 크롱 (CRONG) — 팀 삼각고래, 일반 부문 |
 | 한 줄 소개 | 다른 차량들이 크루즈 컨트롤을 해제한 지점을 모아, 해제가 반복되는 구간을 진입 500m 전에 배너와 음성으로 알려 주는 Pleos Connect 앱 |
-| APK 위치 | `apk/SamgakGorae_CruiseBreaker_release.apk` (서명된 release 빌드, 시연 데이터 모드·시연 판정 기준, 11-09 빌드) |
-| 패키지 | `com.hyundaiapp.cruisebreaker` |
+| APK 위치 | `apk/SamgakGorae_CRONG_release.apk` (서명된 release 빌드, 시연 데이터 모드·시연 판정 기준, 11-09 빌드) |
+| 패키지 | `com.hyundaiapp.crong` |
 | 기획서 | [docs/proposal.md](docs/proposal.md) (접수양식 02 항목과 같은 내용), 제품 요구사항 [PRD.md](PRD.md), 판정 규칙 [docs/disengage-rules.md](docs/disengage-rules.md) |
 | 시연 순서 | [docs/demo-scenario.md](docs/demo-scenario.md) |
 
 ### 실행 방법
 
 1. Pleos Connect 에뮬레이터 v2.1.0을 켠다(시스템 이미지 `Pleos Connect v2.1.0 APIs`, AVD 프로필 `Pleos_Connect_v2_0` 2560×1440). 에뮬레이터 사용자 ID는 10이다.
-2. APK를 설치한다: `adb install -r apk/SamgakGorae_CruiseBreaker_release.apk`
-3. 차속 권한을 준다: `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` (앱이 처음 실행될 때 묻기도 한다 → 허용. 아래 시연 스크립트가 같은 명령을 실행한다)
-4. 앱을 켜면 **S5 첫 실행 동의** → [동의] 2개·[시작하기] → **S2 근처 해제 다발 구간**. 처음부터 다시 보려면 `adb shell pm clear --user 10 com.hyundaiapp.cruisebreaker`
+2. APK를 설치한다: `adb install -r apk/SamgakGorae_CRONG_release.apk`
+3. 차속 권한을 준다: `adb shell pm grant --user 10 com.hyundaiapp.crong android.car.permission.CAR_SPEED` (앱이 처음 실행될 때 묻기도 한다 → 허용. 아래 시연 스크립트가 같은 명령을 실행한다)
+4. 앱을 켜면 **S5 첫 실행 동의** → [동의] 2개·[시작하기] → **S2 근처 해제 다발 구간**. 처음부터 다시 보려면 `adb shell pm clear --user 10 com.hyundaiapp.crong`
 5. 주행 장면은 에뮬레이터 Virtual Console로 차량 값을 주입해 재현한다(Git Bash, 저장소 루트):
    - `bash tools/vconsole.sh up` (포트 포워딩·하트비트 시작)
    - `bash tools/demo-drive.sh` → 출발(D, 100 km/h) → 크루즈 작동 → 400m 앞 시드 구간 "판교IC 진입로" **진입 전 안내(S1 배너 + 음성)** → 크루즈 해제 → 해제 기록·업로드 → 저속(40 km/h) 해제는 기록하지 않음 → 정차 후 **S3 주행 요약**

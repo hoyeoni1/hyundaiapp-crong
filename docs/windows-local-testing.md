@@ -28,7 +28,7 @@
 - Windows 11 x64, BIOS/UEFI의 CPU 가상화 활성화. RAM은 16GB 이상을 기준으로 하고 여유 디스크 약 40GB 이상을 확보하는 것을 권한다. 설치한 Pleos 이미지의 system.img만 약 18GB다.
 - Windows 기능의 Windows Hypervisor Platform(WHPX)을 확인한다. 비활성화 상태라면 관리자 권한으로 활성화하고 필요 시 재부팅한다. 이 PC에서는 이미 사용 가능하여 시스템 기능을 변경하지 않았다.
 - Git과 [Android Studio](https://developer.android.com/studio)를 설치한다. IDE 회원가입·로그인은 필요 없다. 명령행 테스트 자체는 아래 JDK·SDK만으로 실행된다.
-- 차슐랭과 크루즈브레이커 저장소를 같은 부모 폴더 아래 받는다. 각 저장소만으로도 빌드되며, 두 저장소를 나란히 두는 것은 공통 모듈 동기화를 위한 구성이다.
+- 차슐랭과 크롱 저장소를 같은 부모 폴더 아래 받는다. 각 저장소만으로도 빌드되며, 두 저장소를 나란히 두는 것은 공통 모듈 동기화를 위한 구성이다.
 
 ### 2. JDK 17과 Android 명령행 도구 설치
 
@@ -216,7 +216,7 @@ read는 에뮬레이터의 현재 Android 사용자 번호를 조회하고 앱 �
 - release 매니페스트에 진단 Activity와 debug 전용 확장 권한이 포함되지 않는 것을 확인.
 - 회원가입·결제·Supabase/별도 서버 설정 없음. 사용자가 동의한 Android/42dot SDK 라이선스로 설치.
 
-실제 SDK 테스트 근거: `%LOCALAPPDATA%/hyundai-dev/logs/smoke-com.hyundaiapp.cruisebreaker-cruise.json`, `smoke-com.hyundaiapp.chachelin-charging.json`, `stop-button-evidence.json`, `fake-button-evidence.json`. 기록은 해당 실행 시점의 결과이며 새 변경 후에는 smoke를 다시 실행한다.
+실제 SDK 테스트 근거: `%LOCALAPPDATA%/hyundai-dev/logs/smoke-com.hyundaiapp.crong-cruise.json`, `smoke-com.hyundaiapp.chachelin-charging.json`, `stop-button-evidence.json`, `fake-button-evidence.json`. 기록은 해당 실행 시점의 결과이며 새 변경 후에는 smoke를 다시 실행한다.
 
 정상 SDK 연결을 확인한 범위이며 실차, 백그라운드 동결 해결, 실제 이동 경로·혼잡 구간 포함 여부를 보장하지 않는다. 에뮬레이터·콘솔로 이 후속 작업도 반복 검증할 수 있다.
 
