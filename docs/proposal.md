@@ -177,7 +177,7 @@ Pleos Connect는 2030년까지 글로벌 약 2,000만 대 탑재를 목표로 �
 ## 7. 참고자료
 
 - GitHub 저장소: https://github.com/hoyeoni1/hyundaiapp-crong (소스 코드와 apk/SamgakGorae_CRONG_release.apk)
-- 시연 영상: 【제출 전 기입 — 영상 링크 또는 첨부 파일명】
+- 시연 영상: https://drive.google.com/file/d/1ucYuIpwQLaoiiKScz-Saxxae6uhZqqH0/view?usp=sharing
 - 아래 화면은 제출한 release APK를 Pleos Connect 에뮬레이터 2.1.0에서 실행해 캡처한 것입니다.
 
 ![첫 실행 동의 — 위치정보·개인정보 동의, 차속 권한과 알림은 선택. 아래에 보조 안내임을 알리는 문구가 있습니다](images/cb-s5-consent.png)
