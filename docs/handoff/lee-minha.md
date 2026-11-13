@@ -2,39 +2,47 @@
 
 담당 경로: 크루즈브레이커 로직 — `app/src/main/java/com/hyundaiapp/cruisebreaker/` 아래 `ui/` 화면을 뺀 전부(`domain/`, `data/`, ViewModel, `AppContainer`·`CruiseBreakerApp`·`RecordingService`). 화면(`ui/` Screen·테마)은 길민종
 
-## 현재 상태 (2026-11-04 기준, 매번 덮어쓰기)
+## 현재 상태 (2026-11-13 기준, 매번 덮어쓰기)
 
-- 한 일 요약: **크루즈브레이커 로직은 모두 main에 들어감. 열린 이슈·PR 없음**
-  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). PRD·기획서·README 반영됨(장호연, 11-03 용어 결정 "해제 다발 구간" 포함)
-  - 동작 흐름(에뮬레이터 확인): S5 동의 → 기록 서비스(포그라운드, 재부팅 후 자동 시작) → 크루즈 작동 중 통과·해제 기록 → 500m 앞 해제 다발 구간 안내(S1 배너 10초 + Pleos TTS) → S2 목록·S3 요약. S4 동의 철회 → 기록 즉시 중지·기기 데이터 삭제·서버 삭제를 성공할 때까지 재시도
-  - 머지된 PR: #3(해제·통과 감지, geohash 구간), #4(안내기·TTS), #5(S2~S5 ViewModel), #6(기록 서비스), #10(동의 철회), #17(철회 시 서버 삭제·업로드 재시도), #23(업로드 대기열 상한·영구 거절 건너뛰기, TTS 해제 가드)
-  - 실제 서버: 황준용 PR #22로 Supabase 연결(`SupabaseCruiseServer`, core outbox). **11-04 에뮬레이터에서 실제 서버(시연 데이터 모드)로 확인함**: 동의 → `SupabaseSync connected` → `demo-drive.sh` 안내·음성·90km/h 해제 기록·업로드, 저속 해제 기록 안 함, S3 요약(1회·1곳·1건), S2 서버 목록(시드 "시연 지점 (고정 위치 앞 약 400m)" 40%·500 차량·일), S4 철회 → `pending=1` → 서버 삭제 확인 뒤 빈 목록·서비스 정지
-  - 장호연 PR #42(core 0.5.2 + 안내 3분 간격을 새 주행에서 초기화)의 이민하 파일 변경(`AppContainer`·`RiskAnnouncer`)에 동의 코멘트를 남김. main과 합친 상태로 `demo-drive.sh`를 45초 간격으로 다시 돌려도 두 번째에 안내가 나옴(고치기 전에는 3분 안이면 안 나옴). 규칙 문서 "안내 사이 최소 3분"에 "한 주행 안에서만" 반영(main). **PR #42는 main과 `docs/handoff/jang-hoyeon.md`에서 충돌 — 머지 때 장호연이 정리**
-  - 닫힌 이슈 정리(11-03~04): #19·#21(PR #23), #20(PR #22 서버가 철회된 ID 업로드 거절), #25(오류 알림 대신 S5 보조 안내 + 약관 책임 제한, PR #31·#32), #26(필요 없음 — 요약은 다음 D까지 남고 S2 [최근 주행 요약]으로 다시 볼 수 있음)
-- 진행 중 브랜치·PR: 없음
+- 한 일 요약: **크롱 로직은 모두 main에 들어가 있고 열린 이슈는 없다. 11-13에 시연 영상용 녹화 스크립트와 영상 시나리오를 브랜치에 올렸다**
+  - 판정 규칙 v2 → [docs/disengage-rules.md](../disengage-rules.md). 동작 흐름: S5 동의 → 기록 서비스 → 크루즈 작동 중 통과·해제 기록 → 500m 앞 해제 다발 구간 안내(배너 10초 + Pleos TTS, 내비 위로 올라옴) → S2 목록·S3 요약. S4 동의 철회 → 기록 중지·기기 데이터 삭제·서버 삭제 재시도
+  - 시연 영상: [docs/demo-video-scenario.md](../demo-video-scenario.md)(블렌더 상황 영상 → 인포테인먼트 진입 → 실제 구동 녹화, 편당 3번 전환). 녹화는 `bash tools/demo-video.sh crong`(크롱), `bash tools/demo-video.sh chachelin`(차슐랭) — 화면 터치·차량 값 주입·`adb screenrecord`·주입 시각 기록(`events.tsv`)·블렌더에 붙일 화면 캡처를 한 번에 한다
+  - 11-13 확인: 에뮬레이터 + 제출 release APK(`apk/SamgakGorae_CRONG_release.apk`) + 실제 서버(시연 데이터 모드)에서 크롱 전체 녹화가 끝까지 통과. 내비 위 배너 → 90 km/h 해제 기록 → 40 km/h 해제 기록 안 함 → S3 "1회 · 1곳 · 1건" → S2 4곳(판교JC 합류부 0.4 km 40%) → 철회 로그 `consent withdrawn, server deletions pending=1`
+- 진행 중 브랜치·PR: `feat/demo-video-script-20261113`(tools/demo-video.sh, docs/demo-video-scenario.md, 이 문서). `tools/`는 장호연 담당·차슐랭이 원본이라 차슐랭 저장소에도 같은 이름의 브랜치로 같은 파일을 올렸다 → 장호연 확인 필요
 - 다음 할 일(우선순위 순):
-  1. 11-05 중간 점검: 실제 서버로 `bash tools/demo-drive.sh` 리허설 완료(11-04). 점검 때 그대로 시연
+  1. 시연 영상 마무리: 블렌더 컷 렌더, 녹화와 이어 붙이기(저장소 밖 `demo-video/` 폴더), 음성 안내 소리 넣기
   2. PT 대비: 판정·안내·기록·철회 구조를 직접 설명할 수 있게 정리. 교차 읽기 — 이상준 차슐랭 로직, 황준용 서버 구조(`docs/server-overview.md`)
-- 막힌 점·질문(누구에게): 없음
-  - 참고: 길민종 PR #38이 `FakeCruiseServer` 시드 이름을 "판교IC 진입로"로 바꿈(이슈 #37). **실제 서버 시드는 아직 "시연 지점 (고정 위치 앞 약 400m)"** → 서버 시드 이름 변경은 황준용(#37 남은 부분)
-  - 장호연: 최소 SDK를 34로 올릴지(지금은 28 유지, 코드로 분기) — 급하지 않음
+- 막힌 점·질문(누구에게):
+  - 장호연: `tools/demo-video.sh`를 두 저장소 브랜치에 올림(main 아님). 머지할지, 영상 제작용으로만 둘지 결정
 - 주의(함정·직접 겪은 이상한 동작):
-  - **기록은 S5 동의 후에만 돈다** → 새로 설치했으면 개발 메뉴 S5에서 동의 2개 + 시작하기([시작하기]는 화면 아래 고정)
-  - **Pleos TTS SDK**: Android 기본 `TextToSpeech`는 에뮬레이터에 엔진이 없어 실패. SDK는 `Locale.KOREA`(ko_KR)여야 함("ko"면 엔진 오류). 해제된 객체에 `speak`를 불러도 예외 없이 **실제로 읽음** → 해제 뒤에는 SDK를 부르지 않음(`RiskSpeaker`의 `released` 가드)
-  - 빌드는 `local.properties`에서만 서버 키를 읽음 → 저장소의 `supabase-public.properties` 두 줄(`supabase.url`·`supabase.publishableKey`)을 `local.properties`에 복사해야 실제 서버로 붙음(이 PC는 11-04에 복사함). 공개 키가 없으면 빌드가 오류 없이 Fake로 됨. 제출 빌드는 `tools/build-release.sh`가 키 없으면 멈춤(장호연 PC에서 빌드). 공개 키(`sb_publishable_...`)는 APK에 들어가도 되는 키, 관리자 키는 절대 넣지 않음
-  - 철회 뒤 기기에 남는 값은 `pending_server_deletions`(서버 삭제를 못 끝낸 차량 ID)뿐. 삭제가 성공하면 빈 목록
-  - 시드 "판교IC 진입로"(에뮬레이터 고정 위치 북쪽 400m)는 실제 데이터 아님 — PT에서 시드임을 밝힐 것
-  - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 실차 해제 값(USER_OVERRIDE 등)은 재현 불가, 해석은 `CruiseStateInterpreter`에만
-  - lint `ImplicitSamInstance`(`stopService`) 경고는 오탐
-  - Git Bash에서 `adb shell run-as ... cat /data/...`는 `MSYS_NO_PATHCONV=1`을 붙인다
-  - `demo-drive.sh`를 파이프(`| grep` 등)로 돌리면 `vconsole.sh up`의 하트비트가 출력을 붙잡아 명령이 끝나지 않음 → 파일로 출력(`> log 2>&1`)하거나 그냥 실행. 끝나면 `bash tools/vconsole.sh down`
+  - **기록은 S5 동의 후에만 돈다.** 차속 권한은 앱을 켜기 전에 줘야 한다(`pm grant ... android.car.permission.CAR_SPEED`). 켠 뒤에 주면 다시 켜기 전까지 차속이 비어 40 km/h 해제도 기록된다
+  - **동의 직후 S2 목록은 "거리 확인 중"으로 뜬다**(첫 조회 때 위치를 아직 못 받음. `RiskListViewModel.refresh`는 화면에 들어올 때만 다시 조회). 설정에 다녀오면 가까운 순 + 거리로 바뀐다. 녹화 스크립트는 이렇게 우회한다 — 앱을 고칠지는 길민종과 정할 것
+  - **pm clear로 앱 데이터를 지우면 그 설치가 서버에 올린 기록이 남는다**(삭제를 요청할 가명 ID가 사라짐). 리허설은 앱의 [동의 철회]로 끝낸다. `demo-video.sh`는 시작·끝에 [동의 철회]를 누른다
+  - Git Bash에서 `MSYS_NO_PATHCONV=1`을 스크립트 전체에 걸면 `vconsole.sh`의 `curl -o /dev/null`이 깨진다(curl exit 23). adb 호출에만 건다
+  - `adb screenrecord`는 소리를 못 담는다(음성 안내는 PC 스피커로만). 에뮬레이터 화면은 2560×1440, 녹화는 약 26 fps
+  - 차슐랭에서 길안내를 시작하면 내비에 경로가 남는다 → 내비의 [안내 종료]로 끈다(스크립트가 한다)
+  - 에뮬레이터 시계는 PC와 다르다(11-13 14:50 KST에 에뮬레이터는 11-12 21:50) → 앱의 날짜·시각 표시가 그 기준
+  - Pleos TTS SDK: `Locale.KOREA`여야 함. 해제된 객체에 `speak`를 불러도 실제로 읽으므로 해제 뒤에는 부르지 않는다(`RiskSpeaker`의 `released` 가드)
+  - 빌드는 `local.properties`에서만 서버 키를 읽는다(없으면 오류 없이 Fake). 제출 빌드는 `tools/build-release.sh`
+  - 크루즈: 콘솔 `full_autonomous` → ACTIVATED, `ready` → ENABLED. 실차 해제 값은 재현 불가, 해석은 `CruiseStateInterpreter`에만
+  - `demo-drive.sh`·`demo-video.sh`를 파이프(`| grep` 등)로 돌리면 하트비트가 출력을 붙잡아 끝나지 않는다 → 파일로 출력(`> log 2>&1`). 끝나면 `bash tools/vconsole.sh down`
 - 확인 방법:
   - 단위 테스트·lint: `./gradlew :app:testDebugUnitTest :app:lintDebug` (JDK 17)
-  - 시연: `bash tools/demo-drive.sh` 또는 수동 — 앱 설치 → `adb shell pm grant --user 10 com.hyundaiapp.cruisebreaker android.car.permission.CAR_SPEED` → 개발 메뉴 S5 동의 2개 + 시작하기 → `bash tools/vconsole.sh up` → `put 'gear?gear=Drive' 'controls?speed=100' 'driving-mode?ad_mode_state=full_autonomous'` → S1 배너·음성 → 5초 뒤 `put 'driving-mode?ad_mode_state=ready'`(해제 기록) → `put 'controls?speed=0' 'gear?gear=Park'` → S3·S2. 로그 `adb logcat -s CruiseRecord`
-  - 철회: S4 [동의 철회] → [철회] → 로그 `consent withdrawn, server deletions pending=N`
-  - PR 올리기: `gh`(`C:\Program Files\GitHub CLI\gh.exe`, minalee22)
+  - 시연 녹화: 에뮬레이터 실행 → `adb install -r apk/SamgakGorae_CRONG_release.apk` → `bash tools/demo-video.sh crong > log 2>&1` → `build/demo-video/crong/kr1.mp4`·`drive.mp4`·`events.tsv`, `build/demo-video/assets/crong_*.png`. 기록 확인 `adb logcat -s CruiseRecord`
+  - 손으로 시연: `bash tools/demo-drive.sh`(확정 순서는 [docs/demo-scenario.md](../demo-scenario.md))
+  - PR 올리기: `gh`(`C:/Program Files/GitHub CLI/gh.exe`, minalee22)
 
 ## 작업 기록 (최신이 위, 지우지 않음)
+
+### 2026-11-13 (이민하, Claude 에이전트와 작업 — 시연 영상 시나리오·녹화 스크립트)
+- 한 일: 영상 시나리오 작성(`docs/demo-video-scenario.md`), 녹화 스크립트 `tools/demo-video.sh` 작성(크롱·차슐랭 공통), 에뮬레이터에서 두 앱 전체 녹화 통과. 에뮬레이터에서 예전 패키지 `com.hyundaiapp.cruisebreaker`를 지우고 제출 release APK 두 개를 설치함
+- 결정한 것과 이유(이민하):
+  - 블렌더 상황 영상과 녹화는 겹치지 않고 번갈아 나온다. 블렌더 → 녹화는 항상 인포테인먼트 진입 애니메이션을 거치고, 편당 3번으로 줄인다(5번은 너무 잦음)
+  - 블렌더 영상에는 자막을 넣지 않는다('크루즈 해제', '충전 중' 같은 장면 안 글씨만)
+  - 해제 순간 앱의 "크루즈 대기/작동" 글자 변화는 영상에서 빼고, 기록 여부는 S3 요약으로 보여 준다 → 주행 녹화는 내비를 앞에 둔 한 번이면 된다
+  - 스크립트는 pm clear 대신 앱의 [동의 철회]로 시작·끝을 맞춘다 — 실제 서버에 리허설 기록이 쌓이지 않게
+- 리허설이 서버에 남긴 것: 스크립트를 고치기 전 pm clear로 지운 설치(크롱 1, 차슐랭 1)의 기록(크롱 해제 1·통과, 차슐랭 시흥동 주민센터 인증 1·실패 1)은 서버에 남았다 → 촬영 전 `server/supabase/clear-rehearsal-data.sql`(차슐랭 저장소) 필요. 그 뒤 실행분은 동의 철회로 지움
+- 바꾼 파일: `tools/demo-video.sh`(새 파일), `docs/demo-video-scenario.md`(새 파일), `docs/handoff/lee-minha.md`
 
 ### 2026-11-04 (이민하, Claude 에이전트와 작업 — PR #42 확인·실제 서버 리허설)
 - 한 일: PR #42 이민하 파일 변경 검토·동의 코멘트, 규칙 문서 3분 문구(main), main+PR #42를 합친 임시 빌드(커밋 안 함)로 실제 서버 리허설 — 앱 80·core 32 단위 테스트 통과, `demo-drive.sh` 3회(두 번째·세 번째는 45초 간격에도 안내), S2·S3 확인, 철회 시 서버 삭제 확인
