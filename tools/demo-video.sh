@@ -4,7 +4,7 @@
 #
 # usage:
 #   bash tools/demo-video.sh crong        # 크롱: kr1(동의·목록) → drive(내비 위 안내 ~ 주차 뒤 요약, KR2·KR3)
-#   bash tools/demo-video.sh chachelin    # 차슐랭: cr1(동의·홈) → cr2(인증 충전·리뷰) → cr3(실패 기록·고르기·길안내)
+#   bash tools/demo-video.sh chachelin    # 차슐랭: cr1(동의·홈) → cr2(인증 충전·리뷰) → cr3(충전 실패 대기·실패 기록·고르기·길안내)
 #
 # 결과 (OUT 아래 앱별 폴더):
 #   <구간>.mp4      에뮬레이터 전체 화면 녹화(2560x1440, 소리 없음 — adb screenrecord는 소리를 못 담는다)
@@ -393,19 +393,21 @@ chachelin() {
   sleep 4
   rec_stop
 
-  # ---- cr3: 충전 실패 → 자동 기록 → 내 기록 → 목록 → 상세 비교 → 길안내
+  # ---- cr3: 충전 실패(시간은 가는데 SoC는 그대로) → 자동 기록 → 내 기록 → 목록 → 상세 비교 → 길안내
+  # 실패 대기도 그대로 찍는다. 편집에서 이 구간만 빨리 감는다
   soc 40; sleep 1
-  port true
-  say "충전구 열림(SoC 40% 그대로). 실패 기준을 넘길 때까지 ${FAIL_HOLD}초 기다린다 — 이 구간은 녹화하지 않는다"
-  wait_text "충전 기록 중"
-  sleep $(( FAIL_HOLD - 6 ))
-  shot chachelin_charging40
   rec_start cr3
   sleep "$DWELL"
+  port true; mark "충전구 열림(SoC 40% 그대로)"
+  wait_text "충전 기록 중"
+  mark "S3 충전 기록 중(40%)"
+  say "실패 기준을 넘길 때까지 ${FAIL_HOLD}초 기다린다"
+  sleep "$FAIL_HOLD"
+  shot chachelin_charging40
   port false; mark "충전구 닫힘(충전 안 됨)"
   wait_text "충전 실패를 기록했어요"
   mark "S5 충전 실패 기록"
-  sleep 4
+  sleep 3
   tap_text "닫기"
   wait_text "2건"
   mark "홈: 내 충전 기록 2건"
@@ -413,29 +415,29 @@ chachelin() {
   tap_text "내 기록"
   wait_text "동의 철회"
   mark "S6 내 충전 기록"
-  sleep 3.5
+  sleep 2.5
   tap_text "충전소"
   wait_text "근처 충전소"
   mark "S1 근처 충전소(점수순)"
-  sleep 4
+  sleep 3
   tap_prefix "시흥동 주민센터"
   wait_text "길안내"
   mark "S2 시흥동 주민센터 상세(방금 실패 반영)"
-  sleep 4
+  sleep 3
   tap_text "뒤로"
   wait_text "근처 충전소"
   sleep 1
   tap_prefix "대왕판교IC 휴게소"
   wait_text "길안내"
   mark "S2 대왕판교IC 휴게소 상세(별점은 높은데 점수 최하위)"
-  sleep 4
+  sleep 3
   tap_text "뒤로"
   wait_text "근처 충전소"
   sleep 1
   tap_prefix "판교 테크노밸리 E-pit"
   wait_text "길안내"
   mark "S2 1위 충전소 상세"
-  sleep 3
+  sleep 2.5
   tap_text "길안내"
   wait_text "길안내 시작"
   sleep 1.2
