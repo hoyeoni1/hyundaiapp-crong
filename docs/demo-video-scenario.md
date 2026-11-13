@@ -10,7 +10,7 @@
 |---|---|
 | 편수 | 앱마다 1편. 크롱 약 1분 15초, 차슐랭 약 1분 30초 |
 | 이어 붙이기 | 두 편 모두 같은 골드 아이오닉5. 크롱의 도착 장소 = 차슐랭의 충전소 |
-| 화면 | 1920×1080, 30fps. 블렌더와 녹화 모두 16:9 전체 화면 |
+| 화면 | 1920×1080, 30fps. 블렌더와 녹화 모두 16:9 전체 화면. 녹화는 에뮬레이터 화면(2560×1440)에서 위쪽 상태 표시줄과 오른쪽 가장자리 흰 띠를 잘라 낸 2396×1348 영역을 쓴다(블렌더에 붙이는 화면 그림도 같은 영역) |
 | 소리 | 내레이션 없음. 앱 음성 안내(TTS) + 작은 배경음 |
 
 전환 규칙
@@ -109,7 +109,8 @@
 | 무엇 | 어떻게 |
 |---|---|
 | 녹화 | 저장소에서 `bash tools/demo-video.sh crong`, `bash tools/demo-video.sh chachelin`. 화면 조작·차량 값 주입·녹화·주입 시각 기록을 한 번에 하고, 끝나면 동의를 철회해 서버에 올린 기록을 지운다 |
-| 화면 그림 | 같은 스크립트가 각 녹화의 첫 장면을 `assets/*.png`로 캡처 |
+| 화면 그림 | 같은 스크립트가 각 녹화의 첫 장면을 `assets/*.png`로 캡처. `demo-video/assets/full/`에 넣고 `python tools/assemble.py assets`로 녹화와 같은 영역으로 자른다 |
+| 이어 붙이기 | `python demo-video/tools/assemble.py crong`, `… chachelin` → `demo-video/out/*.mp4`. 블렌더 컷이 없을 때는 끝에 `draft`를 붙이면 자리 표시로 채운다 |
 | 블렌더 | `demo-video/cruisebreaker/build_cuts.py`, `demo-video/chachelin/build_cuts.py` (저장소 밖 작업 폴더) |
 | 소리 | 화면 녹화(`adb screenrecord`)에는 소리가 없다. 녹화 스크립트를 돌리는 동안 `demo-video/tools/record-audio.ps1`로 PC 소리를 같이 녹음하고(음성 안내 + 차량 알림음), `events.tsv`의 "녹화 시작" PC 시각과 녹음 시작 시각(`.start` 파일)의 차이만큼 밀어 합친다 |
 
