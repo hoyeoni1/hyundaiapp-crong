@@ -9,6 +9,7 @@
 # 결과 (OUT 아래 앱별 폴더):
 #   <구간>.mp4      에뮬레이터 전체 화면 녹화(2560x1440, 소리 없음 — adb screenrecord는 소리를 못 담는다)
 #   events.tsv      구간 이름, 녹화 시작부터의 초, 한 일. 편집에서 자를 위치·배속 구간의 기준
+#                   ("녹화 시작" 줄에는 PC 시각(유닉스 ms)도 적는다)
 #   assets/*.png    블렌더 인포테인먼트 화면에 붙일 그림(각 녹화의 첫 장면)
 #
 # 전제:
@@ -167,7 +168,7 @@ rec_start() {
   dev shell screenrecord --bit-rate 16000000 --time-limit 175 "$DEV_DIR/$SEG.mp4" >/dev/null 2>&1 &
   sleep 1.5     # 녹화가 실제로 돌기 시작할 때까지
   SEG_T0=$(now_ms)
-  mark "녹화 시작"
+  mark "녹화 시작 (PC 시각 ${SEG_T0} ms — 따로 녹음한 소리와 맞출 때 쓴다)"
 }
 
 rec_stop() {

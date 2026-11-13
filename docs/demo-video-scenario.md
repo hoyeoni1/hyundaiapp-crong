@@ -111,11 +111,11 @@
 | 녹화 | 저장소에서 `bash tools/demo-video.sh crong`, `bash tools/demo-video.sh chachelin`. 화면 조작·차량 값 주입·녹화·주입 시각 기록을 한 번에 하고, 끝나면 동의를 철회해 서버에 올린 기록을 지운다 |
 | 화면 그림 | 같은 스크립트가 각 녹화의 첫 장면을 `assets/*.png`로 캡처 |
 | 블렌더 | `demo-video/cruisebreaker/build_cuts.py`, `demo-video/chachelin/build_cuts.py` (저장소 밖 작업 폴더) |
-| 소리 | 화면 녹화(`adb screenrecord`)에는 소리가 없다. 음성 안내는 PC 소리를 따로 녹음해 `KR2`에 맞춘다 |
+| 소리 | 화면 녹화(`adb screenrecord`)에는 소리가 없다. 녹화 스크립트를 돌리는 동안 `demo-video/tools/record-audio.ps1`로 PC 소리를 같이 녹음하고(음성 안내 + 차량 알림음), `events.tsv`의 "녹화 시작" PC 시각과 녹음 시작 시각(`.start` 파일)의 차이만큼 밀어 합친다 |
 
 ## 7. 녹화 파일에서 쓰는 구간
 
-초는 2026-11-13 녹화의 `events.tsv` 기준이다. 다시 찍으면 그 실행의 `events.tsv`를 본다.
+초는 2026-11-13 녹화의 `events.tsv` 기준이다. 다시 찍으면 그 실행의 `events.tsv`를 본다. 영상 속 시각은 `events.tsv`의 초보다 약 0.9초 늦다(녹화가 기록 시작보다 먼저 돌기 시작함).
 
 | 구간 | 파일 | 쓰는 부분 | 편집 |
 |---|---|---|---|
